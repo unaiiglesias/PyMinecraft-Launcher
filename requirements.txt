@@ -1,0 +1,10 @@
+In order to be considered complete, this launcher should meet the following requirements:
+- GUI (Lets try to make it look nice)
+- Ability to establish launch parameters (RAM, username, ¿premium?)
+- Ability to choose the JVM to use
+- Ability to launch any vanilla or forge version
+- Button to access the installation folder
+- "Use github repo as a version" mode
+- Ability to change installation folder
+- Ability to save preferences
+- ¿Different themes (dark/light)?
