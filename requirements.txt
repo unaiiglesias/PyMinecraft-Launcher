@@ -1,4 +1,4 @@
-In order to be considered complete, this launcher should meet the following requirements:
+In order for this launcher to be considered as complete, it should meet the following requirements:
 - GUI (Lets try to make it look nice)
 - Ability to establish launch parameters (RAM, username, ¿premium?)
 - Ability to choose the JVM to use
