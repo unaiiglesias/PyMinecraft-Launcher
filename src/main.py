@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
+from subprocess import Popen
+from pathlib import Path
 
 
 class App(ctk.CTk):
@@ -71,12 +73,12 @@ class App(ctk.CTk):
         self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="Mb")
         self.input_ram_unit.grid(column=1, columnspan=1, padx=5, row=1, sticky="w")
 
-        self.installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
-        self.installation_path_label.grid(row=2, columnspan=2, padx=20, sticky="w")
+        self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
+        self.input_installation_path_label.grid(row=2, columnspan=2, padx=20, sticky="w")
 
-        self.installation_path = ctk.CTkEntry(self.parameters_frame, width=200, height=20,
-                                        placeholder_text=self.get_installation_path())
-        self.installation_path.grid(row=3, columnspan=2, padx=20, pady=10, sticky="w")
+        self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=200, height=20,
+                                                    placeholder_text=self.get_default_path())
+        self.input_installation_path.grid(row=3, columnspan=2, padx=20, pady=10, sticky="w")
 
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
@@ -96,7 +98,7 @@ class App(ctk.CTk):
         self.version_label = ctk.CTkLabel(self.side_frame, text=self.get_launcher_version())
         self.version_label.grid(row=2, padx=(20, 0), pady=0, sticky="w")
 
-        self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_version())
+        self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_launcher_version())
         self.latest_version_label.grid(row=2, padx=(0, 20), pady=0, sticky="e")
 
         # Launch button
@@ -111,6 +113,11 @@ class App(ctk.CTk):
         versions = ["1.18.2", "1.16.5", "1.12.2", "1.8.9"]
         return versions  # Should return a list with the fetched versions WIP
 
+    def get_default_path(self):
+        user_path = str(Path.home())
+        installation_path = user_path + "\\AppData\\Roaming\\.minecraft"
+        return installation_path
+
     def log_in(self):
         print("Logging in...")
         if self.log_in_button._image == self.refresh_icon:
@@ -119,28 +126,60 @@ class App(ctk.CTk):
             self.log_in_button.configure(image=self.refresh_icon)
         return
 
-    def get_installation_path(self):
-        # WIP placeholder: default minecraft path
-        installation_path = "C:/Users/unai/AppData/Roaming/.minecraft"
-        return installation_path
-
     def get_launcher_version(self):
         # WIP placeholder
         version = "ver. 0.1"
         return version
 
-    def get_latest_version(self):
+    def get_latest_launcher_version(self):
         # WIP placeholder
         latest = "latest: 0.1"
         return latest
 
     def launch_game(self):
         print("Launching game...")
+
+        username, version_type, version, ram, email, premium, path = get_launch_parameters(app)
+        try:
+            ram = int(ram)
+        except ValueError:
+            print("RAM must be a number")
+            return
+
+        jvm_args = f"--jvm-args=-Xmx{ram}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20" \
+                   f" -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
+
+        if premium is True:
+            login = f"-l {email} -m"
+        else:
+            login = ""
+
+        if version_type in ["Vanilla", "Forge"]:
+            print(f"{path}")
+            Popen(f"portablemc --main-dir \"{path}\" start {login} \"{jvm_args}\" {version} -u \"{username}\"")
+
         return
 
     def update_launcher(self):
         print("Updating launcher")
         return
+
+
+def get_launch_parameters(app):
+    username = app.input_username_field.get()
+    version_type = app.version_type.get()
+    version = app.version_number.get()
+    ram = app.input_ram_field.get()
+
+    email = app.input_email_field.get()
+    if email != "":
+        premium = True
+    else:  # an email address is given
+        premium = False
+
+    path = app.get_default_path()
+
+    return username, version_type, version, ram, email, premium, path
 
 
 if __name__ == "__main__":
