@@ -1,4 +1,7 @@
+import customtkinter
+
 import customtkinter as ctk
+import portablemc
 from PIL import Image
 from subprocess import Popen
 from pathlib import Path
@@ -10,6 +13,7 @@ class App(ctk.CTk):
         self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
         self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
         # light_image = dark_image
+        self.version_type_to_get = customtkinter.StringVar(value="base")
 
         self.title("PyMinecraft Launcher")
         # self.geometry("600x600")
@@ -109,9 +113,25 @@ class App(ctk.CTk):
         ctk.set_appearance_mode(new_appearance_mode)
 
     def get_versions(self):
-        # WIP, placeholder
-        versions = ["1.18.2", "1.16.5", "1.12.2", "1.8.9"]
-        return versions  # Should return a list with the fetched versions WIP
+        # Actually working for vanilla
+
+        version_type_to_get = self.version_type.get()
+        print(version_type_to_get)
+
+        manifest = portablemc.VersionManifest()
+        latest = manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
+
+        versions = []
+
+        for version in manifest.data["versions"]:
+            if version["type"] == "release" and version_type_to_get == "Vanilla":
+                versions.append(version["id"])
+            elif version["type"] == "release" and version_type_to_get == "Forge":
+                version.append("forge:" + version["id"])
+            else:  # Snapshots, pre-releases...
+                pass
+
+        return versions
 
     def get_default_path(self):
         user_path = str(Path.home())
