@@ -112,13 +112,15 @@ class App(ctk.CTk):
 
         # Load launch data (if any) and update variables
         try:
-            username, ver_type, version, ram, email, premium, path = self.load_launch_data()
+            username, ver_type, version, ram, email, premium, path, theme = self.load_launch_data()
             self.input_username_field.insert(0, username)
             self.input_ram_field.insert(0, ram)
             self.input_installation_path.insert(0, path)
             self.input_email_field.insert(0, email)
             self.version_type.set(ver_type)
             self.version_number.set(version)
+            self.appearance_mode.set(theme)  # set the value
+            self.change_appearance_mode(theme)  # Change the theme
         except FileNotFoundError:
             pass
 
@@ -164,10 +166,10 @@ class App(ctk.CTk):
         version = "ver. 0.1"
         return version
 
-    def save_launch_data(self, username, version_type, version, ram, email, premium, path):
+    def save_launch_data(self, username, version_type, version, ram, email, premium, path, theme):
         user_path = str(Path.home())
         launch_data_path = user_path + "\\Documents"
-        launch_data = (username, version_type, version, ram, email, premium, path)
+        launch_data = (username, version_type, version, ram, email, premium, path, theme)
 
         with open(launch_data_path + "\\launch_data.json", "w") as json_file:
             json.dump(launch_data, json_file)
@@ -178,8 +180,8 @@ class App(ctk.CTk):
 
         try:
             with open(launch_data_path + "/launch_data.json", "r") as json_file:
-                username, version_type, version, ram, email, premium, path = json.load(json_file)
-            return username, version_type, version, ram, email, premium, path
+                username, version_type, version, ram, email, premium, path, theme = json.load(json_file)
+            return username, version_type, version, ram, email, premium, path, theme
         except FileNotFoundError:
             raise FileNotFoundError
 
@@ -188,7 +190,7 @@ class App(ctk.CTk):
 
         username, version_type, version, ram, email, premium, path = get_launch_parameters(app)
 
-        self.save_launch_data(username, version_type, version, ram, email, premium, path)
+        self.save_launch_data(username, version_type, version, ram, email, premium, path, self.appearance_mode.get())
 
         jvm_args = f"--jvm-args=-Xmx{ram}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20" \
                    f" -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
