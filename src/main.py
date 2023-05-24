@@ -1,12 +1,11 @@
-import tkinter.ttk
-
-import customtkinter
+import tkinter
 
 import customtkinter as ctk
 import portablemc
 from PIL import Image
 from subprocess import Popen
 from pathlib import Path
+import json
 
 
 class App(ctk.CTk):
@@ -15,7 +14,7 @@ class App(ctk.CTk):
         self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
         self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
         # light_image = dark_image
-        self.version_type_to_get = customtkinter.StringVar(value="base")
+        self.version_type_to_get = ctk.StringVar(value="base")
 
         self.title("PyMinecraft Launcher")
         # self.geometry("600x600")
@@ -111,6 +110,18 @@ class App(ctk.CTk):
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
         self.launch_button.grid(row=4, column=0, padx=60, pady=20, sticky="ew", columnspan=2)
 
+        # Load launch data (if any) and update variables
+        try:
+            username, ver_type, version, ram, email, premium, path = self.load_launch_data()
+            self.input_username_field.insert(0, username)
+            self.input_ram_field.insert(0, ram)
+            self.input_installation_path.insert(0, path)
+            self.input_email_field.insert(0, email)
+            self.version_type.set(ver_type)
+            self.version_number.set(version)
+        except FileNotFoundError:
+            pass
+
     def change_appearance_mode(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
 
@@ -153,20 +164,31 @@ class App(ctk.CTk):
         version = "ver. 0.1"
         return version
 
-    def get_latest_launcher_version(self):
-        # WIP placeholder
-        latest = "latest: 0.1"
-        return latest
+    def save_launch_data(self, username, version_type, version, ram, email, premium, path):
+        user_path = str(Path.home())
+        launch_data_path = user_path + "\\Documents"
+        launch_data = (username, version_type, version, ram, email, premium, path)
+
+        with open(launch_data_path + "\\launch_data.json", "w") as json_file:
+            json.dump(launch_data, json_file)
+
+    def load_launch_data(self):
+        user_path = str(Path.home())
+        launch_data_path = user_path + "\\Documents"
+
+        try:
+            with open(launch_data_path + "/launch_data.json", "r") as json_file:
+                username, version_type, version, ram, email, premium, path = json.load(json_file)
+            return username, version_type, version, ram, email, premium, path
+        except FileNotFoundError:
+            raise FileNotFoundError
 
     def launch_game(self):
         print("Launching game...")
 
         username, version_type, version, ram, email, premium, path = get_launch_parameters(app)
-        try:
-            ram = int(ram)
-        except ValueError:
-            print("RAM must be a number")
-            return
+
+        self.save_launch_data(username, version_type, version, ram, email, premium, path)
 
         jvm_args = f"--jvm-args=-Xmx{ram}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20" \
                    f" -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
@@ -182,17 +204,29 @@ class App(ctk.CTk):
 
         return
 
+    def get_latest_launcher_version(self):
+        # WIP placeholder
+        latest = "latest: 0.1"
+        return latest
+
     def update_launcher(self):
         print("Updating launcher")
         return
 
 
 def get_launch_parameters(app):
+
     username = app.input_username_field.get()
     version_type = app.version_type.get()
     version = app.version_number.get()
     ram = app.input_ram_field.get()
     inserted_path = app.input_installation_path.get()
+
+    try:
+        ram = int(ram)
+    except ValueError:
+        print("RAM must be a number")
+        return
 
     email = app.input_email_field.get()
     if email != "":
