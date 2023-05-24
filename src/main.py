@@ -1,3 +1,5 @@
+import tkinter.ttk
+
 import customtkinter
 
 import customtkinter as ctk
@@ -190,6 +192,7 @@ def get_launch_parameters(app):
     version_type = app.version_type.get()
     version = app.version_number.get()
     ram = app.input_ram_field.get()
+    inserted_path = app.input_installation_path.get()
 
     email = app.input_email_field.get()
     if email != "":
@@ -197,7 +200,10 @@ def get_launch_parameters(app):
     else:  # an email address is given
         premium = False
 
-    path = app.get_default_path()
+    if inserted_path == "":
+        path = app.get_default_path()
+    else:
+        path = inserted_path
 
     return username, version_type, version, ram, email, premium, path
 
