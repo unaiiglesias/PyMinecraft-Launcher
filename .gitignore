@@ -1,2 +1,5 @@
 examples/
 venv/
+idea.png
+.idea/
+src/.idea

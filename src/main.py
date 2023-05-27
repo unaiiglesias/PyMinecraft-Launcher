@@ -1,5 +1,3 @@
-import tkinter
-
 import customtkinter as ctk
 import portablemc
 from PIL import Image
@@ -112,15 +110,15 @@ class App(ctk.CTk):
 
         # Load launch data (if any) and update variables
         try:
-            username, ver_type, version, ram, email, premium, path, theme = self.load_launch_data()
-            self.input_username_field.insert(0, username)
-            self.input_ram_field.insert(0, ram)
-            self.input_installation_path.insert(0, path)
-            self.input_email_field.insert(0, email)
-            self.version_type.set(ver_type)
-            self.version_number.set(version)
-            self.appearance_mode.set(theme)  # set the value
-            self.change_appearance_mode(theme)  # Change the theme
+            launch_data = self.load_launch_data()
+            self.input_username_field.insert(0, launch_data["username"])
+            self.input_ram_field.insert(0, launch_data["ram"])
+            self.input_installation_path.insert(0, launch_data["path"])
+            self.input_email_field.insert(0, launch_data["email"])
+            self.version_type.set(launch_data["version_type"])
+            self.version_number.set(launch_data["version"])
+            self.appearance_mode.set(launch_data["theme"])  # set the value
+            self.change_appearance_mode(launch_data["theme"])  # Change the theme
         except FileNotFoundError:
             pass
 
@@ -134,7 +132,7 @@ class App(ctk.CTk):
         print(version_type_to_get)
 
         manifest = portablemc.VersionManifest()
-        latest = manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
+        manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
 
         versions = []
 
@@ -166,10 +164,9 @@ class App(ctk.CTk):
         version = "ver. 0.1"
         return version
 
-    def save_launch_data(self, username, version_type, version, ram, email, premium, path, theme):
+    def save_launch_data(self, launch_data):
         user_path = str(Path.home())
         launch_data_path = user_path + "\\Documents"
-        launch_data = (username, version_type, version, ram, email, premium, path, theme)
 
         with open(launch_data_path + "\\launch_data.json", "w") as json_file:
             json.dump(launch_data, json_file)
@@ -180,29 +177,30 @@ class App(ctk.CTk):
 
         try:
             with open(launch_data_path + "/launch_data.json", "r") as json_file:
-                username, version_type, version, ram, email, premium, path, theme = json.load(json_file)
-            return username, version_type, version, ram, email, premium, path, theme
+                launch_data = json.load(json_file)
+            return launch_data
         except FileNotFoundError:
             raise FileNotFoundError
 
     def launch_game(self):
         print("Launching game...")
 
-        username, version_type, version, ram, email, premium, path = get_launch_parameters(app)
+        launch_data = self.get_launch_parameters()
+        # When using fstrings the dict key must be quoted with '', not ""
 
-        self.save_launch_data(username, version_type, version, ram, email, premium, path, self.appearance_mode.get())
+        self.save_launch_data(launch_data)
 
-        jvm_args = f"--jvm-args=-Xmx{ram}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20" \
-                   f" -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
+        jvm_args = f"-Xmx{launch_data['ram']}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
 
-        if premium is True:
-            login = f"-l {email} -m"
+        if launch_data["premium"] is True:
+            login = f"-l {launch_data['email']} -m"
         else:
             login = ""
 
-        if version_type in ["Vanilla", "Forge"]:
-            print(f"{path}")
-            Popen(f"portablemc --main-dir \"{path}\" start {login} \"{jvm_args}\" {version} -u \"{username}\"")
+        if launch_data["version_type"] in ["Vanilla", "Forge"]:
+            print(f"{launch_data['path']}")
+            Popen(f"portablemc --main-dir \"{launch_data['path']}\" start {login} \"--jvm-args={jvm_args}\" "
+                  f"{launch_data['version']} -u \"{launch_data['username']}\"")
 
         return
 
@@ -215,33 +213,40 @@ class App(ctk.CTk):
         print("Updating launcher")
         return
 
+    def get_launch_parameters(self):
 
-def get_launch_parameters(app):
+        launch_parameters = {
+            "username": self.input_username_field.get(),
+            "version_type": self.version_type.get(),
+            "version": self.version_number.get(),
+            "ram": self.input_ram_field.get(),
+            "path": self.input_installation_path.get(),
+            "email": self.input_email_field.get(),
+            "premium": False,  # Make it false by default
+            "theme": self.appearance_mode.get()
+        }
 
-    username = app.input_username_field.get()
-    version_type = app.version_type.get()
-    version = app.version_number.get()
-    ram = app.input_ram_field.get()
-    inserted_path = app.input_installation_path.get()
+        # Check that ram value is correct
+        try:
+            launch_parameters["ram"] = int(launch_parameters["ram"])
+        except ValueError:
+            print("RAM must be a number")
+            return
 
-    try:
-        ram = int(ram)
-    except ValueError:
-        print("RAM must be a number")
-        return
+        # If an email is not provided, log in as no-premium
+        if launch_parameters["email"] != "":
+            launch_parameters["premium"] = True
+        else:  # an email address is given
+            launch_parameters["premium"] = False
 
-    email = app.input_email_field.get()
-    if email != "":
-        premium = True
-    else:  # an email address is given
-        premium = False
+        # This part is only "triggered" if a path neither provided nor loaded from the .json file
+        inserted_path = self.input_installation_path.get()
+        if inserted_path == "":
+            launch_parameters["path"] = self.get_default_path()
+        else:
+            launch_parameters["path"] = inserted_path
 
-    if inserted_path == "":
-        path = app.get_default_path()
-    else:
-        path = inserted_path
-
-    return username, version_type, version, ram, email, premium, path
+        return launch_parameters
 
 
 if __name__ == "__main__":
