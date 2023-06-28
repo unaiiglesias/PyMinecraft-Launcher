@@ -1,6 +1,6 @@
 examples/
 venv/
 idea.png
-.idea/
+.idea
 src/.idea
 src/__pycache__
