@@ -4,6 +4,7 @@ from PIL import Image
 from subprocess import Popen
 from pathlib import Path
 import json
+from get_versions import get_vanilla_versions, get_forge_versions
 
 
 class App(ctk.CTk):
@@ -56,11 +57,17 @@ class App(ctk.CTk):
         self.version_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
         self.version_label.grid(row=0, padx=20, pady=0, sticky="w")
 
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"])
+        # Choose version type
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"], command=self.update_versions)
         self.version_type.grid(row=1, padx=30, pady=10, sticky="w")
 
-        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
-        self.version_number.grid(row=2, padx=30, pady=10, sticky="w")
+        # Choose version number
+        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), command=self.update_versions)
+        self.version_number.grid(row=2, column=0, padx=30, pady=10, sticky="w")
+
+        # Choose subversion number
+        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), command=self.update_versions)
+        self.subversion_number.grid(row=2, column=1, padx=30, pady=10, sticky="w")
 
         # (Launch) Parameters frame
         self.parameters_frame = ctk.CTkFrame(self)
@@ -126,29 +133,68 @@ class App(ctk.CTk):
         except FileNotFoundError:
             pass
 
+        self.update_versions(self.version_type.get())
+
     def change_appearance_mode(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
 
     def get_versions(self):
-        # Actually working for vanilla
+        # Actually working for vanilla & forge
 
         version_type_to_get = self.version_type.get()
         print(version_type_to_get)
 
-        manifest = portablemc.VersionManifest()
-        manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
-
         versions = []
-
-        for version in manifest.data["versions"]:
-            if version["type"] == "release" and version_type_to_get == "Vanilla":
-                versions.append(version["id"])
-            elif version["type"] == "release" and version_type_to_get == "Forge":
-                version.append("forge:" + version["id"])
-            else:  # Snapshots, pre-releases...
-                pass
+        if version_type_to_get == "Vanilla":
+            versions = get_vanilla_versions()
+        elif version_type_to_get == "Forge":
+            versions = get_forge_versions()
+        else:
+            print("Version type not found")
 
         return versions
+
+    def update_versions(self, choice):
+        # choice must be accepted as a parameter or the function will raise an error
+
+        print("UPDATING VERSIONS")
+
+        # If the update_versions method is called by self.version_number or self.subversion_number, choice will be the
+        # parent or sub version number (ex. 1.12.2, 26.80.14). Therefore, it must be changed to self.version_type
+
+        if choice not in ["Vanilla", "Forge", "Modpack"]:
+            version_type = self.version_type.get()
+        else:
+            version_type = choice
+
+        # Get version list (numbers) according to selected type
+
+        version_list = self.get_versions()
+
+        if version_type == "Vanilla":
+            """
+            version_list will be a list of versions
+            """
+
+            self.version_number.configure(values=version_list)
+
+            self.subversion_number.configure(values=[""], state="disabled")
+            self.subversion_number.set("")
+
+        elif version_type == "Forge":
+            """
+            version_list will be a dictionary where {parent_version : forge_subversions}
+            """
+
+            subversion_list = version_list[self.version_number.get()]
+
+            self.version_number.configure(values=list(version_list.keys()))
+
+            self.subversion_number.configure(values=[""], state="enabled")
+            self.subversion_number.configure(values=subversion_list)
+            self.subversion_number.set(subversion_list[0])  # latest
+
+        return
 
     def get_default_path(self):
         user_path = str(Path.home())
