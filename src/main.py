@@ -276,6 +276,7 @@ class App(ctk.CTk):
             "username": self.input_username_field.get(),
             "version_type": self.version_type.get(),
             "version": self.version_number.get(),
+            "subversion": self.subversion_number.get(),
             "ram": self.input_ram_field.get(),
             "path": self.input_installation_path.get(),
             "email": self.input_email_field.get(),
