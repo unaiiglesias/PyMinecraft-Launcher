@@ -8,6 +8,7 @@ import wget
 import keyboard
 from pyperclip import copy
 import customtkinter as ctk
+import pyautogui as pag
 
 
 def launch_vanilla(launch_parameters):
@@ -43,6 +44,9 @@ def make_launcher_profiles_json(main_dir):
 
 def download_forge_installer(version, subversion, main_dir):
 
+    # TODO: Instead of making a request to fetch the link, just "guess" it formatting a string
+    # ex: https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.2-33.0.58/forge-1.16.2-33.0.58-installer.jar
+
     url = f"https://files.minecraftforge.net/net/minecraftforge/forge/index_{version}.html"
     full_version = f"{version}-{subversion}"
 
@@ -64,10 +68,17 @@ def download_forge_installer(version, subversion, main_dir):
     wget.download(needed_url, f"{main_dir}\\installer.jar")
 
 
-def automatically_launch_forge_installer(installer_path, main_dir, version):
+def automatically_launch_forge_installer(installer_path, main_dir, version, screen_resolution):
     sleep(1)
-    popen(installer_path, "r", 1)
-    sleep(3)
+    popen(installer_path, "r", 1)  # Open the forge installer
+    sleep(6)  # Wait until the forge installer has opened
+
+    # In order to ensure that the forge installer is focused, the window of the installer (which spawns at the center
+    # of the screen) will be clicked
+    print(screen_resolution)
+    pag.moveTo(screen_resolution[0] / 2, screen_resolution[1] / 2 - 150)
+    pag.click()
+
     copy(main_dir)
     print("main_dir copied")
 
@@ -106,34 +117,47 @@ def automatically_launch_forge_installer(installer_path, main_dir, version):
     print("DONE")
 
 
-def ask_if_forge_installation_has_finished(installer_path):
+
+def ask_if_forge_installation_has_finished(installer_path, master):
     """
     Since it would be hard to check whether the forge installation has finished,
     this function will pop up a window to ask the user before continuing with the forge installation. 
     """
-    """
-    root = ctk.CTk
-    root.title("Ha acabado de instalarse Forge?")
-    root.geometry("500x100")
 
-    button = ctk.CTkButton(root, text="Forge ha terminado de instalarse", command=root.destroy, width=400, height=80)
-    button.grid(row=0, column=0, padx=50, pady=10, sticky="nswe")
+    class AskIfForgeHasFinishedPopUp(ctk.CTkToplevel):
+        def __init__(self, master):
+            super().__init__()
+            self.title("Ha acabado de instalarse Forge?")
+            self.geometry("600x200")
 
-    root.mainloop()
-    """
-    input("Pon algo:")
-    sleep(1)
+            self.text = ctk.CTkTextbox(self, width=560, height=80)
+            self.text.insert("1.0", "Espera hasta que forge termine de instalarse.\n")
+            self.text.insert("2.0", "Una vez termine, pulsa OK para que se cierre la ventana de instalación.\n")
+            self.text.insert("3.0", "Entonces, presiona el botón de abajo.")
+            self.text.pack(padx=20, pady=10)
+
+            self.button = ctk.CTkButton(self, text="Forge ha acabado de instalarse", command=self.destroy, width=300,
+                                        height=60)
+            self.button.pack(padx=50, pady=10)
+
+            self.transient(master)  # The pop-up will stay on top of the launcher window
+            self.grab_set()  # Hijack the launcher window so that it can't be clicked
+            master.wait_window(self)  # Tell the launcher window to wait (block itself)
+
+    pop_up = AskIfForgeHasFinishedPopUp(master)
+    sleep(1)  # Give the forge installer some time to completely close, in case the user clicks too fast
     remove(installer_path)  # Remove installer as it is no longer needed
-    print("Forge installation has finished")
 
 
-def launch_forge(launch_parameters):
+def launch_forge(launch_parameters, app):
     main_dir = launch_parameters["path"]
     work_dir = main_dir
     version_id = launch_parameters["version"]
     subversion_id = launch_parameters["subversion"]
     ram_amount = launch_parameters["ram"]
     username = launch_parameters["username"]
+
+    screen_resolution = (app.winfo_screenwidth(), app.winfo_screenheight())
 
     if not path.isfile(main_dir + "\\launcher_profiles.json"):
         make_launcher_profiles_json(main_dir)
@@ -152,8 +176,8 @@ def launch_forge(launch_parameters):
         download_forge_installer(version_id, subversion_id, main_dir)
 
         installer_path = f"{main_dir}\\installer.jar"
-        automatically_launch_forge_installer(installer_path, main_dir, version_id)
-        ask_if_forge_installation_has_finished(installer_path)
+        automatically_launch_forge_installer(installer_path, main_dir, version_id, screen_resolution)
+        ask_if_forge_installation_has_finished(installer_path, app)
 
         installer.prepare()
         installer.download()

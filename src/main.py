@@ -251,7 +251,7 @@ class App(ctk.CTk):
         if launch_data["version_type"] == "Vanilla":
             launch_vanilla(launch_data)
         elif launch_data["version_type"] == "Forge":
-            launch_forge(launch_data)
+            launch_forge(launch_data, self)
 
         return
 
