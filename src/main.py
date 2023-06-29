@@ -1,10 +1,9 @@
 import customtkinter as ctk
-import portablemc
 from PIL import Image
-from subprocess import Popen
 from pathlib import Path
 import json
 from get_versions import get_vanilla_versions, get_forge_versions
+from launch_manager import launch_vanilla, launch_forge
 
 
 class App(ctk.CTk):
@@ -128,6 +127,7 @@ class App(ctk.CTk):
             self.input_email_field.insert(0, launch_data["email"])
             self.version_type.set(launch_data["version_type"])
             self.version_number.set(launch_data["version"])
+            self.subversion_number.set(launch_data["subversion"])
             self.appearance_mode.set(launch_data["theme"])  # set the value
             self.change_appearance_mode(launch_data["theme"])  # Change the theme
         except FileNotFoundError:
@@ -192,7 +192,8 @@ class App(ctk.CTk):
 
             self.subversion_number.configure(values=[""], state="enabled")
             self.subversion_number.configure(values=subversion_list)
-            self.subversion_number.set(subversion_list[0])  # latest
+            if self.subversion_number.get() == "":  # It otherwise overwrites the subversion selected by the user
+                self.subversion_number.set(subversion_list[0])  # latest
 
         return
 
@@ -247,17 +248,10 @@ class App(ctk.CTk):
 
         self.save_launch_data(launch_data)
 
-        jvm_args = f"-Xmx{launch_data['ram']}M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
-
-        if launch_data["premium"] is True:
-            login = f"-l {launch_data['email']} -m"
-        else:
-            login = ""
-
-        if launch_data["version_type"] in ["Vanilla", "Forge"]:
-            print(f"{launch_data['path']}")
-            Popen(f"portablemc --main-dir \"{launch_data['path']}\" start {login} \"--jvm-args={jvm_args}\" "
-                  f"{launch_data['version']} -u \"{launch_data['username']}\"")
+        if launch_data["version_type"] == "Vanilla":
+            launch_vanilla(launch_data)
+        elif launch_data["version_type"] == "Forge":
+            launch_forge(launch_data)
 
         return
 
@@ -276,7 +270,7 @@ class App(ctk.CTk):
             "username": self.input_username_field.get(),
             "version_type": self.version_type.get(),
             "version": self.version_number.get(),
-            "subversion": self.subversion_number.get(),
+            "subversion" : self.subversion_number.get(),
             "ram": self.input_ram_field.get(),
             "path": self.input_installation_path.get(),
             "email": self.input_email_field.get(),
