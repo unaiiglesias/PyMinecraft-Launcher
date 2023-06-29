@@ -21,12 +21,14 @@ def launch_vanilla(launch_parameters):
     ctx = Context(main_dir, work_dir)
     version = Version(ctx, version_id)
 
+    print("Downloading and installing Minecraft version")
     version.install(jvm=True)
 
     start_opts = StartOptions()
     start_opts.username = username
     start_opts.resolution = (1080, 720)
 
+    print("Launching Minecraft")
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
@@ -65,6 +67,7 @@ def download_forge_installer(version, subversion, main_dir):
     print(needed_url)
 
     # Download the installer into the main_dir (it will be named installer.jar)
+    print("Downloading forge installer")
     wget.download(needed_url, f"{main_dir}\\installer.jar")
 
 
@@ -75,12 +78,11 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
 
     # In order to ensure that the forge installer is focused, the window of the installer (which spawns at the center
     # of the screen) will be clicked
-    print(screen_resolution)
     pag.moveTo(screen_resolution[0] / 2, screen_resolution[1] / 2 - 150)
     pag.click()
 
     copy(main_dir)
-    print("main_dir copied")
+    print("main_dir copied to clipboard")
 
     if version in ("1.7.2", "1.7.10", "1.8","1.8.", "1.8.9", "1.9", "1.9.4", "1.10", "1.10.2", "1.11.2", "1.14.2", "1.14.3", "1.15", "1.15.1", "1.16.1", "1.16.2", "1.16.3", "1.16.4", "1.16.5", "1.17.1", "1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"):  # These ones need an extra tab
         keyboard.send("tab")
@@ -114,8 +116,7 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
     keyboard.send("tab")
     sleep(0.1)
     keyboard.send("enter")
-    print("DONE")
-
+    print("Forge installer set up and running")
 
 
 def ask_if_forge_installation_has_finished(installer_path, master):
@@ -145,8 +146,10 @@ def ask_if_forge_installation_has_finished(installer_path, master):
             master.wait_window(self)  # Tell the launcher window to wait (block itself)
 
     pop_up = AskIfForgeHasFinishedPopUp(master)
+    print("Forge installation finished")
     sleep(1)  # Give the forge installer some time to completely close, in case the user clicks too fast
     remove(installer_path)  # Remove installer as it is no longer needed
+    print("Removing used installer")
 
 
 def launch_forge(launch_parameters, app):
@@ -179,10 +182,12 @@ def launch_forge(launch_parameters, app):
         automatically_launch_forge_installer(installer_path, main_dir, version_id, screen_resolution)
         ask_if_forge_installation_has_finished(installer_path, app)
 
+        print("Downloading and installing Forge version")
         installer.prepare()
         installer.download()
         installer.install()
 
+    print("Downloading and installing Minecraft version")
     version = ForgeVersion(ctx, full_version_id)
     version.install(jvm=True)
 
@@ -191,6 +196,7 @@ def launch_forge(launch_parameters, app):
     start_opts.disable_multiplayer = False
     start_opts.resolution = (1080, 720)
 
+    print("Launching Minecraft")
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
