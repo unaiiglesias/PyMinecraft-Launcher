@@ -63,12 +63,11 @@ class App(ctk.CTk):
 
         # Choose version number
         self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
-                                                command=self.update_versions)
+                                                command=self.update_subversions)
         self.version_number.grid(row=2, column=0, padx=30, pady=10, sticky="w")
 
         # Choose subversion number
-        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
-                                                   command=self.update_versions)
+        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
         self.subversion_number.grid(row=2, column=1, padx=30, pady=10, sticky="w")
 
         # (Launch) Parameters frame
@@ -145,7 +144,10 @@ class App(ctk.CTk):
         # Actually working for vanilla & forge
 
         version_type_to_get = self.version_type.get()
-        print(f"Getting {version_type_to_get} type versions...")
+        if version_type_to_get == "Vanilla":
+            print(f"Getting {version_type_to_get} version list...")
+        elif version_type_to_get == "Forge":
+            print(f"Getting {version_type_to_get} version and subversion dictionary...")
 
         versions = []
         if version_type_to_get == "Vanilla":
@@ -162,45 +164,63 @@ class App(ctk.CTk):
     def update_versions(self, choice):
         # choice must be accepted as a parameter or the function will raise an error
 
+        """
+        This function is used by the version_type OptionMenu to update the version and subversion numbers
+        """
+
         print("UPDATING VERSIONS")
 
-        # If the update_versions method is called by self.version_number or self.subversion_number, choice will be the
-        # parent or sub version number (ex. 1.12.2, 26.80.14). Therefore, it must be changed to self.version_type
-
-        if choice not in ["Vanilla", "Forge", "Modpack"]:
-            version_type = self.version_type.get()
-        else:
-            version_type = choice
+        # Choice will always be in ("Vanilla", "Forge", "Modpack")
 
         # Get version list (numbers) according to selected type
 
         version_list = self.get_versions()
 
-        if version_type == "Vanilla":
+        if choice == "Vanilla":
             """
             version_list will be a list of versions
             """
 
+            # Set the parent version field values
             self.version_number.configure(values=version_list)
 
+            # Disable and empty subversion field
             self.subversion_number.configure(values=[""], state="disabled")
             self.subversion_number.set("")
 
-        elif version_type == "Forge":
+        elif choice == "Forge":
             """
             version_list will be a dictionary where {parent_version : forge_subversions}
             """
 
-            subversion_list = version_list[self.version_number.get()]
-
+            # Set the parent version field values
             self.version_number.configure(values=list(version_list.keys()))
 
+            # Enable the subversion field
             self.subversion_number.configure(values=[""], state="enabled")
-            self.subversion_number.configure(values=subversion_list)
-            if self.subversion_number.get() == "":  # It otherwise overwrites the subversion selected by the user
-                self.subversion_number.set(subversion_list[0])  # latest
+
+            # Update the subversion field values
+            self.update_subversions(self.version_number.get())
 
         return
+
+    def update_subversions(self, parent_version):
+        """
+        This function is used to refresh the subversion numbers.
+        choice = parent version number | ex: "1.12.2"
+        """
+
+        print("UPDATING SUBVERSIONS")
+        version_list = self.get_versions()
+        version_type = self.version_type.get()
+
+        if version_type == "Vanilla":
+            pass  # There are no subversions --- the subversion OptionMenu should be " " and disabled
+        elif version_type == "Forge":
+            subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
+            self.subversion_number.configure(values=subversion_list)
+            self.subversion_number.set(subversion_list[0])  # Set to latest by default
+
 
     def get_default_path(self):
         user_path = str(Path.home())
