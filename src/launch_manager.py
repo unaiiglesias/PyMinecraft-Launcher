@@ -36,7 +36,27 @@ def launch_vanilla(launch_parameters):
 
 
 def make_launcher_profiles_json(main_dir):
-    LAUNCHER_PROFILES_BASE = {"profiles": {"(Default)": {"created": "1970-01-01T00:00:00.0000000Z", "javaArgs": "-Xmx5G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent\u003d20 -XX:G1ReservePercent\u003d20 -XX:MaxGCPauseMillis\u003d50 -XX:G1HeapRegionSize\u003d32M", "lastUsed": "1970-01-01T00:00:00.0000000Z", "lastVersionId": "latest-release", "name": "", "type": "custom"}}, "settings": {"crashAssistance": True, "enableAdvanced": True, "enableAnalytics": True, "enableHistorical": False, "enableReleases": True, "enableSnapshots": False, "keepLauncherOpen": False, "profileSorting": "ByLastPlayed", "showGameLog": False, "showMenu": False, "soundOn": False}}
+    LAUNCHER_PROFILES_BASE = {"profiles": {"(Default)": {"created": "1970-01-01T00:00:00.0000000Z",
+                                                         "javaArgs": "-Xmx5G -XX:+UnlockExperimentalVMOptions"
+                                                                     " -XX:+UseG1GC -XX:G1NewSizePercent\u003d20"
+                                                                     " -XX:G1ReservePercent\u003d20"
+                                                                     " -XX:MaxGCPauseMillis\u003d50"
+                                                                     " -XX:G1HeapRegionSize\u003d32M",
+                                                         "lastUsed": "1970-01-01T00:00:00.0000000Z",
+                                                         "lastVersionId": "latest-release",
+                                                         "name": "",
+                                                         "type": "custom"}},
+                              "settings": {"crashAssistance": True,
+                                           "enableAdvanced": True,
+                                           "enableAnalytics": True,
+                                           "enableHistorical": False,
+                                           "enableReleases": True,
+                                           "enableSnapshots": False,
+                                           "keepLauncherOpen": False,
+                                           "profileSorting": "ByLastPlayed",
+                                           "showGameLog": False,
+                                           "showMenu": False,
+                                           "soundOn": False}}
 
     with open(main_dir + "\\launcher_profiles.json", "w") as json_file:
         json.dump(LAUNCHER_PROFILES_BASE, json_file)
@@ -52,7 +72,7 @@ def download_forge_installer(version, subversion, main_dir):
     url = f"https://files.minecraftforge.net/net/minecraftforge/forge/index_{version}.html"
     full_version = f"{version}-{subversion}"
 
-    # This will get the forge page for the selected game version an fetch all the links in the page
+    # This will get the forge page for the selected game version and fetch all the links in the page
     session = rq.HTMLSession()
     r = session.get(url)
     all_links = r.html.absolute_links
@@ -84,17 +104,20 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
     copy(main_dir)
     print("main_dir copied to clipboard")
 
-    if version in ("1.7.2", "1.7.10", "1.8","1.8.", "1.8.9", "1.9", "1.9.4", "1.10", "1.10.2", "1.11.2", "1.14.2", "1.14.3", "1.15", "1.15.1", "1.16.1", "1.16.2", "1.16.3", "1.16.4", "1.16.5", "1.17.1", "1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"):  # These ones need an extra tab
+    if version in ("1.7.2", "1.7.10", "1.8", "1.8.", "1.8.9", "1.9", "1.9.4", "1.10", "1.10.2",
+                   "1.11.2", "1.14.2", "1.14.3", "1.15", "1.15.1", "1.16.1", "1.16.2", "1.16.3", "1.16.4",
+                   "1.16.5", "1.17.1", "1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3",
+                   "1.19.4", "1.20", "1.20.1"):  # These need an extra tab
         keyboard.send("tab")
         sleep(0.1)
-    elif version in ("1.11", "1.12", "1.12.1"):  # These ones need 2 extra tabs
+    elif version in ("1.11", "1.12", "1.12.1"):  # These need 2 extra tabs
         keyboard.send("tab")
         sleep(0.1)
         keyboard.send("tab")
         sleep(0.1)
-    elif version in ("1.12.2", "1.13.2", "1.14.4", "1.15.2"):  # These ones don't need extra tabs
+    elif version in ("1.12.2", "1.13.2", "1.14.4", "1.15.2"):  # These don't need extra tabs
         pass
-    else: # Looks like most versions need an extra tab, so....
+    else:  # Looks like most versions need an extra tab, so....
         keyboard.send("tab")
         sleep(0.1)
 
@@ -119,7 +142,7 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
     print("Forge installer set up and running")
 
 
-def ask_if_forge_installation_has_finished(installer_path, master):
+def ask_if_forge_installation_has_finished(installer_path, app):
     """
     Since it would be hard to check whether the forge installation has finished,
     this function will pop up a window to ask the user before continuing with the forge installation. 
@@ -145,14 +168,14 @@ def ask_if_forge_installation_has_finished(installer_path, master):
             self.grab_set()  # Hijack the launcher window so that it can't be clicked
             master.wait_window(self)  # Tell the launcher window to wait (block itself)
 
-    pop_up = AskIfForgeHasFinishedPopUp(master)
+    pop_up = AskIfForgeHasFinishedPopUp(app)
     print("Forge installation finished")
     sleep(1)  # Give the forge installer some time to completely close, in case the user clicks too fast
     remove(installer_path)  # Remove installer as it is no longer needed
     print("Removing used installer")
 
 
-def launch_forge(launch_parameters, app):
+def launch_forge(launch_parameters, app=None):
     main_dir = launch_parameters["path"]
     work_dir = main_dir
     version_id = launch_parameters["version"]
@@ -204,7 +227,8 @@ def launch_forge(launch_parameters, app):
 
 
 if __name__ == "__main__":
-    launch_forge({"path" : "C:\\Users\\unai\\Desktop\\PMC-main_dir", "version" : "1.16.3", "subversion" : "34.1.42", "ram": 4048, "username" : "Xtrike"})
+    launch_forge({"path": "C:\\Users\\unai\\Desktop\\PMC-main_dir", "version": "1.16.3", "subversion": "34.1.42",
+                  "ram": 4048, "username": "Xtrike"})
 
 """
         launch_parameters = {

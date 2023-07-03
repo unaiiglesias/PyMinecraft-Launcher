@@ -57,15 +57,18 @@ class App(ctk.CTk):
         self.version_label.grid(row=0, padx=20, pady=0, sticky="w")
 
         # Choose version type
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"], command=self.update_versions)
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
+                                              command=self.update_versions)
         self.version_type.grid(row=1, padx=30, pady=10, sticky="w")
 
         # Choose version number
-        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), command=self.update_versions)
+        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
+                                                command=self.update_versions)
         self.version_number.grid(row=2, column=0, padx=30, pady=10, sticky="w")
 
         # Choose subversion number
-        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), command=self.update_versions)
+        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
+                                                   command=self.update_versions)
         self.subversion_number.grid(row=2, column=1, padx=30, pady=10, sticky="w")
 
         # (Launch) Parameters frame
@@ -142,13 +145,15 @@ class App(ctk.CTk):
         # Actually working for vanilla & forge
 
         version_type_to_get = self.version_type.get()
-        print(version_type_to_get)
+        print(f"Getting {version_type_to_get} type versions...")
 
         versions = []
         if version_type_to_get == "Vanilla":
             versions = get_vanilla_versions()
         elif version_type_to_get == "Forge":
             versions = get_forge_versions()
+        elif version_type_to_get == "Modpack":
+            print("Modpack mode not avaliable yet, WIP")
         else:
             print("Version type not found")
 
@@ -240,37 +245,13 @@ class App(ctk.CTk):
         except FileNotFoundError:
             raise FileNotFoundError
 
-    def launch_game(self):
-        print("Launching game...")
-
-        launch_data = self.get_launch_parameters()
-        # When using fstrings the dict key must be quoted with '', not ""
-
-        self.save_launch_data(launch_data)
-
-        if launch_data["version_type"] == "Vanilla":
-            launch_vanilla(launch_data)
-        elif launch_data["version_type"] == "Forge":
-            launch_forge(launch_data, self)
-
-        return
-
-    def get_latest_launcher_version(self):
-        # WIP placeholder
-        latest = "latest: 0.1"
-        return latest
-
-    def update_launcher(self):
-        print("Updating launcher")
-        return
-
     def get_launch_parameters(self):
 
         launch_parameters = {
             "username": self.input_username_field.get(),
             "version_type": self.version_type.get(),
             "version": self.version_number.get(),
-            "subversion" : self.subversion_number.get(),
+            "subversion": self.subversion_number.get(),
             "ram": self.input_ram_field.get(),
             "path": self.input_installation_path.get(),
             "email": self.input_email_field.get(),
@@ -299,6 +280,32 @@ class App(ctk.CTk):
             launch_parameters["path"] = inserted_path
 
         return launch_parameters
+
+    def launch_game(self):
+        print("Launching game...")
+
+        launch_data = self.get_launch_parameters()
+        # When using fstrings the dict key must be quoted with '', not ""
+
+        self.save_launch_data(launch_data)
+
+        if launch_data["version_type"] == "Vanilla":
+            launch_vanilla(launch_data)
+        elif launch_data["version_type"] == "Forge":
+            launch_forge(launch_data, self)
+
+        return
+
+    def get_latest_launcher_version(self):
+        # WIP placeholder
+        latest = "latest: 0.1"
+        return latest
+
+    def update_launcher(self):
+        # WIP placeholder
+        print("Updating launcher")
+        return
+
 
 
 if __name__ == "__main__":

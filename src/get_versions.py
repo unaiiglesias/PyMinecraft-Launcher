@@ -4,7 +4,7 @@ from portablemc import VersionManifest
 
 def get_vanilla_versions():
     manifest = VersionManifest()
-    latest = manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
+    manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
 
     vanilla_versions = []
     for version in manifest.data["versions"]:
