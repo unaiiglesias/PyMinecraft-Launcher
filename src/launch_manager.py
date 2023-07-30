@@ -3,7 +3,6 @@ from portablemc import Context, Version, StartOptions, Start
 from portablemc_forge import ForgeVersionInstaller, ForgeVersion
 import json
 from os import path, popen, remove
-import requests_html as rq
 import wget
 import keyboard
 from pyperclip import copy
@@ -66,24 +65,17 @@ def make_launcher_profiles_json(main_dir):
 
 def download_forge_installer(version, subversion, main_dir):
 
-    # TODO: Instead of making a request to fetch the link, just "guess" it formatting a string
-    # ex: https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.2-33.0.58/forge-1.16.2-33.0.58-installer.jar
+    """
+    It turns out that the maven of all forge installers is public, there is no avaliable documentation but files can be
+    downloaded from it. Using this "template" / "example" the url to the installer can be guessed without web
+    scraping it.
 
-    url = f"https://files.minecraftforge.net/net/minecraftforge/forge/index_{version}.html"
+    ex: https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.2-33.0.58/forge-1.16.2-33.0.58-installer.jar
+    """
+
     full_version = f"{version}-{subversion}"
 
-    # This will get the forge page for the selected game version and fetch all the links in the page
-    session = rq.HTMLSession()
-    r = session.get(url)
-    all_links = r.html.absolute_links
-
-    # Now, the download link for the specific subversion will be collected
-    needed_url = None
-    for link in all_links:
-        if full_version in link and "installer" in link and "adfoc" not in link:
-            needed_url = link
-            break
-
+    needed_url = f"https://maven.minecraftforge.net/net/minecraftforge/forge/{full_version}/forge-{full_version}-installer.jar"
     print(needed_url)
 
     # Download the installer into the main_dir (it will be named installer.jar)
