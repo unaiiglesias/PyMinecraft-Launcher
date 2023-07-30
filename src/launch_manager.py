@@ -8,7 +8,7 @@ import wget
 import keyboard
 from pyperclip import copy
 import customtkinter as ctk
-import pyautogui as pag
+import pygetwindow as gw
 
 
 def launch_vanilla(launch_parameters):
@@ -96,10 +96,9 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
     popen(installer_path, "r", 1)  # Open the forge installer
     sleep(6)  # Wait until the forge installer has opened
 
-    # In order to ensure that the forge installer is focused, the window of the installer (which spawns at the center
-    # of the screen) will be clicked
-    pag.moveTo(screen_resolution[0] / 2, screen_resolution[1] / 2 - 150)
-    pag.click()
+    # In order to ensure that the forge installer is focused, the window will be detected and "activated"
+    forge_installer_window = gw.getWindowsWithTitle('Mod system installer')[0]
+    forge_installer_window.activate()
 
     copy(main_dir)
     print("main_dir copied to clipboard")
