@@ -94,11 +94,18 @@ def download_forge_installer(version, subversion, main_dir):
 def automatically_launch_forge_installer(installer_path, main_dir, version, screen_resolution):
     sleep(1)
     popen(installer_path, "r", 1)  # Open the forge installer
-    sleep(6)  # Wait until the forge installer has opened
 
-    # In order to ensure that the forge installer is focused, the window will be detected and "activated"
+    forge_installer_windows = []
+    while len(forge_installer_windows) == 0:  # If the list's length is 0, no window was found
+        print("Looking for Forge installer window...")
+        forge_installer_windows = gw.getWindowsWithTitle('Mod system installer')
+        sleep(1)
+    print("Forge installer window found!")
+
+    # In order to ensure that the forge installer is focused, the window will be "activated" (focused)
     forge_installer_window = gw.getWindowsWithTitle('Mod system installer')[0]
     forge_installer_window.activate()
+    print("Forge installer window focused")
 
     copy(main_dir)
     print("main_dir copied to clipboard")
