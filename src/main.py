@@ -87,8 +87,8 @@ class App(ctk.CTk):
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
         self.input_installation_path_label.grid(row=2, columnspan=2, padx=20, sticky="w")
 
-        self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=180, height=20,
-                                                    placeholder_text=self.get_default_path())
+        self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=180, height=20)
+        self.input_installation_path.insert(0, self.get_default_path())  # Set entry to default path
         self.input_installation_path.grid(row=3, column=0, padx=20, pady=10, sticky="w")
 
         self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=20, height=20,
@@ -125,7 +125,11 @@ class App(ctk.CTk):
             launch_data = self.load_launch_data()
             self.input_username_field.insert(0, launch_data["username"])
             self.input_ram_field.insert(0, launch_data["ram"])
+
+            # To set the value of the path it first needs to be emptied
+            self.input_installation_path.delete(0, ctk.END)
             self.input_installation_path.insert(0, launch_data["path"])
+
             self.input_email_field.insert(0, launch_data["email"])
             self.version_type.set(launch_data["version_type"])
             self.version_number.set(launch_data["version"])
@@ -229,7 +233,7 @@ class App(ctk.CTk):
 
     def reset_installation_path(self):
         default_path = self.get_default_path()
-        self.input_installation_path.delete(0, "end")  # Clean the entry
+        self.input_installation_path.delete(0, ctk.END)  # Clean the entry
         self.input_installation_path.insert(0, default_path)  # Set the entry to the default path
         print("Path reseted")
         return

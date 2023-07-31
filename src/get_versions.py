@@ -26,10 +26,11 @@ def get_forge_versions():
         parent_version = splitted_ver[0]
         forge_subversion = splitted_ver[1]
 
-        if parent_version not in forge_versions:  # The parent forge version doesn't exist in the dict
+        if parent_version not in forge_versions:  # The parent forge version key doesn't exist in the dict
             forge_versions[parent_version] = []  # Make it and create the list for the forge subversions
 
-        forge_versions[parent_version].append(forge_subversion)
+        forge_versions[parent_version].append(forge_subversion)    # append the forge subversion to the parent
+        # version's value list
 
     return forge_versions
 
