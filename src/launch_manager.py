@@ -21,6 +21,7 @@ def launch_vanilla(launch_parameters, app):
     version = Version(ctx, version_id)
 
     print("Downloading and installing Minecraft version")
+    app.update_status("working", "Downloading and installing Minecraft version")
     version.install(jvm=True)
 
     start_opts = StartOptions()
@@ -28,6 +29,7 @@ def launch_vanilla(launch_parameters, app):
     start_opts.resolution = (1080, 720)
 
     print("Launching Minecraft")
+    app.update_status("success", "Minecraft launched!")
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
