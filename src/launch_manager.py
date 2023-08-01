@@ -204,9 +204,10 @@ def launch_forge(launch_parameters, app):
     if installer.needed():  # The version needs to be installed
 
         # Download and use forge manual version installer
-        download_forge_installer(version_id, subversion_id, main_dir)
         app.update_status("working", "Downloading forge installer")
+        download_forge_installer(version_id, subversion_id, main_dir)
 
+        app.update_status("working", "Setting up forge installer and installing")
         installer_path = f"{main_dir}\\installer.jar"
         automatically_launch_forge_installer(installer_path, main_dir, version_id, app)
         ask_if_forge_installation_has_finished(installer_path, app)
