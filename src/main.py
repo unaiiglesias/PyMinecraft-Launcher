@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 from get_versions import get_vanilla_versions, get_forge_versions
 from launch_manager import launch_vanilla, launch_forge
+from threading import Thread
 
 
 class App(ctk.CTk):
@@ -19,7 +20,7 @@ class App(ctk.CTk):
 
         # Grid configure
         self.grid_columnconfigure((0, 1), weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
+        self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
         # Header
         self.header = ctk.CTkLabel(self, text="PyMinecraft Launcher", font=("calibri", 24))
@@ -119,6 +120,12 @@ class App(ctk.CTk):
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
         self.launch_button.grid(row=4, column=0, padx=60, pady=20, sticky="ew", columnspan=2)
+
+        # Status indicator
+        self.status_indicator = ctk.CTkLabel(self,  corner_radius=5)
+        self.status_indicator.grid(row=5, column=0, padx=60, pady=(0, 10), sticky="ew", columnspan=2)
+        self.update_status("idle")
+
 
         # Load launch data (if any) and update variables
         try:
@@ -312,12 +319,54 @@ class App(ctk.CTk):
         # When using fstrings the dict key must be quoted with '', not ""
 
         self.save_launch_data(launch_data)
-
+        self.update_status("Launching the game")
+        # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
-            launch_vanilla(launch_data)
+            #launch_vanilla(launch_data)  # old
+            Thread(target=launch_vanilla, args=(launch_data,)).start()
         elif launch_data["version_type"] == "Forge":
-            launch_forge(launch_data, self)
+            #launch_forge(launch_data, self)  # old
+            Thread(target=launch_forge, args=(launch_data, self)).start()
 
+        return
+
+    def update_status(self, code: str, message="undefined"):
+
+        """
+        This method updates the message and foreground color of the label under the launch button.
+        It is used to indicate what the launcher is doing internally so that the user can know that
+        the launcher is actually doing something.
+
+        Params:
+        (status) code: idle, working, success, error
+        message (not needed in case that code=idle)
+        """
+
+        # (light_color, dark_color) foreground color pairs for different status modes
+        IDLE_STATUS_COLOR = ("gray", "darkgray")
+        WORKING_STATUS_COLOR = ("light_yellow", "yellow")
+        SUCCESS_STATUS_COLOR = ("green", "darkgreen")
+        ERROR_STATUS_COLOR = ("red", "darkred")
+
+        if code == "idle":
+            self.status_indicator.configure(fg_color=IDLE_STATUS_COLOR)
+            self.status_indicator.configure(text=f"IDLE: Waiting for launch")
+
+        elif code == "working":
+            self.status_indicator.configure(fg_color=WORKING_STATUS_COLOR)
+            self.status_indicator.configure(text=f"WORKING: {message}")
+
+        elif code == "success":
+            self.status_indicator.configure(fg_color=SUCCESS_STATUS_COLOR)
+            self.status_indicator.configure(text=f"SUCCESS: {message}")
+
+        elif code == "error":
+            self.status_indicator.configure(fg_color=ERROR_STATUS_COLOR)
+            self.status_indicator.configure(text=f"ERROR: {message}")
+
+        else:  # This should never happen, but just in case it will be treated as an error
+            self.status_indicator.configure(fg_color=ERROR_STATUS_COLOR)
+            self.status_indicator.configure(text=f"ERROR: No status code --> message: {message}")
         return
 
     def get_latest_launcher_version(self):
@@ -329,7 +378,6 @@ class App(ctk.CTk):
         # WIP placeholder
         print("Updating launcher")
         return
-
 
 
 if __name__ == "__main__":
