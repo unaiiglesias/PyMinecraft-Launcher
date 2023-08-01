@@ -325,7 +325,7 @@ class App(ctk.CTk):
         # When using fstrings the dict key must be quoted with '', not ""
 
         self.save_launch_data(launch_data)
-        self.update_status("Launching the game")
+        self.update_status("working", "Launching the game")
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
             #launch_vanilla(launch_data)  # old
