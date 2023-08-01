@@ -159,11 +159,14 @@ class App(ctk.CTk):
         elif version_type_to_get == "Forge":
             print(f"Getting {version_type_to_get} version and subversion dictionary...")
 
+        user_path = str(Path.home())
+        cache_data_path = user_path + "\\Documents"
+
         versions = []
         if version_type_to_get == "Vanilla":
-            versions = get_vanilla_versions()
+            versions = get_vanilla_versions(cache_data_path)
         elif version_type_to_get == "Forge":
-            versions = get_forge_versions()
+            versions = get_forge_versions(cache_data_path)
         elif version_type_to_get == "Modpack":
             print("Modpack mode not avaliable yet, WIP")
         else:
