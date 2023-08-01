@@ -85,7 +85,7 @@ def download_forge_installer(version, subversion, main_dir):
     wget.download(needed_url, f"{main_dir}\\installer.jar")
 
 
-def automatically_launch_forge_installer(installer_path, main_dir, version,app):
+def automatically_launch_forge_installer(installer_path, main_dir, version, app):
     sleep(1)
     popen(installer_path, "r", 1)  # Open the forge installer
 

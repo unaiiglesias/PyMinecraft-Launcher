@@ -22,6 +22,12 @@ class App(ctk.CTk):
         self.grid_columnconfigure((0, 1), weight=1)
         self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
+        # Status indicator --> This needs to be "initialised" early or some widgets that try to modify it during load
+        # will raise exceptions
+        self.status_indicator = ctk.CTkLabel(self,  corner_radius=5, text_color="black")
+        self.status_indicator.grid(row=5, column=0, padx=60, pady=(0, 10), sticky="ew", columnspan=2)
+        self.update_status("idle")
+
         # Header
         self.header = ctk.CTkLabel(self, text="PyMinecraft Launcher", font=("calibri", 24))
         self.header.grid(row=0, column=1, rowspan=1, padx=20, pady=(10, 0), sticky="n")
@@ -121,10 +127,6 @@ class App(ctk.CTk):
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
         self.launch_button.grid(row=4, column=0, padx=60, pady=20, sticky="ew", columnspan=2)
 
-        # Status indicator
-        self.status_indicator = ctk.CTkLabel(self,  corner_radius=5, text_color="black")
-        self.status_indicator.grid(row=5, column=0, padx=60, pady=(0, 10), sticky="ew", columnspan=2)
-        self.update_status("idle")
 
         # Load launch data (if any) and update variables
         try:
@@ -164,13 +166,15 @@ class App(ctk.CTk):
 
         versions = []
         if version_type_to_get == "Vanilla":
-            versions = get_vanilla_versions(cache_data_path)
+            versions = get_vanilla_versions(cache_data_path, self)
         elif version_type_to_get == "Forge":
-            versions = get_forge_versions(cache_data_path)
+            versions = get_forge_versions(cache_data_path, self)
         elif version_type_to_get == "Modpack":
             print("Modpack mode not avaliable yet, WIP")
         else:
             print("Version type not found")
+
+        self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
 
         return versions
 
@@ -369,6 +373,8 @@ class App(ctk.CTk):
         else:  # This should never  (except crash / exception raise), but just in case it will be treated as an error
             self.status_indicator.configure(fg_color=ERROR_STATUS_COLOR)
             self.status_indicator.configure(text=f"ERROR: No status code --> message: {message}")
+
+        self.status_indicator.update()  # Just in case
         return
 
     def get_latest_launcher_version(self):
