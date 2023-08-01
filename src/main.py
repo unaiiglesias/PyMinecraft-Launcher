@@ -122,10 +122,9 @@ class App(ctk.CTk):
         self.launch_button.grid(row=4, column=0, padx=60, pady=20, sticky="ew", columnspan=2)
 
         # Status indicator
-        self.status_indicator = ctk.CTkLabel(self,  corner_radius=5)
+        self.status_indicator = ctk.CTkLabel(self,  corner_radius=5, text_color="black")
         self.status_indicator.grid(row=5, column=0, padx=60, pady=(0, 10), sticky="ew", columnspan=2)
         self.update_status("idle")
-
 
         # Load launch data (if any) and update variables
         try:
@@ -323,7 +322,7 @@ class App(ctk.CTk):
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
             #launch_vanilla(launch_data)  # old
-            Thread(target=launch_vanilla, args=(launch_data,)).start()
+            Thread(target=launch_vanilla, args=(launch_data, self)).start()
         elif launch_data["version_type"] == "Forge":
             #launch_forge(launch_data, self)  # old
             Thread(target=launch_forge, args=(launch_data, self)).start()
@@ -343,10 +342,10 @@ class App(ctk.CTk):
         """
 
         # (light_color, dark_color) foreground color pairs for different status modes
-        IDLE_STATUS_COLOR = ("gray", "darkgray")
-        WORKING_STATUS_COLOR = ("light_yellow", "yellow")
-        SUCCESS_STATUS_COLOR = ("green", "darkgreen")
-        ERROR_STATUS_COLOR = ("red", "darkred")
+        IDLE_STATUS_COLOR = ("#2DCCFF")
+        WORKING_STATUS_COLOR = ("#FCE83A")
+        SUCCESS_STATUS_COLOR = ("#56F000")
+        ERROR_STATUS_COLOR = ("#FF3838")
 
         if code == "idle":
             self.status_indicator.configure(fg_color=IDLE_STATUS_COLOR)
@@ -364,7 +363,7 @@ class App(ctk.CTk):
             self.status_indicator.configure(fg_color=ERROR_STATUS_COLOR)
             self.status_indicator.configure(text=f"ERROR: {message}")
 
-        else:  # This should never happen, but just in case it will be treated as an error
+        else:  # This should never  (except crash / exception raise), but just in case it will be treated as an error
             self.status_indicator.configure(fg_color=ERROR_STATUS_COLOR)
             self.status_indicator.configure(text=f"ERROR: No status code --> message: {message}")
         return

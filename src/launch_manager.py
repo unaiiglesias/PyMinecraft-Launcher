@@ -10,7 +10,7 @@ import customtkinter as ctk
 import pygetwindow as gw
 
 
-def launch_vanilla(launch_parameters):
+def launch_vanilla(launch_parameters, app):
     main_dir = launch_parameters["path"]
     work_dir = main_dir
     version_id = launch_parameters["version"]
@@ -83,16 +83,19 @@ def download_forge_installer(version, subversion, main_dir):
     wget.download(needed_url, f"{main_dir}\\installer.jar")
 
 
-def automatically_launch_forge_installer(installer_path, main_dir, version, screen_resolution):
+def automatically_launch_forge_installer(installer_path, main_dir, version,app):
     sleep(1)
     popen(installer_path, "r", 1)  # Open the forge installer
 
     forge_installer_windows = []
     while len(forge_installer_windows) == 0:  # If the list's length is 0, no window was found
         print("Looking for Forge installer window...")
+        app.update_status("error", "Forge installer window not found")
         forge_installer_windows = gw.getWindowsWithTitle('Mod system installer')
         sleep(1)
     print("Forge installer window found!")
+
+    app.update_status("working", "Setting up Forge installer")
 
     # In order to ensure that the forge installer is focused, the window will be "activated" (focused)
     forge_installer_window = gw.getWindowsWithTitle('Mod system installer')[0]
@@ -138,6 +141,7 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, scre
     sleep(0.1)
     keyboard.send("enter")
     print("Forge installer set up and running")
+    app.update_status("working", "Forge installer running")
 
 
 def ask_if_forge_installation_has_finished(installer_path, app):
@@ -173,7 +177,7 @@ def ask_if_forge_installation_has_finished(installer_path, app):
     print("Removing used installer")
 
 
-def launch_forge(launch_parameters, app=None):
+def launch_forge(launch_parameters, app):
     main_dir = launch_parameters["path"]
     work_dir = main_dir
     version_id = launch_parameters["version"]
@@ -184,6 +188,7 @@ def launch_forge(launch_parameters, app=None):
     screen_resolution = (app.winfo_screenwidth(), app.winfo_screenheight())
 
     if not path.isfile(main_dir + "\\launcher_profiles.json"):
+        app.update_status("working", "Making launcher_profiles.json")
         make_launcher_profiles_json(main_dir)
     #  If there is no launcher_profiles json, make one. The forge installer will need it to run.
 
@@ -198,17 +203,20 @@ def launch_forge(launch_parameters, app=None):
 
         # Download and use forge manual version installer
         download_forge_installer(version_id, subversion_id, main_dir)
+        app.update_status("working", "Downloading forge installer")
 
         installer_path = f"{main_dir}\\installer.jar"
-        automatically_launch_forge_installer(installer_path, main_dir, version_id, screen_resolution)
+        automatically_launch_forge_installer(installer_path, main_dir, version_id, app)
         ask_if_forge_installation_has_finished(installer_path, app)
 
         print("Downloading and installing Forge version")
+        app.update_status("working", "Downloading and installing Forge version")
         installer.prepare()
         installer.download()
         installer.install()
 
     print("Downloading and installing Minecraft version")
+    app.update_status("working", "Downloading and installing Minecraft version")
     version = ForgeVersion(ctx, full_version_id)
     version.install(jvm=True)
 
@@ -218,6 +226,7 @@ def launch_forge(launch_parameters, app=None):
     start_opts.resolution = (1080, 720)
 
     print("Launching Minecraft")
+    app.update_status("success", "Minecraft launched!")
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
