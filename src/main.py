@@ -16,6 +16,10 @@ Roboto 13
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        # Launcher version
+        self.launcher_version = "ver: 0.1"
+
         self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
         self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
         # light_image = dark_image
@@ -124,7 +128,7 @@ class App(ctk.CTk):
                                            command=self.update_launcher, text="Update")
         self.update_button.grid(row=1, padx=20, pady=(10, 0))
 
-        self.version_label = ctk.CTkLabel(self.side_frame, text=self.get_launcher_version())
+        self.version_label = ctk.CTkLabel(self.side_frame, text=self.launcher_version)
         self.version_label.grid(row=2, sticky="w", padx=(20, 0), pady=0)
 
         self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_launcher_version())
@@ -272,11 +276,6 @@ class App(ctk.CTk):
         else:
             self.log_in_button.configure(image=self.refresh_icon)
         return
-
-    def get_launcher_version(self):
-        # WIP placeholder
-        version = "ver. 0.1"
-        return version
 
     def save_launch_data(self, launch_data):
         user_path = str(Path.home())
