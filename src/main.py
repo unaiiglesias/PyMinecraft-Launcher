@@ -96,7 +96,7 @@ class App(ctk.CTk):
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
         self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="MB")
-        self.input_ram_unit.grid( row=1, column=1, sticky="w", pady=0)
+        self.input_ram_unit.grid(row=1, column=1, sticky="w", pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
         self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
@@ -341,10 +341,10 @@ class App(ctk.CTk):
         self.update_status("working", "Launching the game")
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
-            #launch_vanilla(launch_data)  # old
+            # launch_vanilla(launch_data)  OLD
             Thread(target=launch_vanilla, args=(launch_data, self)).start()
         elif launch_data["version_type"] == "Forge":
-            #launch_forge(launch_data, self)  # old
+            # launch_forge(launch_data, self)  OLD
             Thread(target=launch_forge, args=(launch_data, self)).start()
 
         return
@@ -362,10 +362,10 @@ class App(ctk.CTk):
         """
 
         # (light_color, dark_color) foreground color pairs for different status modes
-        IDLE_STATUS_COLOR = ("#2DCCFF")
-        WORKING_STATUS_COLOR = ("#FCE83A")
-        SUCCESS_STATUS_COLOR = ("#56F000")
-        ERROR_STATUS_COLOR = ("#FF3838")
+        IDLE_STATUS_COLOR = "#2DCCFF"
+        WORKING_STATUS_COLOR = "#FCE83A"
+        SUCCESS_STATUS_COLOR = "#56F000"
+        ERROR_STATUS_COLOR = "#FF3838"
 
         if code == "idle":
             self.status_indicator.configure(fg_color=IDLE_STATUS_COLOR)
