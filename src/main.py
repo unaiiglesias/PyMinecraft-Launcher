@@ -5,6 +5,12 @@ import json
 from get_versions import get_vanilla_versions, get_forge_versions
 from launch_manager import launch_vanilla, launch_forge
 from threading import Thread
+from tkinter import filedialog
+
+"""
+Default font:
+Roboto 13
+"""
 
 
 class App(ctk.CTk):
@@ -13,120 +19,120 @@ class App(ctk.CTk):
         self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
         self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
         # light_image = dark_image
-        self.version_type_to_get = ctk.StringVar(value="base")
 
         self.title("PyMinecraft Launcher")
         # self.geometry("600x600")
 
-        # Grid configure
-        self.grid_columnconfigure((0, 1), weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
+        # App grid configuration
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(6, weight=1)
 
         # Status indicator --> This needs to be "initialised" early or some widgets that try to modify it during load
         # will raise exceptions
         self.status_indicator = ctk.CTkLabel(self,  corner_radius=5, text_color="black")
-        self.status_indicator.grid(row=5, column=0, padx=60, pady=(0, 10), sticky="ew", columnspan=2)
+        self.status_indicator.grid(row=5, column=0, columnspan=2, sticky="ew", padx=60, pady=(0, 10))
         self.update_status("idle")
 
         # Header
         self.header = ctk.CTkLabel(self, text="PyMinecraft Launcher", font=("calibri", 24))
-        self.header.grid(row=0, column=1, rowspan=1, padx=20, pady=(10, 0), sticky="n")
+        self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
 
         # Credentials frame
         self.credentials_frame = ctk.CTkFrame(self)
-        self.credentials_frame.grid(row=1, column=1, padx=20, pady=10, sticky="nswe")
+        self.credentials_frame.grid(row=1, column=1, sticky="nswe", padx=20, pady=10)
         self.credentials_frame.rowconfigure(4)
 
         self.input_username_label = ctk.CTkLabel(self.credentials_frame, text="Username")
-        self.input_username_label.grid(row=0, padx=20, pady=(5, 0), sticky="w")
+        self.input_username_label.grid(row=0, column=0, sticky="w", padx=20, pady=(5, 0))
 
         self.input_username_field = ctk.CTkEntry(self.credentials_frame, width=200, height=20,
                                                  placeholder_text="Username")
-        self.input_username_field.grid(row=1, padx=20, pady=5, sticky="w")
+        self.input_username_field.grid(row=1, sticky="w", padx=20, pady=5)
 
         self.input_email_label = ctk.CTkLabel(self.credentials_frame, text="Email (Premium only)")
-        self.input_email_label.grid(row=2, padx=20, pady=(0, 5), stick="w")
+        self.input_email_label.grid(row=2, stick="w", padx=20, pady=(0, 5))
 
         self.input_email_field = ctk.CTkEntry(self.credentials_frame, width=160, height=20,
                                               placeholder_text="example@gmail.com")
-        self.input_email_field.grid(row=3, padx=(20, 0), pady=(0, 5), sticky="w")
+        self.input_email_field.grid(row=3, sticky="w", padx=20, pady=(0, 10))
 
         self.log_in_button = ctk.CTkButton(self.credentials_frame, width=20, height=20, fg_color="white",
                                            command=self.log_in, image=self.refresh_icon, text="")
-        self.log_in_button.grid(row=3, padx=(0, 20), pady=(0, 5), sticky="e")
+        self.log_in_button.grid(row=3, sticky="e", padx=20, pady=(0, 10))
 
         # Version choice frame
         self.version_frame = ctk.CTkFrame(self)
         self.version_frame.rowconfigure(3)
-        self.version_frame.grid(row=2, column=1, padx=20, pady=10, sticky="nswe")
+        self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
 
         self.version_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
-        self.version_label.grid(row=0, padx=20, pady=0, sticky="w")
+        self.version_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
-        # Choose version type
         self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
                                               command=self.update_versions)
-        self.version_type.grid(row=1, padx=30, pady=10, sticky="w")
+        self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
-        # Choose version number
         self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
                                                 command=self.update_subversions)
-        self.version_number.grid(row=2, column=0, padx=30, pady=10, sticky="w")
+        self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
 
-        # Choose subversion number
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
-        self.subversion_number.grid(row=2, column=1, padx=30, pady=10, sticky="w")
+        self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
 
         # (Launch) Parameters frame
         self.parameters_frame = ctk.CTkFrame(self)
+        self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=10)
         self.parameters_frame.rowconfigure(4)
-        self.parameters_frame.grid(row=3, column=1, padx=20, pady=10, sticky="nswe")
+        self.parameters_frame.columnconfigure(3)
 
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
-        self.input_ram_label.grid(padx=20, pady=0, sticky="w", columnspan=2, row=0)
+        self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
-        self.input_ram_field = ctk.CTkEntry(self.parameters_frame, width=60, height=20, placeholder_text="RAM")
-        self.input_ram_field.grid(padx=(20, 0), pady=0, sticky="we", column=0, columnspan=1, row=1)
+        self.input_ram_field = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
+        self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
-        self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="Mb")
-        self.input_ram_unit.grid(column=1, columnspan=1, padx=5, row=1, sticky="w")
+        self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="MB")
+        self.input_ram_unit.grid( row=1, column=1, sticky="w", pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
-        self.input_installation_path_label.grid(row=2, columnspan=2, padx=20, sticky="w")
+        self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
 
-        self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=180, height=20)
+        self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
         self.input_installation_path.insert(0, self.get_default_path())  # Set entry to default path
-        self.input_installation_path.grid(row=3, column=0, padx=20, pady=10, sticky="w")
+        self.input_installation_path.grid(row=3, column=0, sticky="w", padx=(20, 0), pady=(0, 10))
 
         self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=20, height=20,
                                                             command=self.reset_installation_path, text="Reset")
-        self.reset_installation_path_button.grid(row=3, column=1, padx=(0, 20), sticky="e")
+        self.reset_installation_path_button.grid(row=3, column=1, sticky="w", padx=0, pady=(0, 10))
+
+        self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=20, height=20,
+                                                             command=self.browse_installation_path, text="Browse")
+        self.browse_installation_path_button.grid(row=3, column=2, padx=5, pady=(0, 10))
 
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
-        self.side_frame.grid(row=3, column=0, padx=20, pady=10, sticky="nswe")
+        self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(3)
 
         self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Theme mode")
 
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
                                                  command=self.change_appearance_mode)
-        self.appearance_mode.grid(row=0, padx=20, pady=10)
+        self.appearance_mode.grid(row=0, padx=20, pady=20)
 
-        self.update_button = ctk.CTkButton(self.side_frame, width=160, height=30, fg_color="green",
+        self.update_button = ctk.CTkButton(self.side_frame, width=160, fg_color="green",
                                            command=self.update_launcher, text="Update")
         self.update_button.grid(row=1, padx=20, pady=(10, 0))
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=self.get_launcher_version())
-        self.version_label.grid(row=2, padx=(20, 0), pady=0, sticky="w")
+        self.version_label.grid(row=2, sticky="w", padx=(20, 0), pady=0)
 
         self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_launcher_version())
-        self.latest_version_label.grid(row=2, padx=(0, 20), pady=0, sticky="e")
+        self.latest_version_label.grid(row=2, sticky="e", padx=(0, 20), pady=0)
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
-        self.launch_button.grid(row=4, column=0, padx=60, pady=20, sticky="ew", columnspan=2)
-
+        self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
 
         # Load launch data (if any) and update variables
         try:
@@ -238,7 +244,6 @@ class App(ctk.CTk):
             self.subversion_number.configure(values=subversion_list)
             self.subversion_number.set(subversion_list[0])  # Set to latest by default
 
-
     def get_default_path(self):
         user_path = str(Path.home())
         installation_path = user_path + "\\AppData\\Roaming\\.minecraft"
@@ -250,6 +255,15 @@ class App(ctk.CTk):
         self.input_installation_path.insert(0, default_path)  # Set the entry to the default path
         print("Path reseted")
         return
+
+    def browse_installation_path(self):
+        path = filedialog.askdirectory()
+
+        if not path:  # If no path was chosen (empty path --> ""), do nothing
+            return
+
+        self.input_installation_path.delete(0, ctk.END)
+        self.input_installation_path.insert(0, path)
 
     def log_in(self):
         print("Logging in...")
