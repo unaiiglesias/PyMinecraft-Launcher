@@ -87,8 +87,8 @@ class App(ctk.CTk):
         # (Launch) Parameters frame
         self.parameters_frame = ctk.CTkFrame(self)
         self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=10)
-        self.parameters_frame.rowconfigure(4)
-        self.parameters_frame.columnconfigure(3)
+        self.parameters_frame.rowconfigure(5)
+        self.parameters_frame.columnconfigure(2)
 
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
@@ -97,7 +97,7 @@ class App(ctk.CTk):
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
         self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="MB")
-        self.input_ram_unit.grid(row=1, column=1, sticky="w", pady=0)
+        self.input_ram_unit.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
         self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
@@ -106,13 +106,13 @@ class App(ctk.CTk):
         self.input_installation_path.insert(0, self.get_default_path())  # Set entry to default path
         self.input_installation_path.grid(row=3, column=0, sticky="w", padx=(20, 0), pady=(0, 10))
 
-        self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=20, height=20,
+        self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
                                                             command=self.reset_installation_path, text="Reset")
-        self.reset_installation_path_button.grid(row=3, column=1, sticky="w", padx=0, pady=(0, 10))
+        self.reset_installation_path_button.grid(row=4, column=0, padx=(40, 0), pady=(0, 10), sticky="w")
 
-        self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=20, height=20,
+        self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
                                                              command=self.browse_installation_path, text="Browse")
-        self.browse_installation_path_button.grid(row=3, column=2, padx=5, pady=(0, 10))
+        self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
 
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
