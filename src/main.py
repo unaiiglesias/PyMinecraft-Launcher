@@ -17,8 +17,9 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Launcher version
+        # "Global" app variables
         self.launcher_version = "ver: 0.1"
+        self.translations = self.load_translations("en")
 
         self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
         self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
@@ -69,8 +70,8 @@ class App(ctk.CTk):
         self.version_frame.rowconfigure(3)
         self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
 
-        self.version_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
-        self.version_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
+        self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
+        self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
         self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
                                               command=self.update_versions)
@@ -116,23 +117,25 @@ class App(ctk.CTk):
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
-        self.side_frame.rowconfigure(3)
-
-        self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Theme mode")
+        self.side_frame.rowconfigure(4)
 
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
                                                  command=self.change_appearance_mode)
-        self.appearance_mode.grid(row=0, padx=20, pady=20)
+        self.appearance_mode.grid(row=0, padx=20, pady=10)
+
+        self.language_selector = ctk.CTkOptionMenu(self.side_frame, values=["English", "Español"],
+                                                   command=self.change_language)
+        self.language_selector.grid(row=1, padx=20, pady=10)
 
         self.update_button = ctk.CTkButton(self.side_frame, width=160, fg_color="green",
                                            command=self.update_launcher, text="Update")
-        self.update_button.grid(row=1, padx=20, pady=(10, 0))
+        self.update_button.grid(row=2, padx=20, pady=(10, 0))
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=self.launcher_version)
-        self.version_label.grid(row=2, sticky="w", padx=(20, 0), pady=0)
+        self.version_label.grid(row=3, sticky="w", padx=(20, 0), pady=0)
 
         self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_launcher_version())
-        self.latest_version_label.grid(row=2, sticky="e", padx=(0, 20), pady=0)
+        self.latest_version_label.grid(row=3, sticky="e", padx=(0, 20), pady=0)
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
@@ -154,12 +157,22 @@ class App(ctk.CTk):
             self.subversion_number.set(launch_data["subversion"])
             self.appearance_mode.set(launch_data["theme"])  # set the value
             self.change_appearance_mode(launch_data["theme"])  # Change the theme
+
+            self.language_selector.set(launch_data["language"])
+            self.change_language(launch_data["language"])
+
         except FileNotFoundError:
             pass
 
         self.update_versions(self.version_type.get())
 
     def change_appearance_mode(self, new_appearance_mode):
+        if new_appearance_mode == "Claro":
+            new_appearance_mode = "Light"
+        elif new_appearance_mode == "Oscuro":
+            new_appearance_mode = "Dark"
+        elif new_appearance_mode == "Sistema":
+            new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
 
     def get_versions(self):
@@ -295,6 +308,33 @@ class App(ctk.CTk):
         except FileNotFoundError:
             raise FileNotFoundError
 
+    def load_translations(self, language):
+        with open("./../assets/translations.json", "r", encoding="utf-8") as file:
+            translations_file = json.load(file)
+        return translations_file[language]
+
+    def change_language(self, choice):
+        # choice in (English, Español)
+        language = "en"  # Default, just in case
+        if choice == "English":
+            self.translations = self.load_translations("en")
+        elif choice == "Español":
+            self.translations = self.load_translations("es")
+
+        self.input_username_label.configure(text=self.translations["username_label"])
+        self.input_email_label.configure(text=self.translations["email_label"])
+        self.version_to_launch_label.configure(text=self.translations["versions_label"])
+        self.version_type.configure(values=self.translations["version_types"])
+        self.input_ram_label.configure(text=self.translations["ram_amount_label"])
+        self.input_installation_path_label.configure(text=self.translations["installation_path_label"])
+        self.reset_installation_path_button.configure(text=self.translations["reset_path_button"])
+        self.browse_installation_path_button.configure(text=self.translations["browse_path_button"])
+        self.appearance_mode.configure(values=self.translations["theme_choice"])
+        self.update_button.configure(text=self.translations["update_button"])
+        self.launch_button.configure(text=self.translations["launch_button"])
+        self.update_status("idle")  # So that the status bar text updates
+        return
+
     def get_launch_parameters(self):
 
         launch_parameters = {
@@ -306,7 +346,8 @@ class App(ctk.CTk):
             "path": self.input_installation_path.get(),
             "email": self.input_email_field.get(),
             "premium": False,  # Make it false by default
-            "theme": self.appearance_mode.get()
+            "theme": self.appearance_mode.get(),
+            "language": self.language_selector.get()
         }
 
         # Check that ram value is correct
@@ -338,7 +379,7 @@ class App(ctk.CTk):
         # When using fstrings the dict key must be quoted with '', not ""
 
         self.save_launch_data(launch_data)
-        self.update_status("working", "Launching the game")
+        self.update_status("working", self.translations["status_working_launching"])
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
             # launch_vanilla(launch_data)  OLD
@@ -369,7 +410,7 @@ class App(ctk.CTk):
 
         if code == "idle":
             self.status_indicator.configure(fg_color=IDLE_STATUS_COLOR)
-            self.status_indicator.configure(text=f"IDLE: Waiting for launch")
+            self.status_indicator.configure(text="IDLE: {}".format(self.translations["status_idle"]))
 
         elif code == "working":
             self.status_indicator.configure(fg_color=WORKING_STATUS_COLOR)

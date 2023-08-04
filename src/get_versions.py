@@ -57,7 +57,7 @@ def get_forge_versions(cache_data_path: str, app):
     today = datetime.datetime.now().strftime("%d")  # get today's number of the month
 
     # If there already exists an updated version cache file, load it and return it
-    app.update_status("working", "Loading cached Forge versions")
+    app.update_status("working", app.translations["status_working_loading_cached_forge_versions"])
 
     try:
         with open(versions_cache_file, "r") as versions_file:
@@ -72,11 +72,11 @@ def get_forge_versions(cache_data_path: str, app):
     except FileNotFoundError:
         pass  # Do all the downloading and caching into file stuff
 
-    app.update_status("working", "Fetching Forge versions from the internet")
+    app.update_status("working", app.translations["status_working_fetching_forge_versions"])
 
     forge_versions = fetch_forge_versions_from_internet()
 
-    app.update_status("working", "Caching Forge versions to file")
+    app.update_status("working", app.translations["status_working_caching_forge_versions"])
     with open(versions_cache_file, "w") as versions_file:
         forge_versions["day_of_creation"] = today  # The last key of the dict will be the day it was created
         json.dump(forge_versions, versions_file)
@@ -100,7 +100,7 @@ def get_vanilla_versions(cache_data_path: str, app):
     today = datetime.datetime.now().strftime("%d")  # get today's number of the month
 
     # If there already exists an updated version cache file, load it and return it
-    app.update_status("working", "Loading cached vanilla versions")
+    app.update_status("working", app.translations["status_working_loading_cached_vanilla_versions"])
 
     try:
         with open(versions_cache_file, "r") as versions_file:
@@ -115,11 +115,11 @@ def get_vanilla_versions(cache_data_path: str, app):
     except FileNotFoundError:
         pass  # Do all the downloading and caching into file stuff
 
-    app.update_status("working", "Fetching vanilla versions from the internet")
+    app.update_status("working", app.translations["status_working_fetching_vanilla_versions"])
 
     vanilla_versions = fetch_vanilla_versions_from_internet()
 
-    app.update_status("working", "Caching vanilla versions to file")
+    app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
 
     with open(versions_cache_file, "w") as versions_file:
         vanilla_versions.append(today)  # The last element of the versions list will be the day it was created

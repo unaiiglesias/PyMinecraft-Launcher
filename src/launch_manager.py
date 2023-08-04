@@ -21,7 +21,7 @@ def launch_vanilla(launch_parameters, app):
     version = Version(ctx, version_id)
 
     print("Downloading and installing Minecraft version")
-    app.update_status("working", "Downloading and installing Minecraft version")
+    app.update_status("working", app.translations["status_working_downloading_version"])
     version.install(jvm=True)
 
     start_opts = StartOptions()
@@ -29,7 +29,7 @@ def launch_vanilla(launch_parameters, app):
     start_opts.resolution = (1080, 720)
 
     print("Launching Minecraft")
-    app.update_status("success", "Minecraft launched!")
+    app.update_status("success", app.translations["status_success"])
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
@@ -92,12 +92,12 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, app)
     forge_installer_windows = []
     while len(forge_installer_windows) == 0:  # If the list's length is 0, no window was found
         print("Looking for Forge installer window...")
-        app.update_status("error", "Forge installer window not found")
+        app.update_status("error", app.translations["status_error_installer_not_found"])
         forge_installer_windows = gw.getWindowsWithTitle('Mod system installer')
         sleep(1)
     print("Forge installer window found!")
 
-    app.update_status("working", "Setting up Forge installer")
+    app.update_status("working", app.translations["status_working_setting_forge_installer"])
 
     # In order to ensure that the forge installer is focused, the window will be "activated" (focused)
     forge_installer_window = gw.getWindowsWithTitle('Mod system installer')[0]
@@ -143,7 +143,7 @@ def automatically_launch_forge_installer(installer_path, main_dir, version, app)
     sleep(0.1)
     keyboard.send("enter")
     print("Forge installer set up and running")
-    app.update_status("working", "Forge installer running")
+    app.update_status("working", app.translations["status_working_forge_installer_running"])
 
 
 def ask_if_forge_installation_has_finished(installer_path, app):
@@ -190,7 +190,7 @@ def launch_forge(launch_parameters, app):
     screen_resolution = (app.winfo_screenwidth(), app.winfo_screenheight())
 
     if not path.isfile(main_dir + "\\launcher_profiles.json"):
-        app.update_status("working", "Making launcher_profiles.json")
+        app.update_status("working", app.translations["status_working_making_launcher_profiles"])
         make_launcher_profiles_json(main_dir)
     #  If there is no launcher_profiles json, make one. The forge installer will need it to run.
 
@@ -204,22 +204,22 @@ def launch_forge(launch_parameters, app):
     if installer.needed():  # The version needs to be installed
 
         # Download and use forge manual version installer
-        app.update_status("working", "Downloading forge installer")
+        app.update_status("working", app.translations["status_downloading_forge_installer"])
         download_forge_installer(version_id, subversion_id, main_dir)
 
-        app.update_status("working", "Setting up forge installer and installing")
+        app.update_status("working", app.translations["status_working_forge_installer_working"])
         installer_path = f"{main_dir}\\installer.jar"
         automatically_launch_forge_installer(installer_path, main_dir, version_id, app)
         ask_if_forge_installation_has_finished(installer_path, app)
 
         print("Downloading and installing Forge version")
-        app.update_status("working", "Downloading and installing Forge version")
+        app.update_status("working", app.translations["status_working_downloading_forge_version"])
         installer.prepare()
         installer.download()
         installer.install()
 
     print("Downloading and installing Minecraft version")
-    app.update_status("working", "Downloading and installing Minecraft version")
+    app.update_status("working", app.translations["status_working_dowloading_version"])
     version = ForgeVersion(ctx, full_version_id)
     version.install(jvm=True)
 
@@ -229,7 +229,7 @@ def launch_forge(launch_parameters, app):
     start_opts.resolution = (1080, 720)
 
     print("Launching Minecraft")
-    app.update_status("success", "Minecraft launched!")
+    app.update_status("success", app.translations["status_success"])
     start = Start(version)
     start.prepare(start_opts)
     start.jvm_args.append(f"-Xmx{ram_amount}M")
