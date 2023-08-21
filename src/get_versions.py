@@ -1,5 +1,5 @@
-from portablemc_forge import request_maven_versions
-from portablemc import VersionManifest
+from portablemc.forge import request_maven_versions
+from portablemc.standard import VersionManifest
 import json
 import datetime
 

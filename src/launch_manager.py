@@ -1,6 +1,6 @@
 from time import sleep
-from portablemc import Context, Version, StartOptions, Start
-from portablemc_forge import ForgeVersionInstaller, ForgeVersion
+from portablemc.standard import Context, Version
+from portablemc.forge import ForgeVersion
 import json
 from os import path, popen, remove
 import wget
@@ -8,32 +8,30 @@ import keyboard
 from pyperclip import copy
 import customtkinter as ctk
 import pygetwindow as gw
+from pathlib import Path
 
 
 def launch_vanilla(launch_parameters, app):
-    main_dir = launch_parameters["path"]
-    work_dir = main_dir
+    main_dir = Path(launch_parameters["path"])
+    work_dir = Path(main_dir)
     version_id = launch_parameters["version"]
     ram_amount = launch_parameters["ram"]
     username = launch_parameters["username"]
 
     ctx = Context(main_dir, work_dir)
-    version = Version(ctx, version_id)
+    version = Version(version_id, context=ctx)
 
     print("Downloading and installing Minecraft version")
     app.update_status("working", app.translations["status_working_downloading_version"])
-    version.install(jvm=True)
+    env = version.install()
 
-    start_opts = StartOptions()
-    start_opts.username = username
-    start_opts.resolution = (1080, 720)
+    env.username = username
+    env.resolution = (1080, 720)
+    env.jvm_args.append(f"-Xmx{ram_amount}M")
 
     print("Launching Minecraft")
     app.update_status("success", app.translations["status_success"])
-    start = Start(version)
-    start.prepare(start_opts)
-    start.jvm_args.append(f"-Xmx{ram_amount}M")
-    start.start()
+    env.run()
 
 
 def make_launcher_profiles_json(main_dir):
