@@ -40,7 +40,7 @@ def launch_forge(launch_parameters, app):
     print(f"Launching : {full_version_id}")
 
     print("Downloading and installing Forge version")
-    app.update_status("working", app.translations["status_working_downloading_version"])
+    app.update_status("working", app.translations["status_working_downloading_forge_version"])
     version = ForgeVersion(full_version_id, context=ctx)
 
     version.set_auth_offline(username, None)  # (username, uuid) no uuid so pass None
