@@ -45,25 +45,14 @@ class App(ctk.CTk):
         # Credentials frame
         self.credentials_frame = ctk.CTkFrame(self)
         self.credentials_frame.grid(row=1, column=1, sticky="nswe", padx=20, pady=10)
-        self.credentials_frame.rowconfigure(4)
+        self.credentials_frame.rowconfigure(2)
 
         self.input_username_label = ctk.CTkLabel(self.credentials_frame, text="Username")
         self.input_username_label.grid(row=0, column=0, sticky="w", padx=20, pady=(5, 0))
 
-        self.input_username_field = ctk.CTkEntry(self.credentials_frame, width=200, height=20,
+        self.input_username_field = ctk.CTkEntry(self.credentials_frame, width=300, height=20,
                                                  placeholder_text="Username")
-        self.input_username_field.grid(row=1, sticky="w", padx=20, pady=5)
-
-        self.input_email_label = ctk.CTkLabel(self.credentials_frame, text="Email (Premium only)")
-        self.input_email_label.grid(row=2, stick="w", padx=20, pady=(0, 5))
-
-        self.input_email_field = ctk.CTkEntry(self.credentials_frame, width=160, height=20,
-                                              placeholder_text="example@gmail.com")
-        self.input_email_field.grid(row=3, sticky="w", padx=20, pady=(0, 10))
-
-        self.log_in_button = ctk.CTkButton(self.credentials_frame, width=20, height=20, fg_color="white",
-                                           command=self.log_in, image=self.refresh_icon, text="")
-        self.log_in_button.grid(row=3, sticky="e", padx=20, pady=(0, 10))
+        self.input_username_field.grid(row=1, sticky="w", padx=20, pady=(5, 10))
 
         # Version choice frame
         self.version_frame = ctk.CTkFrame(self)
@@ -151,7 +140,6 @@ class App(ctk.CTk):
             self.input_installation_path.delete(0, ctk.END)
             self.input_installation_path.insert(0, launch_data["path"])
 
-            self.input_email_field.insert(0, launch_data["email"])
             self.version_type.set(launch_data["version_type"])
             self.version_number.set(launch_data["version"])
             self.subversion_number.set(launch_data["subversion"])
@@ -282,14 +270,6 @@ class App(ctk.CTk):
         self.input_installation_path.delete(0, ctk.END)
         self.input_installation_path.insert(0, path)
 
-    def log_in(self):
-        print("Logging in...")
-        if self.log_in_button._image == self.refresh_icon:
-            self.log_in_button.configure(image=self.check_icon)
-        else:
-            self.log_in_button.configure(image=self.refresh_icon)
-        return
-
     def save_launch_data(self, launch_data):
         user_path = str(Path.home())
         launch_data_path = user_path + "\\Documents"
@@ -322,7 +302,6 @@ class App(ctk.CTk):
             self.translations = self.load_translations("es")
 
         self.input_username_label.configure(text=self.translations["username_label"])
-        self.input_email_label.configure(text=self.translations["email_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
         self.version_type.configure(values=self.translations["version_types"])
         self.input_ram_label.configure(text=self.translations["ram_amount_label"])
@@ -344,7 +323,6 @@ class App(ctk.CTk):
             "subversion": self.subversion_number.get(),
             "ram": self.input_ram_field.get(),
             "path": self.input_installation_path.get(),
-            "email": self.input_email_field.get(),
             "premium": False,  # Make it false by default
             "theme": self.appearance_mode.get(),
             "language": self.language_selector.get()

@@ -1,7 +1,6 @@
 {
   "en": {
     "username_label" : "Username",
-    "email_label" : "Email (premium only)",
     "versions_label" : "Version to launch",
     "version_types" : ["Vanilla", "Forge", "Modpack"],
     "ram_amount_label" : "RAM amount",
@@ -26,7 +25,6 @@
   },
   "es": {
     "username_label" : "Nombre de usuario",
-    "email_label" : "Email (solo para premium)",
     "versions_label" : "Version a lanzar",
     "version_types" : ["Vanilla", "Forge", "Modpack"],
     "ram_amount_label" : "Cantidad de RAM",
