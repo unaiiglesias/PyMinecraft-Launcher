@@ -21,9 +21,6 @@ class App(ctk.CTk):
         self.launcher_version = "ver: 0.1"
         self.translations = self.load_translations("en")
 
-        self.refresh_icon = ctk.CTkImage(light_image=Image.open("./../assets/refresh.png"), size=(20, 20))
-        self.check_icon = ctk.CTkImage(light_image=Image.open("./../assets/check.png"), size=(20, 20))
-        # light_image = dark_image
 
         self.title("PyMinecraft Launcher")
         # self.geometry("600x600")
