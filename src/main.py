@@ -22,7 +22,8 @@ class App(ctk.CTk):
         self.launcher_version = 0.1
         self.translations = self.load_translations("en")
 
-        self.title("PyMinecraft Launcher")
+        self.title("Calvonetta Launcher")
+        self.iconbitmap("assets/calvonetta_cut_transparent.ico")
         # self.geometry("600x600")
 
         # App grid configuration
@@ -36,7 +37,7 @@ class App(ctk.CTk):
         self.update_status("idle")
 
         # Header
-        self.header = ctk.CTkLabel(self, text="PyMinecraft Launcher", font=("calibri", 24))
+        self.header = ctk.CTkLabel(self, text="Calvonetta Launcher", font=("calibri", 24))
         self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
 
         # Credentials frame
