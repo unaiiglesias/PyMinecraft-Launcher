@@ -1,3 +1,5 @@
+import os
+
 import customtkinter as ctk
 from pathlib import Path
 import json
@@ -330,7 +332,7 @@ class App(ctk.CTk):
             launch_parameters["ram"] = int(launch_parameters["ram"])
         except ValueError:
             print("RAM must be a number")
-            return
+            raise ValueError
 
         # This part is only "triggered" if a is path neither provided via GUI nor loaded from the .json file
         inserted_path = self.input_installation_path.get()
@@ -339,12 +341,30 @@ class App(ctk.CTk):
         else:
             launch_parameters["path"] = inserted_path
 
+        # Check that path is valid (= It doesn't throw PermissionError)
+        try:
+            test_file_path = launch_parameters["path"] + "\\test.txt"
+            with open(test_file_path, "w") as test_file:
+                test_file.write("Do we got permission?")
+            os.remove(test_file_path)
+        except PermissionError:
+            print("Invalid Path")
+            raise PermissionError
+
         return launch_parameters
 
     def launch_game(self):
         print("Launching game...")
 
-        launch_data = self.get_launch_parameters()
+        try:
+            launch_data = self.get_launch_parameters()
+        except ValueError:
+            self.update_status("error", self.translations["status_error_invalid_ram"])
+            return
+        except PermissionError:
+            self.update_status("error", self.translations["status_error_invalid_path"])
+            return
+
         # When using fstrings the dict key must be quoted with '', not ""
 
         self.save_launch_data(launch_data)
