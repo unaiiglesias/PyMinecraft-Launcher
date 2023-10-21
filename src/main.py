@@ -80,11 +80,12 @@ class App(ctk.CTk):
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
-        self.input_ram_field = ctk.CTkEntry(self.parameters_frame, width=300, height=20, placeholder_text="2048")
+        self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=0.5, to=8,
+                                             number_of_steps=15, command=self.update_ram_slider)
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
-        self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="MB")
-        self.input_ram_unit.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
+        self.input_ram_value = ctk.CTkLabel(self.parameters_frame, text="1 GB")
+        self.input_ram_value.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
         self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
@@ -129,7 +130,8 @@ class App(ctk.CTk):
             if self.launcher_version == 0.1:
                 launch_data = self.load_launch_data()
                 self.input_username_field.insert(0, launch_data["username"])
-                self.input_ram_field.insert(0, launch_data["ram"])
+                self.input_ram_field.set(launch_data["ram"] / 1024)
+                self.update_ram_slider(launch_data["ram"] / 1024)
 
                 # To set the value of the path it first needs to be emptied
                 self.input_installation_path.delete(0, ctk.END)
@@ -241,6 +243,9 @@ class App(ctk.CTk):
             self.subversion_number.configure(values=subversion_list)
             self.subversion_number.set(subversion_list[0])  # Set to latest by default
 
+    def update_ram_slider(self, choice):
+        self.input_ram_value.configure(text=f"{choice} GB")
+
     def get_default_path(self):
         user_path = str(Path.home())
         installation_path = user_path + "\\AppData\\Roaming\\.minecraft"
@@ -308,7 +313,7 @@ class App(ctk.CTk):
             "version_type": self.version_type.get(),
             "version": self.version_number.get(),
             "subversion": self.subversion_number.get(),
-            "ram": self.input_ram_field.get(),
+            "ram": self.input_ram_field.get() * 1024,  # RAM is got in GB
             "path": self.input_installation_path.get(),
             "premium": False,  # Make it false by default
             "theme": self.appearance_mode.get(),
@@ -320,17 +325,8 @@ class App(ctk.CTk):
             launch_parameters["username"] = "Steve"
             self.input_username_field.insert(0, "Steve")
 
-        # Check that ram value is correct
-        # 1. It's not ""
-        if not launch_parameters["ram"]:
-            launch_parameters["ram"] = 2048
-            self.input_ram_field.insert(0, "2048")
-        # 2. It's a number
-        try:
-            launch_parameters["ram"] = int(launch_parameters["ram"])
-        except ValueError:
-            print("RAM must be a number")
-            raise ValueError
+        # Turn RAM value into an integer
+        launch_parameters["ram"] = int(launch_parameters["ram"])
 
         # This part is only "triggered" if a path is neither provided via GUI nor loaded from the .json file
         inserted_path = self.input_installation_path.get()
@@ -356,9 +352,6 @@ class App(ctk.CTk):
 
         try:
             launch_data = self.get_launch_parameters()
-        except ValueError:
-            self.update_status("error", self.translations["status_error_invalid_ram"])
-            return
         except PermissionError:
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
