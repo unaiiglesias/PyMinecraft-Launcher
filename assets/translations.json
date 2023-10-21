@@ -21,7 +21,6 @@
     "status_working_fetching_vanilla_versions" : "Fetching vanilla versions from the internet",
     "status_working_caching_vanilla_versions" : "Caching vanilla versions to file",
     "status_success" : "Minecraft launched!",
-    "status_error_installer_not_found" : "Forge installer window not found (Checking again...)",
     "status_error_invalid_ram" : "Selected RAM value is not valid (It must be a number)",
     "status_error_invalid_path" : "Selected installation path is not valid (Access denied)"
   },
@@ -47,7 +46,6 @@
     "status_working_fetching_vanilla_versions" : "Descargando versiones Vanilla desde internet",
     "status_working_caching_vanilla_versions" : "Guardando versiones Vanilla en cache",
     "status_success" : "Minecraft iniciado!",
-    "status_error_installer_not_found" : "Ventana del instalador de Forge no encontrada (Volviendo a buscar...)",
     "status_error_invalid_ram" : "La cantidad de RAM indicada no es valida (Debe ser un numero)",
     "status_error_invalid_path" : "La ruta de instalacion no es valida (Acceso denegado)"
   }
