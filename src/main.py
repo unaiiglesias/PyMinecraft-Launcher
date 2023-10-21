@@ -171,14 +171,12 @@ class App(ctk.CTk):
         elif version_type_to_get == "Forge":
             print(f"Getting {version_type_to_get} version and subversion dictionary...")
 
-        user_path = str(Path.home())
-        cache_data_path = user_path + "\\Documents"
 
         versions = []
         if version_type_to_get == "Vanilla":
-            versions = get_vanilla_versions(cache_data_path, self)
+            versions = get_vanilla_versions(".", self)
         elif version_type_to_get == "Forge":
-            versions = get_forge_versions(cache_data_path, self)
+            versions = get_forge_versions(".", self)
 
         self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
 
@@ -266,18 +264,14 @@ class App(ctk.CTk):
         self.input_installation_path.insert(0, path)
 
     def save_launch_data(self, launch_data):
-        user_path = str(Path.home())
-        launch_data_path = user_path + "\\Documents"
 
-        with open(launch_data_path + "\\launch_data.json", "w") as json_file:
+        with open("./launch_data.json", "w") as json_file:
             json.dump(launch_data, json_file)
 
     def load_launch_data(self):
-        user_path = str(Path.home())
-        launch_data_path = user_path + "\\Documents"
 
         try:
-            with open(launch_data_path + "/launch_data.json", "r") as json_file:
+            with open("./launch_data.json", "r") as json_file:
                 launch_data = json.load(json_file)
             return launch_data
         except FileNotFoundError:

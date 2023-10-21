@@ -4,3 +4,6 @@ idea.png
 .idea
 src/.idea
 src/__pycache__
+src/launch_data.json
+src/cache_vanilla_versions.json
+src/cache_forge_versions.json
