@@ -20,7 +20,7 @@ class App(ctk.CTk):
         super().__init__()
 
         # "Global" app variables
-        self.launcher_version = 0.1
+        self.launcher_version = 1.0
         self.translations = self.load_translations("en")
 
         self.title("Calvonetta Launcher")
@@ -136,8 +136,8 @@ class App(ctk.CTk):
 
         # Load launch data (if any) and update variables
         try:
-            if self.launcher_version == 0.1:
-                launch_data = self.load_launch_data()
+            launch_data = self.load_launch_data()
+            if launch_data["launcher_version"] == 1.0:
                 self.input_username_field.insert(0, launch_data["username"])
                 self.input_ram_field.set(launch_data["ram"] / 1024)
                 self.update_ram_slider(launch_data["ram"] / 1024)
@@ -326,7 +326,8 @@ class App(ctk.CTk):
             "path": self.input_installation_path.get(),
             "premium": False,  # Make it false by default
             "theme": self.appearance_mode.get(),
-            "language": self.language_selector.get()
+            "language": self.language_selector.get(),
+            "launcher_version": self.launcher_version
         }
 
         # Check that a username was introduced, if not, set Steve as username
