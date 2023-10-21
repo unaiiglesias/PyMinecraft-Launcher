@@ -1,5 +1,6 @@
 import os
-
+import tkinter
+from PIL import Image, ImageTk
 import customtkinter as ctk
 from pathlib import Path
 import json
@@ -101,6 +102,14 @@ class App(ctk.CTk):
         self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
                                                              command=self.browse_installation_path, text="Browse")
         self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
+
+        # Easter Egg frame
+        self.easter_egg_frame = ctk.CTkFrame(self)
+        self.easter_egg_frame.grid(row=1, rowspan=2, padx=15, pady=10, sticky="nswe")
+
+        self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
+        self.terror_easter_egg = ctk.CTkButton(self, width=5, height=5, image=self.terror_easter_egg_image, text="", hover=False, fg_color="transparent")
+        self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
 
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
