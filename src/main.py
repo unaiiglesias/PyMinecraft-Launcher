@@ -57,7 +57,7 @@ class App(ctk.CTk):
         self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
         self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge"],
                                               command=self.update_versions)
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
@@ -172,10 +172,6 @@ class App(ctk.CTk):
             versions = get_vanilla_versions(cache_data_path, self)
         elif version_type_to_get == "Forge":
             versions = get_forge_versions(cache_data_path, self)
-        elif version_type_to_get == "Modpack":
-            print("Modpack mode not avaliable yet, WIP")
-        else:
-            print("Version type not found")
 
         self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
 
@@ -190,7 +186,7 @@ class App(ctk.CTk):
 
         print("UPDATING VERSIONS")
 
-        # Choice will always be in ("Vanilla", "Forge", "Modpack")
+        # Choice will always be in ("Vanilla", "Forge")
 
         # Get version list (numbers) according to selected type
 
@@ -287,7 +283,6 @@ class App(ctk.CTk):
 
     def change_language(self, choice):
         # choice in (English, Español)
-        language = "en"  # Default, just in case
         if choice == "English":
             self.translations = self.load_translations("en")
         elif choice == "Español":
