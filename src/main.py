@@ -327,12 +327,6 @@ class App(ctk.CTk):
             print("RAM must be a number")
             return
 
-        # If an email is not provided, log in as no-premium
-        if launch_parameters["email"] != "":
-            launch_parameters["premium"] = True
-        else:  # an email address is given
-            launch_parameters["premium"] = False
-
         # This part is only "triggered" if a path neither provided nor loaded from the .json file
         inserted_path = self.input_installation_path.get()
         if inserted_path == "":
