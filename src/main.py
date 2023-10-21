@@ -106,7 +106,7 @@ class App(ctk.CTk):
         self.side_frame.rowconfigure(4)
 
         self.side_options_label = ctk.CTkLabel(self.side_frame, text="Launcher settings")
-        self.side_options_label.grid(row=0, padx=20, pady=(5,0))
+        self.side_options_label.grid(row=0, padx=20, pady=(5, 0))
 
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
                                                  command=self.change_appearance_mode)
@@ -118,7 +118,6 @@ class App(ctk.CTk):
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.launcher_version}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 0), pady=0)
-
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
@@ -170,7 +169,6 @@ class App(ctk.CTk):
             print(f"Getting {version_type_to_get} version list...")
         elif version_type_to_get == "Forge":
             print(f"Getting {version_type_to_get} version and subversion dictionary...")
-
 
         versions = []
         if version_type_to_get == "Vanilla":
@@ -333,7 +331,7 @@ class App(ctk.CTk):
             print("RAM must be a number")
             raise ValueError
 
-        # This part is only "triggered" if a is path neither provided via GUI nor loaded from the .json file
+        # This part is only "triggered" if a path is neither provided via GUI nor loaded from the .json file
         inserted_path = self.input_installation_path.get()
         if inserted_path == "":
             launch_parameters["path"] = self.get_default_path()
@@ -418,7 +416,6 @@ class App(ctk.CTk):
 
         self.status_indicator.update()  # Just in case
         return
-
 
 
 if __name__ == "__main__":
