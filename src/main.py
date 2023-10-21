@@ -279,7 +279,7 @@ class App(ctk.CTk):
             raise FileNotFoundError
 
     def load_translations(self, language):
-        with open("./../assets/translations.json", "r", encoding="utf-8") as file:
+        with open("./assets/translations.json", "r", encoding="utf-8") as file:
             translations_file = json.load(file)
         return translations_file[language]
 
