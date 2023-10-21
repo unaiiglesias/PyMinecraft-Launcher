@@ -46,7 +46,7 @@ class App(ctk.CTk):
         self.input_username_label.grid(row=0, column=0, sticky="w", padx=20, pady=(5, 0))
 
         self.input_username_field = ctk.CTkEntry(self.credentials_frame, width=300, height=20,
-                                                 placeholder_text="Username")
+                                                 placeholder_text="Steve")
         self.input_username_field.grid(row=1, sticky="w", padx=20, pady=(5, 10))
 
         # Version choice frame
@@ -77,7 +77,7 @@ class App(ctk.CTk):
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
-        self.input_ram_field = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
+        self.input_ram_field = ctk.CTkEntry(self.parameters_frame, width=300, height=20, placeholder_text="2048")
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
         self.input_ram_unit = ctk.CTkLabel(self.parameters_frame, text="MB")
@@ -315,14 +315,24 @@ class App(ctk.CTk):
             "language": self.language_selector.get()
         }
 
+        # Check that a username was introduced, if not, set Steve as username
+        if not launch_parameters["username"]:
+            launch_parameters["username"] = "Steve"
+            self.input_username_field.insert(0, "Steve")
+
         # Check that ram value is correct
+        # 1. It's not ""
+        if not launch_parameters["ram"]:
+            launch_parameters["ram"] = 2048
+            self.input_ram_field.insert(0, "2048")
+        # 2. It's a number
         try:
             launch_parameters["ram"] = int(launch_parameters["ram"])
         except ValueError:
             print("RAM must be a number")
             return
 
-        # This part is only "triggered" if a path neither provided nor loaded from the .json file
+        # This part is only "triggered" if a is path neither provided via GUI nor loaded from the .json file
         inserted_path = self.input_installation_path.get()
         if inserted_path == "":
             launch_parameters["path"] = self.get_default_path()
