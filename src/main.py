@@ -19,7 +19,7 @@ class App(ctk.CTk):
         super().__init__()
 
         # "Global" app variables
-        self.launcher_version = "ver: 0.1"
+        self.launcher_version = 0.1
         self.translations = self.load_translations("en")
 
         self.title("PyMinecraft Launcher")
@@ -116,7 +116,7 @@ class App(ctk.CTk):
                                                    command=self.change_language)
         self.language_selector.grid(row=2, padx=20, pady=10)
 
-        self.version_label = ctk.CTkLabel(self.side_frame, text=self.launcher_version)
+        self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.launcher_version}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 0), pady=0)
 
 
@@ -126,24 +126,29 @@ class App(ctk.CTk):
 
         # Load launch data (if any) and update variables
         try:
-            launch_data = self.load_launch_data()
-            self.input_username_field.insert(0, launch_data["username"])
-            self.input_ram_field.insert(0, launch_data["ram"])
+            if self.launcher_version == 0.1:
+                launch_data = self.load_launch_data()
+                self.input_username_field.insert(0, launch_data["username"])
+                self.input_ram_field.insert(0, launch_data["ram"])
 
-            # To set the value of the path it first needs to be emptied
-            self.input_installation_path.delete(0, ctk.END)
-            self.input_installation_path.insert(0, launch_data["path"])
+                # To set the value of the path it first needs to be emptied
+                self.input_installation_path.delete(0, ctk.END)
+                self.input_installation_path.insert(0, launch_data["path"])
 
-            self.version_type.set(launch_data["version_type"])
-            self.version_number.set(launch_data["version"])
-            self.subversion_number.set(launch_data["subversion"])
-            self.appearance_mode.set(launch_data["theme"])  # set the value
-            self.change_appearance_mode(launch_data["theme"])  # Change the theme
+                self.version_type.set(launch_data["version_type"])
+                self.version_number.set(launch_data["version"])
+                self.subversion_number.set(launch_data["subversion"])
+                self.appearance_mode.set(launch_data["theme"])  # set the value
+                self.change_appearance_mode(launch_data["theme"])  # Change the theme
 
-            self.language_selector.set(launch_data["language"])
-            self.change_language(launch_data["language"])
+                self.language_selector.set(launch_data["language"])
+                self.change_language(launch_data["language"])
 
         except FileNotFoundError:
+            pass
+
+        except KeyError:
+            print("Outdated Launch data")
             pass
 
         self.update_versions(self.version_type.get())
