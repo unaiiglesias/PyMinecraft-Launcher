@@ -1,5 +1,4 @@
 import customtkinter as ctk
-from PIL import Image
 from pathlib import Path
 import json
 from get_versions import get_vanilla_versions, get_forge_versions
@@ -20,7 +19,6 @@ class App(ctk.CTk):
         # "Global" app variables
         self.launcher_version = "ver: 0.1"
         self.translations = self.load_translations("en")
-
 
         self.title("PyMinecraft Launcher")
         # self.geometry("600x600")
@@ -105,23 +103,20 @@ class App(ctk.CTk):
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(4)
 
+        self.side_options_label = ctk.CTkLabel(self.side_frame, text="Launcher settings")
+        self.side_options_label.grid(row=0, padx=20, pady=(5,0))
+
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
                                                  command=self.change_appearance_mode)
-        self.appearance_mode.grid(row=0, padx=20, pady=10)
+        self.appearance_mode.grid(row=1, padx=20, pady=10)
 
         self.language_selector = ctk.CTkOptionMenu(self.side_frame, values=["English", "Español"],
                                                    command=self.change_language)
-        self.language_selector.grid(row=1, padx=20, pady=10)
-
-        self.update_button = ctk.CTkButton(self.side_frame, width=160, fg_color="green",
-                                           command=self.update_launcher, text="Update")
-        self.update_button.grid(row=2, padx=20, pady=(10, 0))
+        self.language_selector.grid(row=2, padx=20, pady=10)
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=self.launcher_version)
-        self.version_label.grid(row=3, sticky="w", padx=(20, 0), pady=0)
+        self.version_label.grid(row=3, sticky="sw", padx=(20, 0), pady=0)
 
-        self.latest_version_label = ctk.CTkLabel(self.side_frame, text=self.get_latest_launcher_version())
-        self.latest_version_label.grid(row=3, sticky="e", padx=(0, 20), pady=0)
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
@@ -306,7 +301,7 @@ class App(ctk.CTk):
         self.reset_installation_path_button.configure(text=self.translations["reset_path_button"])
         self.browse_installation_path_button.configure(text=self.translations["browse_path_button"])
         self.appearance_mode.configure(values=self.translations["theme_choice"])
-        self.update_button.configure(text=self.translations["update_button"])
+        self.side_options_label.configure(text=self.translations["side_options_label"])
         self.launch_button.configure(text=self.translations["launch_button"])
         self.update_status("idle")  # So that the status bar text updates
         return
@@ -406,15 +401,6 @@ class App(ctk.CTk):
         self.status_indicator.update()  # Just in case
         return
 
-    def get_latest_launcher_version(self):
-        # WIP placeholder
-        latest = "latest: 0.1"
-        return latest
-
-    def update_launcher(self):
-        # WIP placeholder
-        print("Updating launcher")
-        return
 
 
 if __name__ == "__main__":
