@@ -76,6 +76,11 @@ def get_forge_versions(cache_data_path: str, app):
 
     forge_versions = fetch_forge_versions_from_internet()
 
+    # Add latest and recommended subversions in each forge version
+    for version in forge_versions.keys():
+        forge_versions[version].insert(0, "recommended")
+        forge_versions[version].insert(0, "latest")
+
     app.update_status("working", app.translations["status_working_caching_forge_versions"])
     with open(versions_cache_file, "w") as versions_file:
         forge_versions["day_of_creation"] = today  # The last key of the dict will be the day it was created
