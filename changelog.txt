@@ -11,3 +11,6 @@ Ver: 1.0
 - Cache de versiones de forge y vanilla
 - Tema claro y Tema oscuro
 - Traducido al ingles y al español
+
+ver: 1.01
+- Actualizado portablemc a 4.2.1 para arreglar bug al obtener versiones del maven de Forge
