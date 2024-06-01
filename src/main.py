@@ -1,6 +1,5 @@
 import os
-import tkinter
-from PIL import Image, ImageTk
+from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
 import json
@@ -81,7 +80,7 @@ class App(ctk.CTk):
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
-        self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=0.5, to=8,
+        self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=1, to=16,
                                              number_of_steps=15, command=self.update_ram_slider)
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
@@ -108,8 +107,10 @@ class App(ctk.CTk):
         self.easter_egg_frame.grid(row=1, rowspan=2, padx=15, pady=10, sticky="nswe")
 
         self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
-        self.terror_easter_egg = ctk.CTkButton(self, width=5, height=5, image=self.terror_easter_egg_image, text="", hover=False, fg_color="transparent")
+        self.terror_easter_egg = ctk.CTkLabel(self, width=200, height=200, image=self.terror_easter_egg_image,
+                                              text="",fg_color="transparent")
         self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
+        self.none_image = ctk.CTkImage(Image.new('RGBA', (200, 200), (255, 0, 0, 0)), size=(200, 200))
 
         # Side options frame
         self.side_frame = ctk.CTkFrame(self)
@@ -128,7 +129,15 @@ class App(ctk.CTk):
         self.language_selector.grid(row=2, padx=20, pady=10)
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.launcher_version}")
-        self.version_label.grid(row=3, sticky="sw", padx=(20, 0), pady=0)
+        self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
+        self.bomb_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(25, 25))
+        self.bomb_image_label = ctk.CTkLabel(self.side_frame, image=self.bomb_image, text="",
+                                            fg_color="transparent")
+        self.bomb_image_label.grid(row=3, padx=(40, 0), pady=0)
+        self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text = "", width = 10, height = 10,
+                                                        command=self.toggle_terror_easter_egg)
+        self.enable_terror_easter_egg.grid(row = 3, sticky="e", padx=(0, 20), pady=0)
+        self.enable_terror_easter_egg.select() # TODO: Load this on start
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
@@ -172,6 +181,14 @@ class App(ctk.CTk):
         elif new_appearance_mode == "Sistema":
             new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
+
+    def toggle_terror_easter_egg(self):
+        if self.enable_terror_easter_egg.get() == 0:
+            self.terror_easter_egg.configure(image=self.none_image)
+            self.terror_easter_egg.image = self.none_image
+        else:
+            self.terror_easter_egg.configure(image = self.terror_easter_egg_image)
+            self.terror_easter_egg.image = self.terror_easter_egg_image
 
     def get_versions(self):
         # Actually working for vanilla & forge
