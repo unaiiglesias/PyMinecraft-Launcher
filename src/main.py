@@ -296,7 +296,7 @@ class App(ctk.CTk):
     def save_launch_data(self, launch_data):
 
         with open("./launch_data.json", "w") as json_file:
-            json.dump(launch_data, json_file)
+            json.dump(launch_data, json_file, indent=4)
 
     def load_launch_data(self):
 
