@@ -399,7 +399,8 @@ class App(ctk.CTk):
             launch_vanilla(launch_data, self)
         elif launch_data["version_type"] == "Forge":
             # launch_forge(launch_data, self)  OLD
-            Thread(target=launch_forge, args=(launch_data, self)).start()
+            # Thread(target=launch_forge, args=(launch_data, self)).start()
+            launch_forge(launch_data, self)
 
         return
 
