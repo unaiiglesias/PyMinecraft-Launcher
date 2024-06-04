@@ -1,10 +1,11 @@
+import datetime
 import os
 from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
-import json
 from get_versions import get_vanilla_versions, get_forge_versions
 from launch_manager import launch_vanilla, launch_forge
+import config_manager
 from threading import Thread
 from tkinter import filedialog
 
@@ -18,12 +19,15 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # "Global" app variables
-        self.launcher_version = 1.0
-        self.translations = self.load_translations("en")
+        # load config.ini dictionary
+        self.cfg = config_manager.load_ini()
 
-        self.title("Calvonetta Launcher")
-        self.iconbitmap("assets/calvonetta_cut_transparent.ico")
+        # "Global" app variables
+        self.launcher_version = self.cfg["version"]
+        self.translations = config_manager.load_translations(self.cfg["language"])
+
+        self.title(self.cfg["title"])
+        self.iconbitmap(self.cfg["icon"])
         # self.geometry("600x600")
 
         # App grid configuration
@@ -37,7 +41,7 @@ class App(ctk.CTk):
         self.update_status("idle")
 
         # Header
-        self.header = ctk.CTkLabel(self, text="Calvonetta Launcher", font=("calibri", 24))
+        self.header = ctk.CTkLabel(self, text=self.cfg["title"], font=("calibri", 24))
         self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
 
         # Credentials frame
@@ -108,7 +112,7 @@ class App(ctk.CTk):
 
         self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
         self.terror_easter_egg = ctk.CTkLabel(self, width=200, height=200, image=self.terror_easter_egg_image,
-                                              text="",fg_color="transparent")
+                                              text="", fg_color="transparent")
         self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
         self.none_image = ctk.CTkImage(Image.new('RGBA', (200, 200), (255, 0, 0, 0)), size=(200, 200))
 
@@ -123,46 +127,48 @@ class App(ctk.CTk):
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
                                                  command=self.change_appearance_mode)
         self.appearance_mode.grid(row=1, padx=20, pady=10)
+        self.appearance_mode.set(self.cfg["theme"])  # set loaded
+        self.change_appearance_mode(self.cfg["theme"])  # Change to loaded
 
         self.language_selector = ctk.CTkOptionMenu(self.side_frame, values=["English", "Español"],
                                                    command=self.change_language)
+        self.language_selector.set(self.cfg["language"])
         self.language_selector.grid(row=2, padx=20, pady=10)
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.launcher_version}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
         self.bomb_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(25, 25))
         self.bomb_image_label = ctk.CTkLabel(self.side_frame, image=self.bomb_image, text="",
-                                            fg_color="transparent")
+                                             fg_color="transparent")
         self.bomb_image_label.grid(row=3, padx=(40, 0), pady=0)
-        self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text = "", width = 10, height = 10,
+        self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text="", width=10, height=10,
                                                         command=self.toggle_terror_easter_egg)
-        self.enable_terror_easter_egg.grid(row = 3, sticky="e", padx=(0, 20), pady=0)
-        self.enable_terror_easter_egg.select() # TODO: Load this on start
+        self.enable_terror_easter_egg.grid(row=3, sticky="e", padx=(0, 20), pady=0)
+        if self.cfg["show_terror"]:
+            self.enable_terror_easter_egg.select()
+        else:
+            self.enable_terror_easter_egg.deselect()
+        self.toggle_terror_easter_egg()
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
 
+        self.change_language(self.cfg["language"])  # This requires all widgets to be initialised
         # Load launch data (if any) and update variables
         try:
-            launch_data = self.load_launch_data()
-            if launch_data["launcher_version"] == 1.0:
-                self.input_username_field.insert(0, launch_data["username"])
-                self.input_ram_field.set(launch_data["ram"] / 1024)
-                self.update_ram_slider(launch_data["ram"] / 1024)
+            launch_data = config_manager.load_launch_data()
+            self.input_username_field.insert(0, launch_data["username"])
+            self.input_ram_field.set(launch_data["ram"] / 1024)
+            self.update_ram_slider(launch_data["ram"] / 1024)
 
-                # To set the value of the path it first needs to be emptied
-                self.input_installation_path.delete(0, ctk.END)
-                self.input_installation_path.insert(0, launch_data["path"])
+            # To set the value of the path it first needs to be emptied
+            self.input_installation_path.delete(0, ctk.END)
+            self.input_installation_path.insert(0, launch_data["path"])
 
-                self.version_type.set(launch_data["version_type"])
-                self.version_number.set(launch_data["version"])
-                self.subversion_number.set(launch_data["subversion"])
-                self.appearance_mode.set(launch_data["theme"])  # set the value
-                self.change_appearance_mode(launch_data["theme"])  # Change the theme
-
-                self.language_selector.set(launch_data["language"])
-                self.change_language(launch_data["language"])
+            self.version_type.set(launch_data["version_type"])
+            self.version_number.set(launch_data["version"])
+            self.subversion_number.set(launch_data["subversion"])
 
         except FileNotFoundError:
             pass
@@ -171,7 +177,7 @@ class App(ctk.CTk):
             print("Outdated Launch data")
             pass
 
-        self.update_versions(self.version_type.get())
+        self.update_versions(self.version_type.get())  # TODO: cached day will be saved in self.cfg
 
     def change_appearance_mode(self, new_appearance_mode):
         if new_appearance_mode == "Claro":
@@ -187,8 +193,9 @@ class App(ctk.CTk):
             self.terror_easter_egg.configure(image=self.none_image)
             self.terror_easter_egg.image = self.none_image
         else:
-            self.terror_easter_egg.configure(image = self.terror_easter_egg_image)
+            self.terror_easter_egg.configure(image=self.terror_easter_egg_image)
             self.terror_easter_egg.image = self.terror_easter_egg_image
+        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()
 
     def get_versions(self):
         # Actually working for vanilla & forge
@@ -223,6 +230,7 @@ class App(ctk.CTk):
         # Get version list (numbers) according to selected type
 
         version_list = self.get_versions()
+        today = datetime.datetime.now().day  # get today's number of the month
 
         if choice == "Vanilla":
             """
@@ -235,6 +243,8 @@ class App(ctk.CTk):
             # Disable and empty subversion field
             self.subversion_number.configure(values=[""], state="disabled")
             self.subversion_number.set("")
+            # Update cache date
+            self.cfg["cache_day_vanilla"] = today
 
         elif choice == "Forge":
             """
@@ -249,6 +259,9 @@ class App(ctk.CTk):
 
             # Update the subversion field values
             self.update_subversions(self.version_number.get())
+
+            # Update cache date
+            self.cfg["cache_day_forge"] = today
 
         return
 
@@ -281,7 +294,7 @@ class App(ctk.CTk):
         default_path = self.get_default_path()
         self.input_installation_path.delete(0, ctk.END)  # Clean the entry
         self.input_installation_path.insert(0, default_path)  # Set the entry to the default path
-        print("Path reseted")
+        print("Installation path reseted")
         return
 
     def browse_installation_path(self):
@@ -293,31 +306,12 @@ class App(ctk.CTk):
         self.input_installation_path.delete(0, ctk.END)
         self.input_installation_path.insert(0, path)
 
-    def save_launch_data(self, launch_data):
-
-        with open("./launch_data.json", "w") as json_file:
-            json.dump(launch_data, json_file, indent=4)
-
-    def load_launch_data(self):
-
-        try:
-            with open("./launch_data.json", "r") as json_file:
-                launch_data = json.load(json_file)
-            return launch_data
-        except FileNotFoundError:
-            raise FileNotFoundError
-
-    def load_translations(self, language):
-        with open("./assets/translations.json", "r", encoding="utf-8") as file:
-            translations_file = json.load(file)
-        return translations_file[language]
-
     def change_language(self, choice):
         # choice in (English, Español)
         if choice == "English":
-            self.translations = self.load_translations("en")
+            self.translations = config_manager.load_translations("en")
         elif choice == "Español":
-            self.translations = self.load_translations("es")
+            self.translations = config_manager.load_translations("es")
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
@@ -342,9 +336,6 @@ class App(ctk.CTk):
             "ram": self.input_ram_field.get() * 1024,  # RAM is got in GB
             "path": self.input_installation_path.get(),
             "premium": False,  # Make it false by default
-            "theme": self.appearance_mode.get(),
-            "language": self.language_selector.get(),
-            "launcher_version": self.launcher_version
         }
 
         # Check that a username was introduced, if not, set Steve as username
@@ -374,6 +365,24 @@ class App(ctk.CTk):
 
         return launch_parameters
 
+    def update_cfg(self):
+        """
+        Updates self.cfg so that if any changes have been made, it contains the new values
+        Just in case I missed something
+        """
+        self.cfg["theme"] = self.appearance_mode.get()
+        if self.language_selector == "Español":
+            self.cfg["language"] = "es"
+        elif self.language_selector == "English":
+            self.cfg["language"] = "en"
+
+        if self.enable_terror_easter_egg.get() == 0:
+            self.cfg["show_terror"] = False
+        else:
+            self.cfg["show_terror"] = True
+
+        # TODO: Cache days (should probably not be updated here, but anyway)
+
     def launch_game(self):
         print("Launching game...")
 
@@ -382,10 +391,12 @@ class App(ctk.CTk):
         except PermissionError:
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
+        self.update_cfg()
 
         # When using fstrings the dict key must be quoted with '', not ""
 
-        self.save_launch_data(launch_data)
+        config_manager.save_launch_data(launch_data)
+        config_manager.save_ini(self.cfg)
         self.update_status("working", self.translations["status_working_launching"])
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":

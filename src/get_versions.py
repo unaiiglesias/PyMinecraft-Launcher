@@ -38,6 +38,46 @@ def fetch_forge_versions_from_internet():
     return forge_versions
 
 
+def get_vanilla_versions(cache_data_path: str, app):
+    """
+    Function that loads the versions list from a cached file. If no file is found it instead loads
+    the manifest from the internet and creates the cache file.
+    A versions cache file will be considered to be outdated after a day has passed.
+
+    Args:
+        cache_data_path: Path to the minecraft installation path
+    """
+
+    versions_cache_file = f"{cache_data_path}\\cache_vanilla_versions.json"
+
+    # If there already exists an updated version cache file, load it and return it
+    app.update_status("working", app.translations["status_working_loading_cached_vanilla_versions"])
+
+    today = datetime.datetime.now().day  # get today's number of the month
+
+    if app.cfg["cache_day_vanilla"] == today:
+        # Cache is updated, use cache
+        try:
+            with open(versions_cache_file, "r") as versions_file:
+                vanilla_versions = json.load(versions_file)
+                return vanilla_versions
+        except FileNotFoundError:
+            print("ERROR: Reported updated cache but file was not found")
+
+    print("Reading vanilla versions from the internet")
+
+    # Load from the internet
+    app.update_status("working", app.translations["status_working_fetching_vanilla_versions"])
+
+    vanilla_versions = fetch_vanilla_versions_from_internet()
+
+    app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
+
+    with open(versions_cache_file, "w") as versions_file:
+        json.dump(vanilla_versions, versions_file)
+
+    return vanilla_versions
+
 def get_forge_versions(cache_data_path: str, app):
     """
     Function that loads the full forge versions list from a cached file. If no file is
@@ -54,23 +94,21 @@ def get_forge_versions(cache_data_path: str, app):
     """
 
     versions_cache_file = f"{cache_data_path}\\cache_forge_versions.json"
-    today = datetime.datetime.now().strftime("%d")  # get today's number of the month
+    today = datetime.datetime.now().day  # get today's number of the month
 
     # If there already exists an updated version cache file, load it and return it
     app.update_status("working", app.translations["status_working_loading_cached_forge_versions"])
 
-    try:
-        with open(versions_cache_file, "r") as versions_file:
+    if app.cfg["cache_day_forge"] == today:
+        # Cache is updated, use cache
+        try:
+            with open(versions_cache_file, "r") as versions_file:
 
-            forge_versions = json.load(versions_file)
+                forge_versions = json.load(versions_file)
+                return forge_versions
 
-            if forge_versions["day_of_creation"] != today:
-                raise FileNotFoundError  # If the file is outdated (wasn't created today) act as if it didn't exist
-
-            forge_versions.pop("day_of_creation")  # Remove the last key (date)
-            return forge_versions
-    except FileNotFoundError:
-        pass  # Do all the downloading and caching into file stuff
+        except FileNotFoundError:
+            print("ERROR: reported updated forge cache but file was not found")
 
     app.update_status("working", app.translations["status_working_fetching_forge_versions"])
 
@@ -83,56 +121,11 @@ def get_forge_versions(cache_data_path: str, app):
 
     app.update_status("working", app.translations["status_working_caching_forge_versions"])
     with open(versions_cache_file, "w") as versions_file:
-        forge_versions["day_of_creation"] = today  # The last key of the dict will be the day it was created
         json.dump(forge_versions, versions_file)
-
-    forge_versions.pop("day_of_creation")  # Remove the date element from the list before returning
 
     return forge_versions
 
 
-def get_vanilla_versions(cache_data_path: str, app):
-    """
-    Function that loads the versions list from a cached file. If no file is found it instead loads
-    the manifest from the internet and creates the cache file.
-    A versions cache file will be considered to be outdated after a day has passed.
-
-    Args:
-        cache_data_path: Path to the minecraft installation path
-    """
-
-    versions_cache_file = f"{cache_data_path}\\cache_vanilla_versions.json"
-    today = datetime.datetime.now().strftime("%d")  # get today's number of the month
-
-    # If there already exists an updated version cache file, load it and return it
-    app.update_status("working", app.translations["status_working_loading_cached_vanilla_versions"])
-
-    try:
-        with open(versions_cache_file, "r") as versions_file:
-
-            vanilla_versions = json.load(versions_file)
-
-            if vanilla_versions[-1] != today:
-                raise FileNotFoundError  # If the file is outdated (wasn't created today) act as if it didn't exist
-
-            vanilla_versions.pop()  # Remove the last item (date)
-            return vanilla_versions
-    except FileNotFoundError:
-        pass  # Do all the downloading and caching into file stuff
-
-    app.update_status("working", app.translations["status_working_fetching_vanilla_versions"])
-
-    vanilla_versions = fetch_vanilla_versions_from_internet()
-
-    app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
-
-    with open(versions_cache_file, "w") as versions_file:
-        vanilla_versions.append(today)  # The last element of the versions list will be the day it was created
-        json.dump(vanilla_versions, versions_file)
-
-    vanilla_versions.pop()  # Remove the date element from the list before returning
-
-    return vanilla_versions
 
 
 if __name__ == "__main__":
