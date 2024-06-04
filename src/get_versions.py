@@ -57,6 +57,7 @@ def get_vanilla_versions(cache_data_path: str, app):
 
     if app.cfg["cache_day_vanilla"] == today:
         # Cache is updated, use cache
+        print("Reading vanilla versions from file")
         try:
             with open(versions_cache_file, "r") as versions_file:
                 vanilla_versions = json.load(versions_file)
@@ -102,6 +103,7 @@ def get_forge_versions(cache_data_path: str, app):
     if app.cfg["cache_day_forge"] == today:
         # Cache is updated, use cache
         try:
+            print("Reading forge versions from file")
             with open(versions_cache_file, "r") as versions_file:
 
                 forge_versions = json.load(versions_file)
@@ -109,6 +111,8 @@ def get_forge_versions(cache_data_path: str, app):
 
         except FileNotFoundError:
             print("ERROR: reported updated forge cache but file was not found")
+
+    print("Reading forge versions from the internet")
 
     app.update_status("working", app.translations["status_working_fetching_forge_versions"])
 

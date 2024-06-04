@@ -201,10 +201,6 @@ class App(ctk.CTk):
         # Actually working for vanilla & forge
 
         version_type_to_get = self.version_type.get()
-        if version_type_to_get == "Vanilla":
-            print(f"Getting {version_type_to_get} version list...")
-        elif version_type_to_get == "Forge":
-            print(f"Getting {version_type_to_get} version and subversion dictionary...")
 
         versions = []
         if version_type_to_get == "Vanilla":
@@ -380,8 +376,6 @@ class App(ctk.CTk):
             self.cfg["show_terror"] = False
         else:
             self.cfg["show_terror"] = True
-
-        # TODO: Cache days (should probably not be updated here, but anyway)
 
     def launch_game(self):
         print("Launching game...")
