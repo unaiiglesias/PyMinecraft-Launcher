@@ -387,7 +387,7 @@ class App(ctk.CTk):
             return
         self.update_cfg()
 
-        # When using fstrings the dict key must be quoted with '', not ""
+        # Note: When using fstrings the dict key must be quoted with '', not ""
 
         config_manager.save_launch_data(launch_data)
         config_manager.save_ini(self.cfg)
@@ -395,7 +395,8 @@ class App(ctk.CTk):
         # Make separate threads so that the launcher doesn't block
         if launch_data["version_type"] == "Vanilla":
             # launch_vanilla(launch_data)  OLD
-            Thread(target=launch_vanilla, args=(launch_data, self)).start()
+            # Thread(target=launch_vanilla, args=(launch_data, self)).start()
+            launch_vanilla(launch_data, self)
         elif launch_data["version_type"] == "Forge":
             # launch_forge(launch_data, self)  OLD
             Thread(target=launch_forge, args=(launch_data, self)).start()
