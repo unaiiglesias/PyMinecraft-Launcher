@@ -2,6 +2,7 @@ from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
 import json
 import datetime
+from github import Github
 
 
 def fetch_vanilla_versions_from_internet():
@@ -36,6 +37,16 @@ def fetch_forge_versions_from_internet():
         # version's value list
 
     return forge_versions
+
+
+def fetch_modpack_versions_from_the_internet():
+    g = Github()
+
+    resul = []
+
+    for repo in g.get_user("CalvonettaModpacks").get_repos():
+        resul.append(repo.name)
+    return resul
 
 
 def get_vanilla_versions(cache_data_path: str, app):
@@ -129,8 +140,26 @@ def get_forge_versions(cache_data_path: str, app):
 
     return forge_versions
 
+def get_modpack_versions(cache_data_path: str, app):
+    """
+    Function that loads all avaliable modpacks and returns a list with their names
+    Cache will only contain the modpack names, modlist and files will be handled on launch
+    TODO: Figure out a way of having cache
+    Args:
+        cache_data_path: path to cache_modpack_versions.json (now ".")
+        app: master app
 
+    """
+
+    # TODO
+    versions_cache_file = f"{cache_data_path}\\cache_modpack_versions.json"
+    today = datetime.datetime.now().day  # get today's number of the month
+
+    app.update_status("working", app.translations["status_working_fetching_modpack_versions"])
+    modpack_versions = fetch_modpack_versions_from_the_internet()
+
+    return modpack_versions
 
 
 if __name__ == "__main__":
-    print(get_forge_versions())
+    print(fetch_modpack_versions_from_the_internet())

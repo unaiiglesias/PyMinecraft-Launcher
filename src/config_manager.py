@@ -4,10 +4,10 @@ from configobj import ConfigObj
 
 def load_ini():
     """
-    Reads config.ini file and turns it into a dictionary, saves the dictionary in app.cfg
+    Reads config.ini file and turns it into a dictionary and returns it
 
-    The purpouse of this is to ensure that all variables have an expected value (in case an old config.ini file) is
-    loaded and to provide a similar interface to that of launch_data.json.
+    The purpouse of this is to ensure that all variables have an expected value (in case an old config.ini file is
+    loaded) and to provide a similar interface to that of launch_data.json.
 
     As of 02/06/2024 it will be assumed that an update will only add stuff to the config.ini
     """
@@ -84,6 +84,14 @@ def save_ini(cfg):
         resul["MAIN"][key] = cfg[key]
     resul.write()
 
+def load_json(filename):
+    """
+    returns json saved in filename (filename complete path + .json suffix)
+    Raises FileNotFoundError if the file is not found
+    """
+    with open(filename, "r") as json_file:
+        return json.load(json_file)
+
 
 def load_launch_data():
     """
@@ -92,9 +100,7 @@ def load_launch_data():
     Raises FileNoFoundError if the file is not found (obviously)
     """
     try:
-        with open("./launch_data.json", "r") as json_file:
-            launch_data = json.load(json_file)
-        return launch_data
+        return load_json("./launch_data.json")
     except FileNotFoundError:
         print("WARNING: launch_data.json was not found")
         raise FileNotFoundError

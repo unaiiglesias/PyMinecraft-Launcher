@@ -3,8 +3,8 @@ import os
 from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
-from get_versions import get_vanilla_versions, get_forge_versions
-from launch_manager import launch_vanilla, launch_forge
+from get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
+from launch_manager import launch_vanilla, launch_forge, launch_modpack
 import config_manager
 from threading import Thread
 from tkinter import filedialog
@@ -64,16 +64,18 @@ class App(ctk.CTk):
         self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
         self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge"],
-                                              command=self.update_versions)
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
+                                              command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
         self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
                                                 command=self.update_subversions)
-        self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
-        self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
+
+        self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), width=300)
+
+        self.grid_version("Vanilla")  # Default, needs to be updated with launch_data.json
 
         # (Launch) Parameters frame
         self.parameters_frame = ctk.CTkFrame(self)
@@ -167,8 +169,10 @@ class App(ctk.CTk):
             self.input_installation_path.insert(0, launch_data["path"])
 
             self.version_type.set(launch_data["version_type"])
+            self.grid_version(launch_data["version_type"])
             self.version_number.set(launch_data["version"])
             self.subversion_number.set(launch_data["subversion"])
+            self.modpack_name.set(launch_data["modpack"])
 
         except FileNotFoundError:
             pass
@@ -207,6 +211,8 @@ class App(ctk.CTk):
             versions = get_vanilla_versions(".", self)
         elif version_type_to_get == "Forge":
             versions = get_forge_versions(".", self)
+        elif version_type_to_get == "Modpack":
+            versions = get_modpack_versions(".", self)
 
         self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
 
@@ -221,12 +227,13 @@ class App(ctk.CTk):
 
         print("UPDATING VERSIONS")
 
-        # Choice will always be in ("Vanilla", "Forge")
+        # Choice will always be in ("Vanilla", "Forge", "Modpack)
 
         # Get version list (numbers) according to selected type
 
         version_list = self.get_versions()
         today = datetime.datetime.now().day  # get today's number of the month
+        self.grid_version(choice)  # Show necessary fields
 
         if choice == "Vanilla":
             """
@@ -236,9 +243,6 @@ class App(ctk.CTk):
             # Set the parent version field values
             self.version_number.configure(values=version_list)
 
-            # Disable and empty subversion field
-            self.subversion_number.configure(values=[""], state="disabled")
-            self.subversion_number.set("")
             # Update cache date
             self.cfg["cache_day_vanilla"] = today
 
@@ -250,16 +254,49 @@ class App(ctk.CTk):
             # Set the parent version field values
             self.version_number.configure(values=list(version_list.keys()))
 
-            # Enable the subversion field
-            self.subversion_number.configure(values=[""], state="enabled")
-
             # Update the subversion field values
             self.update_subversions(self.version_number.get())
 
             # Update cache date
             self.cfg["cache_day_forge"] = today
 
+        elif choice == "Modpack":
+            """
+            version_list will be a dict where {modpack name : modpack object}
+            """
+            self.modpack_name.configure(values=version_list)
+            self.modpack_name.set(version_list[0])
+            pass
+
         return
+
+    def grid_version(self, choice):
+        """
+        choice in ("Vanilla", "Forge", "Modpack")
+        Show/hide the necessary input menus depending on the choice
+        """
+
+        print("Re-griding")
+
+        if choice == "Vanilla":
+            self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
+            self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
+            self.modpack_name.grid_forget()
+
+            self.subversion_number.configure(values=[""])
+            self.subversion_number.configure(state="disabled")
+
+        elif choice == "Forge":
+            self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
+            self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
+            self.modpack_name.grid_forget()
+
+            self.subversion_number.configure(state="normal")
+
+        elif choice == "Modpack":
+            self.version_number.grid_forget()
+            self.subversion_number.grid_forget()
+            self.modpack_name.grid(row=2, columnspan=2, sticky="w", padx=20, pady=10)
 
     def update_subversions(self, parent_version):
         """
@@ -321,11 +358,13 @@ class App(ctk.CTk):
 
     def get_launch_parameters(self):
 
+        # defaults / directly obtained
         launch_parameters = {
             "username": self.input_username_field.get(),
             "version_type": self.version_type.get(),
             "version": self.version_number.get(),
             "subversion": self.subversion_number.get(),
+            "modpack": self.modpack_name.get(),
             "ram": self.input_ram_field.get() * 1024,  # RAM is got in GB
             "path": self.input_installation_path.get(),
             "premium": False,  # Make it false by default
@@ -387,13 +426,15 @@ class App(ctk.CTk):
         config_manager.save_ini(self.cfg)
         self.update_status("working", self.translations["status_working_launching"])
         # Make separate threads so that the launcher doesn't block
-        self.launch_button.configure(state="disabled") # we'll enable it in the installation thread
+        self.launch_button.configure(state="disabled")  # we'll enable it in the installation thread
         if launch_data["version_type"] == "Vanilla":
             # launch_vanilla(launch_data)  OLD
             Thread(target=launch_vanilla, args=(launch_data, self)).start()
         elif launch_data["version_type"] == "Forge":
             # launch_forge(launch_data, self)  OLD
             Thread(target=launch_forge, args=(launch_data, self)).start()
+        elif launch_data["version_type"] == "Modpack":
+            launch_modpack(launch_data, self)
 
         return
 

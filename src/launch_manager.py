@@ -4,6 +4,10 @@ from portablemc.forge import ForgeVersion
 from pathlib import Path
 import customtkinter as ctk
 from threading import Thread
+from git import Repo, InvalidGitRepositoryError, NoSuchPathError
+import os
+from src.config_manager import load_json
+from wget import download
 
 
 class SuccessWindow(ctk.CTkToplevel):
@@ -150,6 +154,61 @@ def launch_forge(launch_parameters, app):
     app.launch_button.configure(state="normal")
     Thread(target=run, args=[env]).start()
     SuccessWindow(app)
+
+
+def launch_modpack(launch_parameters, app):
+    # path/CalvonettaModpacks/modpackName
+    main_dir = launch_parameters["path"] + f"/CalvonettaModpacks/{launch_parameters['modpack']}"
+    repo_url = f"https://github.com/CalvonettaModpacks/{launch_parameters['modpack']}.git"
+    # Forge version and subversion will be fetched
+
+    # this will ensure the repo exists and is up-to-date
+    try:
+        repo = Repo(main_dir)
+        origin = repo.remote()
+        origin.pull()
+    except (InvalidGitRepositoryError, NoSuchPathError):
+        # The repo doesn't exist (first launch), clone it
+        repo = Repo.clone_from(repo_url, main_dir)
+
+    """
+    Each repo will contain (that are critical to PyMinecraft launcher)
+     - mods/modlist.json: dict where {mod_filename: URL}
+     - modpack_info.json: Forge version and subversion
+    """
+    modlist = load_json(main_dir + "/mods/modlist.json")
+    info = load_json(main_dir + "/modpack_info.json")
+    version_id = info["version"]
+    subversion_id = info["subversion"]
+
+    new_parameters = launch_parameters.copy() # We'll "inject" the new data into the launch parameters
+    new_parameters["path"] = main_dir
+    new_parameters["version"] = version_id
+    new_parameters["subversion"] = subversion_id
+
+    # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
+    current_mods = os.listdir(str(main_dir) + "/mods")
+    # Remove unused / deprecated mods
+    for mod in current_mods:
+        if mod not in modlist.keys() and mod.split(".")[-1] == "jar":
+            print(f"Removing deprecated {mod}")
+            os.remove(str(main_dir) + f"/mods/{mod}")
+
+    # Download new mods
+    download_list = [] # I'll queue them and then download them all together
+    for mod in modlist.keys():
+        if mod not in current_mods:
+            download_list.append(mod)
+
+    progress_bar = ProgressBarrWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
+    progress_bar.set_total(len(download_list))
+
+    for ind, mod in enumerate(download_list):
+        download(modlist[mod], out=main_dir + f"/mods/{mod}")  # Download the mod with wget
+        progress_bar.update_progress(ind, 0)
+    progress_bar.finish()
+
+    launch_forge(new_parameters, app)
 
 
 def run(env):
