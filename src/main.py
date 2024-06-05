@@ -304,10 +304,7 @@ class App(ctk.CTk):
 
     def change_language(self, choice):
         # choice in (English, Español)
-        if choice == "English":
-            self.translations = config_manager.load_translations("en")
-        elif choice == "Español":
-            self.translations = config_manager.load_translations("es")
+        self.translations = config_manager.load_translations(choice)
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
@@ -367,10 +364,7 @@ class App(ctk.CTk):
         Just in case I missed something
         """
         self.cfg["theme"] = self.appearance_mode.get()
-        if self.language_selector == "Español":
-            self.cfg["language"] = "es"
-        elif self.language_selector == "English":
-            self.cfg["language"] = "en"
+        self.cfg["language"] = self.language_selector.get()
 
         if self.enable_terror_easter_egg.get() == 0:
             self.cfg["show_terror"] = False

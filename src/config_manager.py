@@ -79,7 +79,7 @@ def save_ini(cfg):
 
     Using load_ini's default as a template
     """
-    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True)
+    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="UTF8")
     for key in cfg:
         resul["MAIN"][key] = cfg[key]
     resul.write()
@@ -111,12 +111,19 @@ def save_launch_data(launch_data):
 def load_translations(language):
     """
     Loads translations.json and return it.
-    language is 2 letter string to select spanish or english
+    language = full language string (Español, English)
     """
+    language_key = None
+    if language == "Español":
+        language_key = "es"
+    else:
+        language_key = "en"
+
+    print(f"Loading translations.jsos in {language} code:{language_key}")
     try:
         with open("./assets/translations.json", "r", encoding="utf-8") as file:
             translations_file = json.load(file)
-        return translations_file[language]
+        return translations_file[language_key]
     except FileNotFoundError as e:
         print("ERROR: translations.json not found")
         raise e
