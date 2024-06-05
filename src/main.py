@@ -85,7 +85,7 @@ class App(ctk.CTk):
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
         self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=1, to=16,
-                                             number_of_steps=15, command=self.update_ram_slider)
+                                             number_of_steps=30, command=self.update_ram_slider)
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
         self.input_ram_value = ctk.CTkLabel(self.parameters_frame, text="1 GB")
