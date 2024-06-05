@@ -22,7 +22,8 @@
     "status_working_caching_vanilla_versions" : "Caching vanilla versions to file",
     "status_success" : "Minecraft launched!",
     "status_error_invalid_path" : "Selected installation path is not valid (Access denied)",
-    "downloading_title" : "Downloading"
+    "downloading_title" : "Downloading",
+    "launched_notice" : "Minecraft has been launched successfully.\nThe game might take a bit to pop up.\n\nIf after 30-60 seconds the game window doesn't show up, it might have crashed."
   },
   "es": {
     "username_label" : "Nombre de usuario",
@@ -47,6 +48,7 @@
     "status_working_caching_vanilla_versions" : "Guardando versiones Vanilla en cache",
     "status_success" : "Minecraft iniciado!",
     "status_error_invalid_path" : "La ruta de instalacion no es valida (Acceso denegado)",
-    "downloading_title" : "Descargando"
+    "downloading_title" : "Descargando",
+    "launched_notice" : "Minecraft se ha lanzado correctamente.\nTen en cuenta que la ventana del juego puede tardar varios segundos en aparecer.\n\nSi tras 30-60 segundos no aparece, quizas haya crasheado."
   }
 }

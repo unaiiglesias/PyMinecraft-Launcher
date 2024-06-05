@@ -6,6 +6,32 @@ import customtkinter as ctk
 from threading import Thread
 
 
+class SuccessWindow(ctk.CTkToplevel):
+    def __init__(self, app, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.grab_set()  # Focus and hijack
+        self.title(app.translations["status_success"])
+        self.rowconfigure(3)
+        self.columnconfigure(1)
+
+        self.header = ctk.CTkLabel(self, text=app.translations["status_success"])
+        self.header.grid(row=0, column=0, pady=(10, 0))
+
+        self.disclaimer_frame = ctk.CTkFrame(self)
+        self.disclaimer_frame.grid(row=1, column=0, sticky="nswe", padx=10, pady=20)
+        self.textbox = ctk.CTkTextbox(self.disclaimer_frame, width=500, height=100)
+        self.textbox.insert("0.0", app.translations["launched_notice"])
+        self.textbox.configure(state="disabled")
+        self.textbox.grid()
+
+        self.OK = ctk.CTkButton(self, text="OK", width=60, height=30, command=self.close)
+        self.OK.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="nswe")
+
+    def close(self):
+        self.grab_release()
+        self.destroy()
+
+
 class ProgressBarrWindow(ctk.CTkToplevel):
     def __init__(self, title, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,6 +51,8 @@ class ProgressBarrWindow(ctk.CTkToplevel):
         self.progress_bar = ctk.CTkProgressBar(self, orientation="horizontal", mode="determinate", width=400)
         self.progress_bar.set(0)
         self.progress_bar.grid(row=1, columnspan=2)
+
+        self.grab_set()
 
     def set_total(self, total):
         self.total_count = total
@@ -88,6 +116,7 @@ def launch_vanilla(launch_parameters, app):
     app.update_status("success", app.translations["status_success"])
     app.launch_button.configure(state="normal")
     Thread(target=run, args=[env]).start()
+    SuccessWindow(app)
 
 
 def launch_forge(launch_parameters, app):
@@ -120,6 +149,7 @@ def launch_forge(launch_parameters, app):
     app.update_status("success", app.translations["status_success"])
     app.launch_button.configure(state="normal")
     Thread(target=run, args=[env]).start()
+    SuccessWindow(app)
 
 
 def run(env):
