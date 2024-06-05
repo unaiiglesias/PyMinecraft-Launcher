@@ -393,14 +393,13 @@ class App(ctk.CTk):
         config_manager.save_ini(self.cfg)
         self.update_status("working", self.translations["status_working_launching"])
         # Make separate threads so that the launcher doesn't block
+        self.launch_button.configure(state="disabled") # we'll enable it in the installation thread
         if launch_data["version_type"] == "Vanilla":
             # launch_vanilla(launch_data)  OLD
-            # Thread(target=launch_vanilla, args=(launch_data, self)).start()
-            launch_vanilla(launch_data, self)
+            Thread(target=launch_vanilla, args=(launch_data, self)).start()
         elif launch_data["version_type"] == "Forge":
             # launch_forge(launch_data, self)  OLD
-            # Thread(target=launch_forge, args=(launch_data, self)).start()
-            launch_forge(launch_data, self)
+            Thread(target=launch_forge, args=(launch_data, self)).start()
 
         return
 

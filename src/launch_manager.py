@@ -40,6 +40,7 @@ class ProgressBarrWindow(ctk.CTkToplevel):
             self.download_speed.update()
             self.download_counter.update()
             self.progress_bar.update()
+        self.update()  # So that windows doesn't say that the window stopped working
 
     def finish(self):
         self.grab_release()
@@ -85,7 +86,8 @@ def launch_vanilla(launch_parameters, app):
 
     print("Launching Minecraft")
     app.update_status("success", app.translations["status_success"])
-    Thread(target=run, args=(env, None)).start()
+    app.launch_button.configure(state="normal")
+    Thread(target=run, args=[env]).start()
 
 
 def launch_forge(launch_parameters, app):
@@ -116,6 +118,7 @@ def launch_forge(launch_parameters, app):
 
     print("Launching Minecraft")
     app.update_status("success", app.translations["status_success"])
+    app.launch_button.configure(state="normal")
     Thread(target=run, args=[env]).start()
 
 
