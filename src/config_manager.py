@@ -23,6 +23,7 @@ def load_ini():
         "cache_day_modpack": 0
     }
 
+    """ Load config.ini file into resul dictionary or return default if config.ini not found """
     try:
         cfg = ConfigObj("config.ini", raise_errors=True, file_error=True)
         # load config overwriting default values (TODO: Deprecated values will be loaded)
@@ -40,27 +41,31 @@ def load_ini():
         print("WARNING: config.ini is malformed, returning default values")
         return default
 
-    # Validate resul (taking default as template)
+    """ Validate resul (taking default as template) """
     try:
-        resul["show_terror"] = eval(resul["show_terror"])
+        resul["show_terror"] = int(resul["show_terror"])
     except TypeError:
-        resul["show_terror"] = False
+        resul["show_terror"] = 0
         print("WARNING: config.ini show_terror malformed, using False")
+
     try:
         resul["version"] = float(resul["version"])
     except TypeError:
         resul["version"] = 0.0
         print("WARNING: config.ini version malformed, shwoing error")
+
     try:
         resul["cache_day_vanilla"] = int(resul["cache_day_vanilla"])
     except TypeError:
         resul["cache_day_vanilla"] = 0
         print("WARNING: config.ini cache_day_vanilla malformed, using 0")
+
     try:
         resul["cache_day_forge"] = int(resul["cache_day_forge"])
     except TypeError:
         resul["cache_day_forge"] = 0
         print("WARNING: config.ini cache_day_forge malformed, using 0")
+
     try:
         resul["cache_day_modpack"] = int(resul["cache_day_modpack"])
     except TypeError:
@@ -72,25 +77,33 @@ def load_ini():
 
 def save_ini(cfg):
     """
-    Creates and saves config.ini file.
+    Creates and saves config.ini file with provided cfg.
     Since some of its entries might be changed, it is necessary to save those changes.
 
     cfg is self.cfg, the config dictionary
-
-    Using load_ini's default as a template
     """
     resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="UTF8")
     for key in cfg:
         resul["MAIN"][key] = cfg[key]
     resul.write()
 
+
 def load_json(filename):
     """
     returns json saved in filename (filename complete path + .json suffix)
     Raises FileNotFoundError if the file is not found
     """
-    with open(filename, "r") as json_file:
+    with open(filename, "r", encoding="utf-8") as json_file:
         return json.load(json_file)
+
+
+def save_json(content, filename):
+    """
+    writes contents to filename.
+    filename has to be complete path to file.json
+    """
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(content, file)
 
 
 def load_launch_data():
@@ -110,7 +123,7 @@ def save_launch_data(launch_data):
     """
     Save launch data to json
     """
-    with open("./launch_data.json", "w") as json_file:
+    with open("./launch_data.json", "w", encoding="utf-8") as json_file:
         json.dump(launch_data, json_file, indent=4)
 
 
@@ -119,17 +132,15 @@ def load_translations(language):
     Loads translations.json and return it.
     language = full language string (Español, English)
     """
-    language_key = None
+    # translations.json key, however, is different
     if language == "Español":
         language_key = "es"
     else:
         language_key = "en"
 
-    print(f"Loading translations.jsos in {language} code:{language_key}")
+    print(f"Loading translations.json in {language} code:{language_key}")
     try:
-        with open("./assets/translations.json", "r", encoding="utf-8") as file:
-            translations_file = json.load(file)
-        return translations_file[language_key]
+        return load_json("./assets/translations.json")[language_key]
     except FileNotFoundError as e:
         print("ERROR: translations.json not found")
         raise e

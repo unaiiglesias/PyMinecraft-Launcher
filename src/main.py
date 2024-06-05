@@ -19,16 +19,16 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # load config.ini dictionary
+        # load config.ini to dictionary
         self.cfg = config_manager.load_ini()
 
-        # "Global" app variables
-        self.launcher_version = self.cfg["version"]
+        # Translations need to be loaded early so that widgets can assign text variables
         self.translations = config_manager.load_translations(self.cfg["language"])
 
+        # Set app title and icon according to config.ini
         self.title(self.cfg["title"])
         self.iconbitmap(self.cfg["icon"])
-        # self.geometry("600x600")
+        # self.geometry("600x600")  # UNUSED
 
         # App grid configuration
         self.grid_columnconfigure(2, weight=1)
@@ -40,11 +40,11 @@ class App(ctk.CTk):
         self.status_indicator.grid(row=5, column=0, columnspan=2, sticky="ew", padx=60, pady=(0, 10))
         self.update_status("idle")
 
-        # Header
+        # Top title header
         self.header = ctk.CTkLabel(self, text=self.cfg["title"], font=("calibri", 24))
         self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
 
-        # Credentials frame
+        """ Credentials frame """
         self.credentials_frame = ctk.CTkFrame(self)
         self.credentials_frame.grid(row=1, column=1, sticky="nswe", padx=20, pady=10)
         self.credentials_frame.rowconfigure(2)
@@ -56,7 +56,7 @@ class App(ctk.CTk):
                                                  placeholder_text="Steve")
         self.input_username_field.grid(row=1, sticky="w", padx=20, pady=(5, 10))
 
-        # Version choice frame
+        """ Version choice frame """
         self.version_frame = ctk.CTkFrame(self)
         self.version_frame.rowconfigure(3)
         self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
@@ -70,12 +70,13 @@ class App(ctk.CTk):
 
         self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
                                                 command=self.update_subversions)
+        # TODO: it might not be necessary to load versions and subversions this early
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
 
         self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), width=300)
 
-        self.grid_version("Vanilla")  # Default, needs to be updated with launch_data.json
+        self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
 
         # (Launch) Parameters frame
         self.parameters_frame = ctk.CTkFrame(self)
@@ -137,7 +138,7 @@ class App(ctk.CTk):
         self.language_selector.set(self.cfg["language"])
         self.language_selector.grid(row=2, padx=20, pady=10)
 
-        self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.launcher_version}")
+        self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg['version']}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
         self.bomb_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(25, 25))
         self.bomb_image_label = ctk.CTkLabel(self.side_frame, image=self.bomb_image, text="",
@@ -146,7 +147,7 @@ class App(ctk.CTk):
         self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text="", width=10, height=10,
                                                         command=self.toggle_terror_easter_egg)
         self.enable_terror_easter_egg.grid(row=3, sticky="e", padx=(0, 20), pady=0)
-        if self.cfg["show_terror"]:
+        if self.cfg["show_terror"] == 1:
             self.enable_terror_easter_egg.select()
         else:
             self.enable_terror_easter_egg.deselect()
@@ -193,20 +194,32 @@ class App(ctk.CTk):
         ctk.set_appearance_mode(new_appearance_mode)
 
     def toggle_terror_easter_egg(self):
+        """
+        Read the current value of enable_terror_easter_egg and show or hide the image accordingly
+        """
+
         if self.enable_terror_easter_egg.get() == 0:
+            # Disable
             self.terror_easter_egg.configure(image=self.none_image)
             self.terror_easter_egg.image = self.none_image
         else:
+            # Enable
             self.terror_easter_egg.configure(image=self.terror_easter_egg_image)
             self.terror_easter_egg.image = self.terror_easter_egg_image
-        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()
+
+        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
 
     def get_versions(self):
-        # Actually working for vanilla & forge
+        """
+        Read version type to get from version type selector and return version list
+         - Vanilla: Simple version number list
+         - Forge: dictionary {version number: [subversion list]}
+         - Modpack: Simple modpack name list
+        """
 
         version_type_to_get = self.version_type.get()
 
-        versions = []
+        versions = []  # Just so PyCharm shuts up
         if version_type_to_get == "Vanilla":
             versions = get_vanilla_versions(".", self)
         elif version_type_to_get == "Forge":
@@ -262,11 +275,10 @@ class App(ctk.CTk):
 
         elif choice == "Modpack":
             """
-            version_list will be a dict where {modpack name : modpack object}
+            version_list will be a list of modpack names
             """
             self.modpack_name.configure(values=version_list)
-            self.modpack_name.set(version_list[0])
-            pass
+            # TODO: Cache date should be updated here
 
         return
 
@@ -274,6 +286,8 @@ class App(ctk.CTk):
         """
         choice in ("Vanilla", "Forge", "Modpack")
         Show/hide the necessary input menus depending on the choice
+
+        Auxiliary method
         """
 
         print("Re-griding")
@@ -283,7 +297,6 @@ class App(ctk.CTk):
             self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
             self.modpack_name.grid_forget()
 
-            self.subversion_number.configure(values=[""])
             self.subversion_number.configure(state="disabled")
 
         elif choice == "Forge":
@@ -302,18 +315,19 @@ class App(ctk.CTk):
         """
         This function is used to refresh the subversion numbers.
         choice = parent version number | ex: "1.12.2"
+
+        It is only necessary for forge, and will be called by version number selector
         """
+
+        if self.version_type.get() == "Vanilla":
+            return
 
         print("UPDATING SUBVERSIONS")
         version_list = self.get_versions()
-        version_type = self.version_type.get()
 
-        if version_type == "Vanilla":
-            pass  # There are no subversions --- the subversion OptionMenu should be " " and disabled
-        elif version_type == "Forge":
-            subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
-            self.subversion_number.configure(values=subversion_list)
-            self.subversion_number.set(subversion_list[0])  # Set to latest by default
+        subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
+        self.subversion_number.configure(values=subversion_list)
+        self.subversion_number.set(subversion_list[0])  # Set to latest by default
 
     def update_ram_slider(self, choice):
         self.input_ram_value.configure(text=f"{choice} GB")
@@ -336,10 +350,17 @@ class App(ctk.CTk):
         if not path:  # If no path was chosen (empty path --> ""), do nothing
             return
 
-        self.input_installation_path.delete(0, ctk.END)
-        self.input_installation_path.insert(0, path)
+        self.input_installation_path.delete(0, ctk.END)  # Delete current path
+        self.input_installation_path.insert(0, path)  # add read path
 
     def change_language(self, choice):
+        """
+        Updates every button, label, entry's text translation to choice language
+
+        Args:
+            choice: "Español" or "English"
+        """
+
         # choice in (English, Español)
         self.translations = config_manager.load_translations(choice)
 
@@ -358,7 +379,7 @@ class App(ctk.CTk):
 
     def get_launch_parameters(self):
 
-        # defaults / directly obtained
+        # directly obtained
         launch_parameters = {
             "username": self.input_username_field.get(),
             "version_type": self.version_type.get(),
@@ -370,7 +391,7 @@ class App(ctk.CTk):
             "premium": False,  # Make it false by default
         }
 
-        # Check that a username was introduced, if not, set Steve as username
+        # It makes no sense for the username to be ""
         if not launch_parameters["username"]:
             launch_parameters["username"] = "Steve"
             self.input_username_field.insert(0, "Steve")
@@ -379,6 +400,7 @@ class App(ctk.CTk):
         launch_parameters["ram"] = int(launch_parameters["ram"])
 
         # This part is only "triggered" if a path is neither provided via GUI nor loaded from the .json file
+        # (Shouldn't happen, but just in case)
         inserted_path = self.input_installation_path.get()
         if inserted_path == "":
             launch_parameters["path"] = self.get_default_path()
@@ -400,33 +422,33 @@ class App(ctk.CTk):
     def update_cfg(self):
         """
         Updates self.cfg so that if any changes have been made, it contains the new values
-        Just in case I missed something
+        This shouldn't be neede , but, just in case I missed something...
         """
         self.cfg["theme"] = self.appearance_mode.get()
         self.cfg["language"] = self.language_selector.get()
-
-        if self.enable_terror_easter_egg.get() == 0:
-            self.cfg["show_terror"] = False
-        else:
-            self.cfg["show_terror"] = True
+        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1, not boolean
 
     def launch_game(self):
         print("Launching game...")
 
+        # Get launch parameters and check if the launch path is valid (we have permission)
+        # TODO: get_launch_parameters check if path is valid, export it to another method
         try:
             launch_data = self.get_launch_parameters()
         except PermissionError:
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
-        self.update_cfg()
+        self.update_cfg()  # Update the values of self.cfg
 
-        # Note: When using fstrings the dict key must be quoted with '', not ""
+        config_manager.save_launch_data(launch_data)  # write launch_data.json
+        config_manager.save_ini(self.cfg)  # write config.ini
 
-        config_manager.save_launch_data(launch_data)
-        config_manager.save_ini(self.cfg)
         self.update_status("working", self.translations["status_working_launching"])
+
         # Make separate threads so that the launcher doesn't block
-        self.launch_button.configure(state="disabled")  # we'll enable it in the installation thread
+        self.launch_button.configure(state="disabled")
+        # I'll enable it in the launch function after the installation is done
+
         if launch_data["version_type"] == "Vanilla":
             # launch_vanilla(launch_data)  OLD
             Thread(target=launch_vanilla, args=(launch_data, self)).start()

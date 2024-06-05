@@ -1,5 +1,5 @@
-import portablemc.standard
-from portablemc.standard import Context, Version, Watcher
+from portablemc.standard import (Context, Version, Watcher, DownloadStartEvent,
+                                 DownloadProgressEvent, DownloadCompleteEvent)
 from portablemc.forge import ForgeVersion
 from pathlib import Path
 import customtkinter as ctk
@@ -86,15 +86,16 @@ class DownloadWatcher(Watcher):
         self.window = None
 
     def handle(self, event) -> None:
-        if isinstance(event, portablemc.standard.DownloadStartEvent):
+        if isinstance(event, DownloadStartEvent):
             self.window = ProgressBarrWindow(self.title)
             self.window.set_total(event.entries_count)
-        if isinstance(event, portablemc.standard.DownloadProgressEvent):
+        if isinstance(event, DownloadProgressEvent):
             self.window.update_progress(event.count, event.speed)
-        if isinstance(event, portablemc.standard.DownloadCompleteEvent):
+        if isinstance(event, DownloadCompleteEvent):
             self.window.finish()
 
 
+# TODO: launch_vanilla & launch_forge are very similar, they can surely be compacted in a single function
 def launch_vanilla(launch_parameters, app):
     main_dir = Path(launch_parameters["path"])
     work_dir = Path(main_dir)
@@ -169,7 +170,7 @@ def launch_modpack(launch_parameters, app):
         origin.pull()
     except (InvalidGitRepositoryError, NoSuchPathError):
         # The repo doesn't exist (first launch), clone it
-        repo = Repo.clone_from(repo_url, main_dir)
+        Repo.clone_from(repo_url, main_dir)
 
     """
     Each repo will contain (that are critical to PyMinecraft launcher)
@@ -181,7 +182,7 @@ def launch_modpack(launch_parameters, app):
     version_id = info["version"]
     subversion_id = info["subversion"]
 
-    new_parameters = launch_parameters.copy() # We'll "inject" the new data into the launch parameters
+    new_parameters = launch_parameters.copy()  # We'll "inject" the new data into the launch parameters
     new_parameters["path"] = main_dir
     new_parameters["version"] = version_id
     new_parameters["subversion"] = subversion_id
@@ -195,7 +196,7 @@ def launch_modpack(launch_parameters, app):
             os.remove(str(main_dir) + f"/mods/{mod}")
 
     # Download new mods
-    download_list = [] # I'll queue them and then download them all together
+    download_list = []  # I'll queue them and then download them all together
     for mod in modlist.keys():
         if mod not in current_mods:
             download_list.append(mod)

@@ -1,11 +1,14 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
-import json
+from config_manager import load_json, save_json
 import datetime
 from github import Github
 
 
 def fetch_vanilla_versions_from_internet():
+    """
+    Returns a list with all vanilla version numbers
+    """
 
     manifest = VersionManifest()
     manifest.get_version("release")  # This needs to be called in order for the manifest to be fetched
@@ -19,6 +22,9 @@ def fetch_vanilla_versions_from_internet():
 
 
 def fetch_forge_versions_from_internet():
+    """
+    Returns a dict where {version number: [subversion list]}
+    """
     maven_versions = request_maven_versions()
 
     # Now lets display them as a dict where --> {parent version : forge subversions} (we'll remove the "-"s)
@@ -36,10 +42,18 @@ def fetch_forge_versions_from_internet():
         forge_versions[parent_version].append(forge_subversion)    # append the forge subversion to the parent
         # version's value list
 
+    # Add latest and recommended subversions in each forge version
+    for version in forge_versions.keys():
+        forge_versions[version].insert(0, "recommended")
+        forge_versions[version].insert(0, "latest")
+
     return forge_versions
 
 
 def fetch_modpack_versions_from_the_internet():
+    """
+    Returns a list with all modpack names
+    """
     g = Github()
 
     resul = []
@@ -57,6 +71,7 @@ def get_vanilla_versions(cache_data_path: str, app):
 
     Args:
         cache_data_path: Path to the minecraft installation path
+        app: master app
     """
 
     versions_cache_file = f"{cache_data_path}\\cache_vanilla_versions.json"
@@ -70,9 +85,7 @@ def get_vanilla_versions(cache_data_path: str, app):
         # Cache is updated, use cache
         print("Reading vanilla versions from file")
         try:
-            with open(versions_cache_file, "r") as versions_file:
-                vanilla_versions = json.load(versions_file)
-                return vanilla_versions
+            return load_json(versions_cache_file)
         except FileNotFoundError:
             print("ERROR: Reported updated cache but file was not found")
 
@@ -80,15 +93,14 @@ def get_vanilla_versions(cache_data_path: str, app):
 
     # Load from the internet
     app.update_status("working", app.translations["status_working_fetching_vanilla_versions"])
-
     vanilla_versions = fetch_vanilla_versions_from_internet()
 
+    # Save cache
     app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
-
-    with open(versions_cache_file, "w") as versions_file:
-        json.dump(vanilla_versions, versions_file)
+    save_json(vanilla_versions, versions_cache_file)
 
     return vanilla_versions
+
 
 def get_forge_versions(cache_data_path: str, app):
     """
@@ -103,6 +115,7 @@ def get_forge_versions(cache_data_path: str, app):
 
     Args:
         cache_data_path: Path to the minecraft installation path
+        app: master app
     """
 
     versions_cache_file = f"{cache_data_path}\\cache_forge_versions.json"
@@ -115,30 +128,22 @@ def get_forge_versions(cache_data_path: str, app):
         # Cache is updated, use cache
         try:
             print("Reading forge versions from file")
-            with open(versions_cache_file, "r") as versions_file:
-
-                forge_versions = json.load(versions_file)
-                return forge_versions
-
+            return load_json(versions_cache_file)
         except FileNotFoundError:
             print("ERROR: reported updated forge cache but file was not found")
 
     print("Reading forge versions from the internet")
 
+    # Load from the internet
     app.update_status("working", app.translations["status_working_fetching_forge_versions"])
-
     forge_versions = fetch_forge_versions_from_internet()
 
-    # Add latest and recommended subversions in each forge version
-    for version in forge_versions.keys():
-        forge_versions[version].insert(0, "recommended")
-        forge_versions[version].insert(0, "latest")
-
+    # Save cache
     app.update_status("working", app.translations["status_working_caching_forge_versions"])
-    with open(versions_cache_file, "w") as versions_file:
-        json.dump(forge_versions, versions_file)
+    save_json(forge_versions, versions_cache_file)
 
     return forge_versions
+
 
 def get_modpack_versions(cache_data_path: str, app):
     """
@@ -151,9 +156,10 @@ def get_modpack_versions(cache_data_path: str, app):
 
     """
 
-    # TODO
+    # TODO: should we have cache or just always fetch from the internet
     versions_cache_file = f"{cache_data_path}\\cache_modpack_versions.json"
     today = datetime.datetime.now().day  # get today's number of the month
+
 
     app.update_status("working", app.translations["status_working_fetching_modpack_versions"])
     modpack_versions = fetch_modpack_versions_from_the_internet()
