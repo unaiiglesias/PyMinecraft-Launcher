@@ -15,7 +15,7 @@ def load_ini():
         "title": "Calvonetta Launcher",
         "icon": "assets/calvonetta_cut_transparent.ico",
         "theme": "Dark",
-        "language": "en",
+        "language": "English",
         "show_terror": False,
         "version": 1.1,
         "cache_day_vanilla": 0,
