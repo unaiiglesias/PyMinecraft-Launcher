@@ -25,7 +25,7 @@ def load_ini():
 
     """ Load config.ini file into resul dictionary or return default if config.ini not found """
     try:
-        cfg = ConfigObj("config.ini", raise_errors=True, file_error=True)
+        cfg = ConfigObj("config.ini", raise_errors=True, file_error=True, encoding="ANSI")
         # load config overwriting default values (TODO: Deprecated values will be loaded)
         resul = default.copy()  # We do this so that, if the file is malformed, the default remains unaltered
         for key in cfg["MAIN"]:
@@ -82,7 +82,7 @@ def save_ini(cfg):
 
     cfg is self.cfg, the config dictionary
     """
-    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="UTF8")
+    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="ANSI")
 
     resul["MAIN"] = {}
     for key in cfg:
