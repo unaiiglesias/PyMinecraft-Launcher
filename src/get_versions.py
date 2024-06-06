@@ -2,7 +2,7 @@ from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
 from config_manager import load_json, save_json
 import datetime
-from github import Github
+import github
 
 
 def fetch_vanilla_versions_from_internet():
@@ -54,7 +54,7 @@ def fetch_modpack_versions_from_the_internet():
     """
     Returns a list with all modpack names
     """
-    g = Github()
+    g = github.Github()
 
     resul = []
 
