@@ -6,7 +6,7 @@ import customtkinter as ctk
 from threading import Thread
 from git import Repo, InvalidGitRepositoryError, NoSuchPathError
 import os
-from src.config_manager import load_json
+from config_manager import load_json
 from wget import download
 
 
