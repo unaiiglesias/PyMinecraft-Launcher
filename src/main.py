@@ -70,15 +70,18 @@ class App(ctk.CTk):
 
         self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
                                                 command=self.update_subversions)
+        self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
         # TODO: it might not be necessary to load versions and subversions this early
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
+        self.subversion_number.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), width=300)
+        self.modpack_name.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
 
-        # (Launch) Parameters frame
+        """ (Launch) Parameters frame """
         self.parameters_frame = ctk.CTkFrame(self)
         self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=10)
         self.parameters_frame.rowconfigure(5)
@@ -109,7 +112,7 @@ class App(ctk.CTk):
                                                              command=self.browse_installation_path, text="Browse")
         self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
 
-        # Easter Egg frame
+        """ Easter Egg frame """
         self.easter_egg_frame = ctk.CTkFrame(self)
         self.easter_egg_frame.grid(row=1, rowspan=2, padx=15, pady=10, sticky="nswe")
 
@@ -119,7 +122,7 @@ class App(ctk.CTk):
         self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
         self.none_image = ctk.CTkImage(Image.new('RGBA', (200, 200), (255, 0, 0, 0)), size=(200, 200))
 
-        # Side options frame
+        """ Side options frame """
         self.side_frame = ctk.CTkFrame(self)
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(4)
@@ -259,6 +262,10 @@ class App(ctk.CTk):
             # Update cache date
             self.cfg["cache_day_vanilla"] = today
 
+            # If no version chosen, choose one
+            if not self.version_number.get():
+                self.version_number.set(version_list[0])
+
         elif choice == "Forge":
             """
             version_list will be a dictionary where {parent_version : forge_subversions}
@@ -273,12 +280,21 @@ class App(ctk.CTk):
             # Update cache date
             self.cfg["cache_day_forge"] = today
 
+            if not self.version_number.get():
+                self.version_number.set(version_list.keys()[0])
+                self.subversion_number.set(version_list[version_list.keys()[0]])
+            elif not self.subversion_number.get():
+                self.subversion_number.set("latest")
+
         elif choice == "Modpack":
             """
             version_list will be a list of modpack names
             """
             self.modpack_name.configure(values=version_list)
             # TODO: Cache date should be updated here
+
+            if not self.modpack_name.get():
+                self.modpack_name.set(version_list[0])
 
         return
 
@@ -327,7 +343,6 @@ class App(ctk.CTk):
 
         subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
         self.subversion_number.configure(values=subversion_list)
-        self.subversion_number.set(subversion_list[0])  # Set to latest by default
 
     def update_ram_slider(self, choice):
         self.input_ram_value.configure(text=f"{choice} GB")
