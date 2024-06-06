@@ -36,7 +36,7 @@ def load_ini():
         print("WARNING: config.ini was not found, returning default values")
         return default
 
-    except TypeError:
+    except (TypeError, KeyError):
         # config.ini is malformed
         print("WARNING: config.ini is malformed, returning default values")
         return default
@@ -83,6 +83,8 @@ def save_ini(cfg):
     cfg is self.cfg, the config dictionary
     """
     resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="UTF8")
+
+    resul["MAIN"] = {}
     for key in cfg:
         resul["MAIN"][key] = cfg[key]
     resul.write()
