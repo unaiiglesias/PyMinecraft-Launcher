@@ -14,3 +14,9 @@ Ver: 1.0
 
 ver: 1.01
 - Actualizado portablemc a 4.2.1 para arreglar bug al obtener versiones del maven de Forge
+
+ver: 1.1
+- Añadido modo modpack
+- Añadir barra de carga para descargas
+- instalacion normal o discreta
+- bugfixes varios
