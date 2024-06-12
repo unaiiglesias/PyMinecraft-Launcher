@@ -68,15 +68,15 @@ class App(ctk.CTk):
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
-        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(),
+        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=[""],
                                                 command=self.update_subversions)
         self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
-        # TODO: it might not be necessary to load versions and subversions this early
+        # TODO: https://github.com/Akascape/CTkScrollableDropdown
 
-        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions())
+        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=[""])
         self.subversion_number.set("")  # Default value will be modified by launch_data or in update_versions
 
-        self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=self.get_versions(), width=300)
+        self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=[""], width=300)
         self.modpack_name.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
@@ -160,7 +160,6 @@ class App(ctk.CTk):
         self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
 
-        self.change_language(self.cfg["language"])  # This requires all widgets to be initialised
         # Load launch data (if any) and update variables
         try:
             launch_data = config_manager.load_launch_data()
@@ -186,6 +185,7 @@ class App(ctk.CTk):
             pass
 
         self.update_versions(self.version_type.get())  # TODO: cached day will be saved in self.cfg
+        print("INITIALIZATION FINALIZED")
 
     def change_appearance_mode(self, new_appearance_mode):
         if new_appearance_mode == "Claro":
