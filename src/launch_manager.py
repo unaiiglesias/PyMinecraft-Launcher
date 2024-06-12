@@ -64,39 +64,62 @@ class ProgressBarWindow(ctk.CTkToplevel):
         self.progress_bar.update()
 
     def update_progress(self, new_count, current_speed):
-        # Updated each progress event (not every time a download is compleetd, rather a tick)
-        self.download_counter.configure(text=f"{new_count}/{self.total_count}")  # update current count
-        self.download_speed.configure(text=f"{round(current_speed / 1000000, 2)}Mb/s")  # Update speed
+        """
+        Used to update the progress_bar using portablemc DownloadProgressEvent
+
+        Updates currently downloaded item count and speed
+
+        ex: Installing a vanilla version
+        """
+
+        # Updated each progress event (not every time a download is completed, rather a tick)
+        self.download_speed.configure(text=f"{format(current_speed / 1000000, '.2f')}Mb/s")  # Update speed
+        self.download_speed.update()
 
         if new_count != self.current_count:
             # Update only when an item dwonload has beeen completed
+            self.download_counter.configure(text=f"{new_count}/{self.total_count}")  # update current count
             self.current_count += 1
             self.progress_bar.set(self.current_count / self.total_count)
-            self.download_speed.update()
             self.download_counter.update()
             self.progress_bar.update()
-        self.update()  # So that windows doesn't say that the window stopped working
+
+        self.update()  # So that windows doesn't complain that the window stopped working
 
     def update_from_wget(self, new_count, total, width):
         """
         Similar to self.update_progress but adapted to wget.download's callback
 
-        Will only work if a single item is being downloaded:
-        It uses self.current and self.total for the item's size
+        For single file downloads only:
+        It uses self.current and self.total for the item's size and "dynamically" calculates the speed
+        (speed is Mb/tick, not Mb/s, though)
 
         width is passed by wget, but I won't use it
-        """
-        self.download_counter.configure(text=f"{round(new_count/1000000, 2)}/{round(total/1000000, 2)} Mb")
-        # update both current and total
-        if new_count != self.current_count:
-            self.progress_bar.set(new_count / total)
-            self.download_speed.configure(text=f"{round((new_count/1000000 - self.current_count/1000000), 2)}Mb/tick")
-            self.current_count = new_count
-            self.download_speed.update()
-            self.download_counter.update()
-            self.progress_bar.update()
-        self.update()  # So that windows doesn't say that the window stopped working
 
+        ex: Downloading git installer
+        """
+        self.download_counter.configure(text=f"{format(new_count/1000000, '.2f')}/{format(total/1000000, '.2f')} Mb")
+        # update both current and total
+        self.progress_bar.set(new_count / total)
+        self.download_speed.configure(text=f"{format(new_count/1000000 - self.current_count/1000000, '.2f')}Mb/tick")
+        self.current_count = new_count
+        self.download_speed.update()
+        self.download_counter.update()
+        self.progress_bar.update()
+        self.update()  # So that windows doesn't complain that the window stopped working
+
+    def update_speed_from_wget(self, new_count, total, width):
+        """
+        Simpler version of self.update_from_wget that only updates the speed, but doesn't touch current or total
+
+        Use when downloading several  (more than 1) items with wget
+
+        In this case, since I don't have speed, I will use the speed counter as downloaded size counter
+
+        ex: when downloading mods for a modpack
+        """
+        self.download_speed.configure(text=f"{format(new_count/1000000, '.2f')} / {format(total/1000000, '.2f')} Mb")
+        self.update()
 
     def finish(self):
         self.grab_release()
@@ -229,11 +252,13 @@ def launch_modpack(launch_parameters, app):
     progress_bar.set_total(len(download_list))
 
     for ind, mod in enumerate(download_list):
-        download(modlist[mod], out=main_dir + f"/mods/{mod}")  # Download the mod with wget
+        # Download the mod with wget
+        download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
         progress_bar.update_progress(ind, 0)
     progress_bar.finish()
 
     launch_forge(new_parameters, app)
+
 
 def is_git_installed():
     """
@@ -245,6 +270,7 @@ def is_git_installed():
         return True
     except FileNotFoundError:
         return False
+
 
 def check_git(app, launch_data):
     """
@@ -304,7 +330,6 @@ def check_git(app, launch_data):
             self.wm_protocol("WM_DELETE_WINDOW", self.close)
             self.wait_window()
             return self.selection
-
 
     msg = MessageWindow(app.translations["git_not_found_title"], app.translations["git_not_found_text"],
                         app.translations["git_install_button"], app.translations["git_dont_install_button"])
