@@ -26,6 +26,11 @@
     "status_success" : "Minecraft launched!",
     "status_error_invalid_path" : "Selected installation path is not valid (Access denied)",
     "downloading_title" : "Downloading",
+    "git_not_found_title" : "Git is not installed",
+    "git_not_found_text" : "Modpack functionality requires git to be installed",
+    "git_install_button" : "Download and install git",
+    "git_dont_install_button" : "Go back to launcher",
+    "status_error_git_not_installed" : "Git not installed, can't launch modapck",
     "launched_notice" : "Minecraft has been launched successfully.\nThe game might take a bit to pop up.\n\nIf after 30-60 seconds the game window doesn't show up, it might have crashed."
   },
   "es": {
@@ -55,6 +60,11 @@
     "status_success" : "Minecraft iniciado!",
     "status_error_invalid_path" : "La ruta de instalacion no es valida (Acceso denegado)",
     "downloading_title" : "Descargando",
+    "git_not_found_title" : "Git no esta instalado",
+    "git_not_found_text" : "La funcionalidad de modpacks requiere que git este instalado.",
+    "git_install_button" : "Descargar e instalar git",
+    "git_dont_install_button" : "Volver al launcher",
+    "status_error_git_not_installed" : "Git no instalado, no se puede lanzar modpack",
     "launched_notice" : "Minecraft se ha lanzado correctamente.\nTen en cuenta que la ventana del juego puede tardar varios segundos en aparecer.\n\nSi tras 30-60 segundos no aparece, quizas haya crasheado."
   }
 }

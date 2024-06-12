@@ -4,7 +4,7 @@ from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
 from get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from launch_manager import launch_vanilla, launch_forge, launch_modpack
+from launch_manager import launch_vanilla, launch_forge, launch_modpack, check_git
 import config_manager
 from threading import Thread
 from tkinter import filedialog
@@ -471,6 +471,10 @@ class App(ctk.CTk):
             # launch_forge(launch_data, self)  OLD
             Thread(target=launch_forge, args=(launch_data, self)).start()
         elif launch_data["version_type"] == "Modpack":
+            if not check_git(self, launch_data):
+                self.update_status("error", self.translations["status_error_git_not_installed"])
+                print("Aborting modpack launch, git not installed")
+                return
             launch_modpack(launch_data, self)
 
         return

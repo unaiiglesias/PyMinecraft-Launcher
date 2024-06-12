@@ -8,6 +8,7 @@ from git import Repo, InvalidGitRepositoryError, NoSuchPathError
 import os
 from config_manager import load_json
 from wget import download
+from subprocess import call
 
 
 class SuccessWindow(ctk.CTkToplevel):
@@ -36,7 +37,7 @@ class SuccessWindow(ctk.CTkToplevel):
         self.destroy()
 
 
-class ProgressBarrWindow(ctk.CTkToplevel):
+class ProgressBarWindow(ctk.CTkToplevel):
     def __init__(self, title, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.grab_set()  # Focus and hijack
@@ -63,16 +64,39 @@ class ProgressBarrWindow(ctk.CTkToplevel):
         self.progress_bar.update()
 
     def update_progress(self, new_count, current_speed):
-        # I assume this method will be called each time a new item is downloaded
+        # Updated each progress event (not every time a download is compleetd, rather a tick)
         self.download_counter.configure(text=f"{new_count}/{self.total_count}")  # update current count
+        self.download_speed.configure(text=f"{round(current_speed / 1000000, 2)}Mb/s")  # Update speed
+
         if new_count != self.current_count:
+            # Update only when an item dwonload has beeen completed
             self.current_count += 1
             self.progress_bar.set(self.current_count / self.total_count)
-            self.download_speed.configure(text=f"{round(current_speed/1000000, 2)}Mb/s")
             self.download_speed.update()
             self.download_counter.update()
             self.progress_bar.update()
         self.update()  # So that windows doesn't say that the window stopped working
+
+    def update_from_wget(self, new_count, total, width):
+        """
+        Similar to self.update_progress but adapted to wget.download's callback
+
+        Will only work if a single item is being downloaded:
+        It uses self.current and self.total for the item's size
+
+        width is passed by wget, but I won't use it
+        """
+        self.download_counter.configure(text=f"{round(new_count/1000000, 2)}/{round(total/1000000, 2)} Mb")
+        # update both current and total
+        if new_count != self.current_count:
+            self.progress_bar.set(new_count / total)
+            self.download_speed.configure(text=f"{round((new_count/1000000 - self.current_count/1000000), 2)}Mb/tick")
+            self.current_count = new_count
+            self.download_speed.update()
+            self.download_counter.update()
+            self.progress_bar.update()
+        self.update()  # So that windows doesn't say that the window stopped working
+
 
     def finish(self):
         self.grab_release()
@@ -87,7 +111,7 @@ class DownloadWatcher(Watcher):
 
     def handle(self, event) -> None:
         if isinstance(event, DownloadStartEvent):
-            self.window = ProgressBarrWindow(self.title)
+            self.window = ProgressBarWindow(self.title)
             self.window.set_total(event.entries_count)
         if isinstance(event, DownloadProgressEvent):
             self.window.update_progress(event.count, event.speed)
@@ -201,7 +225,7 @@ def launch_modpack(launch_parameters, app):
         if mod not in current_mods:
             download_list.append(mod)
 
-    progress_bar = ProgressBarrWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
+    progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
     progress_bar.set_total(len(download_list))
 
     for ind, mod in enumerate(download_list):
@@ -210,6 +234,109 @@ def launch_modpack(launch_parameters, app):
     progress_bar.finish()
 
     launch_forge(new_parameters, app)
+
+def is_git_installed():
+    """
+    Return true if git is installed and false instead
+    """
+
+    try:
+        call("git --version")
+        return True
+    except FileNotFoundError:
+        return False
+
+def check_git(app, launch_data):
+    """
+    Checks wether git is installed or not:
+     - if git is inastalled, returns true
+     - if git is not installed pops up toplevel window to help the user install git
+      - If the user doesnt want to install git, returns false
+      - If the user wants to install git, it downloads the installer and runs it
+    """
+
+    if is_git_installed():
+        # In this case, we dont need to do anything else
+        return True
+
+    class MessageWindow(ctk.CTkToplevel):
+        """
+        Reusable window with a message box and 2 buttons
+        """
+        def __init__(self, title, text, but1, but2, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.grab_set()
+            self.title(title)
+            self.rowconfigure(3)
+            self.columnconfigure(1)
+
+            """ Textbox stuff """
+            self.text_frame = ctk.CTkFrame(self)
+            self.text_frame.grid(row=0, column=0, sticky="nswe", padx=20, pady=10)
+            self.textbox = ctk.CTkTextbox(self.text_frame, width=500, height=100)
+            self.textbox.insert("0.0", text)
+            self.textbox.configure(state="disabled")
+            self.textbox.grid()
+
+            """ The two buttons"""
+            # One will return True on press and the other one False, both will close the window
+            self.confirm_but = ctk.CTkButton(self, text=but1, width=60, height=30, command=self.confirm)
+            self.confirm_but.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="nswe")
+            self.refuse_but = ctk.CTkButton(self, text=but2, width=60, height=30, command=self.refuse)
+            self.refuse_but.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="nswe")
+
+            self.selection = False  # default value
+
+        def close(self):
+            self.grab_release()
+            self.destroy()
+
+        def confirm(self):
+            self.selection = True
+            self.close()
+
+        def refuse(self):
+            self.selection = False
+            self.close()
+
+        def show(self):
+            self.deiconify()
+            self.wm_protocol("WM_DELETE_WINDOW", self.close)
+            self.wait_window()
+            return self.selection
+
+
+    msg = MessageWindow(app.translations["git_not_found_title"], app.translations["git_not_found_text"],
+                        app.translations["git_install_button"], app.translations["git_dont_install_button"])
+
+    install = msg.show()
+
+    if not install:
+        # The user has chosen not to install git, this will abort the modpack launch
+        app.launch_button.configure(state="normal")  # Release launch button
+        return False
+
+    # The user has chosen to install git, download the installer, I'll use a hard-coded release
+    # (we don't need the latest and it's more comfortable this way)
+
+    git_link = "https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe"
+    download_path = launch_data["path"] + "/git_for_calvonetta.exe"
+
+    print("DOWNLOADING GIT")
+
+    progress_bar = ProgressBarWindow("git")
+    progress_bar.set_total(1)
+
+    download(git_link, out=download_path, bar=progress_bar.update_from_wget)
+    progress_bar.finish()
+
+    # At this point, we should have git_for_calvonetta.exe downloaded
+
+    os.system(download_path + " /SILENT")  # This will automatically install git automatically :D
+    # (will trigger UAC prompt, though)
+    os.remove(download_path)  # Remove the executable
+
+    return is_git_installed()  # In case the user stopped the installation
 
 
 def run(env):
