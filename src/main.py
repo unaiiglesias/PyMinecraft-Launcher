@@ -1,6 +1,5 @@
 import datetime
 import os
-os.environ["GIT_PYTHON_REFRESH"] = "quiet"  # Remove GitPython initial exception
 from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
