@@ -20,3 +20,11 @@ ver: 1.1
 - Añadir barra de carga para descargas
 - instalacion normal o discreta
 - bugfixes varios
+
+ver: 1.11
+- comprobar git al lanzar con modpacks
+- asistente de instalacion de git
+- mejora en las barras de progreso de descarga
+
+ver: 1.12
+- HOTFIX: arreglar cosa git

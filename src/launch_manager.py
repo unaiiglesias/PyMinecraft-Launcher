@@ -4,7 +4,6 @@ from portablemc.forge import ForgeVersion
 from pathlib import Path
 import customtkinter as ctk
 from threading import Thread
-from git import Repo, InvalidGitRepositoryError, NoSuchPathError
 import os
 from config_manager import load_json
 from wget import download
@@ -205,6 +204,7 @@ def launch_forge(launch_parameters, app):
 
 
 def launch_modpack(launch_parameters, app):
+    from git import Repo, InvalidGitRepositoryError, NoSuchPathError
     # path/CalvonettaModpacks/modpackName
     main_dir = launch_parameters["path"] + f"/CalvonettaModpacks/{launch_parameters['modpack']}"
     repo_url = f"https://github.com/CalvonettaModpacks/{launch_parameters['modpack']}.git"
