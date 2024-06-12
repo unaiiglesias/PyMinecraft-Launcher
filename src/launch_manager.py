@@ -72,15 +72,15 @@ class ProgressBarWindow(ctk.CTkToplevel):
         """
 
         # Updated each progress event (not every time a download is completed, rather a tick)
+        self.download_counter.configure(text=f"{new_count}/{self.total_count}")  # update current count
+        self.download_counter.update()
         self.download_speed.configure(text=f"{format(current_speed / 1000000, '.2f')}Mb/s")  # Update speed
         self.download_speed.update()
 
         if new_count != self.current_count:
             # Update only when an item dwonload has beeen completed
-            self.download_counter.configure(text=f"{new_count}/{self.total_count}")  # update current count
             self.current_count += 1
             self.progress_bar.set(self.current_count / self.total_count)
-            self.download_counter.update()
             self.progress_bar.update()
 
         self.update()  # So that windows doesn't complain that the window stopped working

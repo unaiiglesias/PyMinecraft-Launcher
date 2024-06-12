@@ -1,5 +1,6 @@
 import datetime
 import os
+os.environ["GIT_PYTHON_REFRESH"] = "quiet"  # Remove GitPython initial exception
 from PIL import Image
 import customtkinter as ctk
 from pathlib import Path
@@ -428,7 +429,7 @@ class App(ctk.CTk):
             with open(test_file_path, "w") as test_file:
                 test_file.write("Do we got permission?")
             os.remove(test_file_path)
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             print("Invalid Path")
             raise PermissionError
 
@@ -450,7 +451,7 @@ class App(ctk.CTk):
         # TODO: get_launch_parameters check if path is valid, export it to another method
         try:
             launch_data = self.get_launch_parameters()
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
         self.update_cfg()  # Update the values of self.cfg
