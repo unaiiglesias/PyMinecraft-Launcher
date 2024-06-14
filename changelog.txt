@@ -28,3 +28,7 @@ ver: 1.11
 
 ver: 1.12
 - HOTFIX: arreglar cosa git
+
+ver: 1.13
+- Arreglar bug traducciones
+- ahora el modo modpack no toca los mods que contienen "mantener"
