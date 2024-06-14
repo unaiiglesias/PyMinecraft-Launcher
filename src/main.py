@@ -49,7 +49,7 @@ class App(ctk.CTk):
         self.credentials_frame.grid(row=1, column=1, sticky="nswe", padx=20, pady=10)
         self.credentials_frame.rowconfigure(2)
 
-        self.input_username_label = ctk.CTkLabel(self.credentials_frame, text="Username")
+        self.input_username_label = ctk.CTkLabel(self.credentials_frame, text=self.translations["username_label"])
         self.input_username_label.grid(row=0, column=0, sticky="w", padx=20, pady=(5, 0))
 
         self.input_username_field = ctk.CTkEntry(self.credentials_frame, width=300, height=20,
@@ -61,10 +61,10 @@ class App(ctk.CTk):
         self.version_frame.rowconfigure(3)
         self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
 
-        self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text="Version to launch")
+        self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text=self.translations["versions_label"])
         self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=["Vanilla", "Forge", "Modpack"],
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=self.translations["version_types"],
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
@@ -87,7 +87,7 @@ class App(ctk.CTk):
         self.parameters_frame.rowconfigure(5)
         self.parameters_frame.columnconfigure(2)
 
-        self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text="RAM amount")
+        self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text=self.translations["ram_amount_label"])
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
         self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=1, to=16,
@@ -97,7 +97,8 @@ class App(ctk.CTk):
         self.input_ram_value = ctk.CTkLabel(self.parameters_frame, text="1 GB")
         self.input_ram_value.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
 
-        self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame, text="Installation path")
+        self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame,
+                                                          text=self.translations["installation_path_label"])
         self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
 
         self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
@@ -105,11 +106,13 @@ class App(ctk.CTk):
         self.input_installation_path.grid(row=3, column=0, sticky="w", padx=(20, 0), pady=(0, 10))
 
         self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
-                                                            command=self.reset_installation_path, text="Reset")
+                                                            command=self.reset_installation_path,
+                                                            text=self.translations["reset_path_button"])
         self.reset_installation_path_button.grid(row=4, column=0, padx=(40, 0), pady=(0, 10), sticky="w")
 
         self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
-                                                             command=self.browse_installation_path, text="Browse")
+                                                             command=self.browse_installation_path,
+                                                             text=self.translations["browse_path_button"])
         self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
 
         """ Easter Egg frame """
@@ -127,10 +130,10 @@ class App(ctk.CTk):
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(4)
 
-        self.side_options_label = ctk.CTkLabel(self.side_frame, text="Launcher settings")
+        self.side_options_label = ctk.CTkLabel(self.side_frame, text=self.translations["side_options_label"])
         self.side_options_label.grid(row=0, padx=20, pady=(5, 0))
 
-        self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=["Light", "Dark", "System"],
+        self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=self.translations["theme_choice"],
                                                  command=self.change_appearance_mode)
         self.appearance_mode.grid(row=1, padx=20, pady=10)
         self.appearance_mode.set(self.cfg["theme"])  # set loaded
@@ -157,7 +160,7 @@ class App(ctk.CTk):
         self.toggle_terror_easter_egg()
 
         # Launch button
-        self.launch_button = ctk.CTkButton(self, text="LAUNCH", command=self.launch_game)
+        self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
 
         # Load launch data (if any) and update variables

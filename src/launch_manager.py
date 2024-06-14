@@ -85,7 +85,7 @@ class ProgressBarWindow(ctk.CTkToplevel):
 
         self.update()  # So that windows doesn't complain that the window stopped working
 
-    def update_from_wget(self, new_count, total, width):
+    def update_from_wget(self, new_count, total, _width):
         """
         Similar to self.update_progress but adapted to wget.download's callback
 
@@ -93,7 +93,7 @@ class ProgressBarWindow(ctk.CTkToplevel):
         It uses self.current and self.total for the item's size and "dynamically" calculates the speed
         (speed is Mb/tick, not Mb/s, though)
 
-        width is passed by wget, but I won't use it
+        _width is passed by wget, but I won't use it
 
         ex: Downloading git installer
         """
@@ -107,13 +107,15 @@ class ProgressBarWindow(ctk.CTkToplevel):
         self.progress_bar.update()
         self.update()  # So that windows doesn't complain that the window stopped working
 
-    def update_speed_from_wget(self, new_count, total, width):
+    def update_speed_from_wget(self, new_count, total, _width):
         """
         Simpler version of self.update_from_wget that only updates the speed, but doesn't touch current or total
 
         Use when downloading several  (more than 1) items with wget
 
         In this case, since I don't have speed, I will use the speed counter as downloaded size counter
+
+        _width is passed by wget but I won'r use it
 
         ex: when downloading mods for a modpack
         """
@@ -236,9 +238,11 @@ def launch_modpack(launch_parameters, app):
 
     # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
     current_mods = os.listdir(str(main_dir) + "/mods")
-    # Remove unused / deprecated mods
+
+    # Remove unused / deprecated mods:
+    # won't remove: mods in modlist, not .jars, mods that contain "mantener" in their name
     for mod in current_mods:
-        if mod not in modlist.keys() and mod.split(".")[-1] == "jar":
+        if mod not in modlist.keys() and mod.split(".")[-1] == "jar" and "mantener" not in mod:
             print(f"Removing deprecated {mod}")
             os.remove(str(main_dir) + f"/mods/{mod}")
 
