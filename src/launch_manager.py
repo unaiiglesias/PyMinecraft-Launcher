@@ -9,7 +9,7 @@ from config_manager import load_json
 from wget import download
 from subprocess import call
 from urllib.error import HTTPError
-
+from json.decoder import JSONDecodeError
 
 class SuccessWindow(ctk.CTkToplevel):
     def __init__(self, app, *args, **kwargs):
@@ -216,7 +216,10 @@ def launch_modpack(launch_parameters, app):
     # Before we update (and potentially overwrite) it, we keep a copy of the current modlist
     try:
         prev_modlist = load_json(main_dir + "/mods/modlist.json")
-    except FileNotFoundError:
+    except (FileNotFoundError, JSONDecodeError) as error:
+        # If the modlist is broken, we want to fix it with the remote repo
+        if type(error).__name__ == "JSONDecodeError":
+            print("WARNING: Modlist read failed. This could mean the modlist was corrupted or had been wrongly modified.")
         prev_modlist = []
 
     # this will ensure the repo exists and is up-to-date
@@ -224,7 +227,9 @@ def launch_modpack(launch_parameters, app):
     try:
         repo = Repo(main_dir)
         origin = repo.remote()
-        origin.pull()
+        origin.fetch()
+        repo.git.reset("--hard")
+        repo.git.merge("origin/master")
     except (InvalidGitRepositoryError, NoSuchPathError):
         # The repo doesn't exist (first launch), clone it
         Repo.clone_from(repo_url, main_dir)
