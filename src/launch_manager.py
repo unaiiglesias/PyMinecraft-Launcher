@@ -216,7 +216,7 @@ def launch_modpack(launch_parameters, app):
     try:
         prev_modlist = load_json(main_dir + "/mods/modlist.json")
     except FileNotFoundError:
-        prev_modlist = None
+        prev_modlist = []
 
     # this will ensure the repo exists and is up-to-date
     # (In this process, we might have updated the modlist)
