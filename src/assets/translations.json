@@ -2,7 +2,6 @@
   "en": {
     "username_label" : "Username",
     "versions_label" : "Version to launch",
-    "version_types" : ["Vanilla", "Forge", "Modpack"],
     "ram_amount_label" : "RAM amount",
     "installation_path_label" : "Installation path",
     "reset_path_button" : "Reset",
@@ -36,7 +35,6 @@
   "es": {
     "username_label" : "Nombre de usuario",
     "versions_label" : "Version a lanzar",
-    "version_types" : ["Vanilla", "Forge", "Modpack"],
     "ram_amount_label" : "Cantidad de RAM",
     "installation_path_label" : "Ruta de instalación",
     "reset_path_button" : "Reset",

@@ -16,6 +16,9 @@ Roboto 13
 
 
 class App(ctk.CTk):
+
+    VERSION_TYPES = ["Vanilla", "Forge", "Modpack"]
+
     def __init__(self):
         super().__init__()
 
@@ -64,7 +67,7 @@ class App(ctk.CTk):
         self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text=self.translations["versions_label"])
         self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
 
-        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=self.translations["version_types"],
+        self.version_type = ctk.CTkOptionMenu(self.version_frame, values=self.VERSION_TYPES,
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 

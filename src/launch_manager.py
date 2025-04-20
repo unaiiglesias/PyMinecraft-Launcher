@@ -212,7 +212,14 @@ def launch_modpack(launch_parameters, app):
     repo_url = f"https://github.com/CalvonettaModpacks/{launch_parameters['modpack']}.git"
     # Forge version and subversion will be fetched
 
+    # Before we update (and potentially overwrite) it, we keep a copy of the current modlist
+    try:
+        prev_modlist = load_json(main_dir + "/mods/modlist.json")
+    except FileNotFoundError:
+        prev_modlist = None
+
     # this will ensure the repo exists and is up-to-date
+    # (In this process, we might have updated the modlist)
     try:
         repo = Repo(main_dir)
         origin = repo.remote()
@@ -226,40 +233,51 @@ def launch_modpack(launch_parameters, app):
      - mods/modlist.json: dict where {mod_filename: URL}
      - modpack_info.json: Forge version and subversion
     """
+    # Reload the info needed to install & launch the modpack
     modlist = load_json(main_dir + "/mods/modlist.json")
     info = load_json(main_dir + "/modpack_info.json")
     version_id = info["version"]
     subversion_id = info["subversion"]
 
+    """
+        Launch parameters path should always point to the root of the minecraft installation (kinda like the .minecraft
+        folder)
+        At the same time, we wan't to launch forge on the installed modpack's directory CalvonettaModpacks/...
+        To do this, we just create "disposable" new launch parameters we'll use to launch forge there, but we won't write
+        them to disk
+    """
     new_parameters = launch_parameters.copy()  # We'll "inject" the new data into the launch parameters
     new_parameters["path"] = main_dir
     new_parameters["version"] = version_id
     new_parameters["subversion"] = subversion_id
 
-    # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
-    current_mods = os.listdir(str(main_dir) + "/mods")
+    # If we haven't updated the modlist, we skip this step
+    # If we have updated the modlist, apply the corresponding changes
+    if prev_modlist != modlist:
+        # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
+        current_mods = os.listdir(str(main_dir) + "/mods")
 
-    # Remove unused / deprecated mods:
-    # won't remove: mods in modlist, not .jars, mods that contain "mantener" in their name
-    for mod in current_mods:
-        if mod not in modlist.keys() and mod.split(".")[-1] == "jar" and "mantener" not in mod:
-            print(f"Removing deprecated {mod}")
-            os.remove(str(main_dir) + f"/mods/{mod}")
+        # Remove unused / deprecated mods:
+        # won't remove mods that were added by the user
+        for mod in current_mods:
+            if mod in prev_modlist and mod not in modlist.keys():
+                print(f"Removing deprecated {mod}")
+                os.remove(str(main_dir) + f"/mods/{mod}")
 
-    # Download new mods
-    download_list = []  # I'll queue them and then download them all together
-    for mod in modlist.keys():
-        if mod not in current_mods:
-            download_list.append(mod)
+        # Download new mods
+        download_list = []  # I'll queue them and then download them all together
+        for mod in modlist.keys():
+            if mod not in current_mods:
+                download_list.append(mod)
 
-    progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
-    progress_bar.set_total(len(download_list))
+        progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
+        progress_bar.set_total(len(download_list))
 
-    for ind, mod in enumerate(download_list):
-        # Download the mod with wget
-        download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
-        progress_bar.update_progress(ind, 0)
-    progress_bar.finish()
+        for ind, mod in enumerate(download_list):
+            # Download the mod with wget
+            download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
+            progress_bar.update_progress(ind, 0)
+        progress_bar.finish()
 
     launch_forge(new_parameters, app)
 
