@@ -8,6 +8,7 @@ import os
 from config_manager import load_json
 from wget import download
 from subprocess import call
+from urllib.error import HTTPError
 
 
 class SuccessWindow(ctk.CTkToplevel):
@@ -275,7 +276,11 @@ def launch_modpack(launch_parameters, app):
 
         for ind, mod in enumerate(download_list):
             # Download the mod with wget
-            download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
+            import urllib
+            try:
+                download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
+            except HTTPError:
+                print("ERROR: Mod download failed! " + mod)
             progress_bar.update_progress(ind, 0)
         progress_bar.finish()
 
