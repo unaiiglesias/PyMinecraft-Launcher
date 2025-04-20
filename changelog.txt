@@ -32,3 +32,6 @@ ver: 1.12
 ver: 1.13
 - Arreglar bug traducciones
 - ahora el modo modpack no toca los mods que contienen "mantener"
+
+ver: 1.14
+- Ahora el modo modpack respetará los mods instalados por el usuario, sin necesidad de hacer el truco de poner mantener en el nombre
