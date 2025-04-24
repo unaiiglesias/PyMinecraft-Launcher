@@ -2,6 +2,7 @@ import datetime
 import os
 from PIL import Image
 import customtkinter as ctk
+import ctk_scrollable_dropdown
 from pathlib import Path
 from get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
 from launch_manager import launch_vanilla, launch_forge, launch_modpack, check_git
@@ -71,15 +72,16 @@ class App(ctk.CTk):
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
-        self.version_number = ctk.CTkOptionMenu(self.version_frame, values=[""],
-                                                command=self.update_subversions)
+        self.version_number = ctk.CTkOptionMenu(self.version_frame, command=self.update_subversions)
+        self.version_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.version_number, values=[""])
         self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
-        # TODO: https://github.com/Akascape/CTkScrollableDropdown
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=[""])
+        self.subversion_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.subversion_number, values=[""])
         self.subversion_number.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=[""], width=300)
+        self.modpack_name_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.modpack_name)
         self.modpack_name.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
@@ -263,7 +265,7 @@ class App(ctk.CTk):
             """
 
             # Set the parent version field values
-            self.version_number.configure(values=version_list)
+            self.version_number_dropdown.configure(values=version_list)
 
             # Update cache date
             self.cfg["cache_day_vanilla"] = today
@@ -278,7 +280,7 @@ class App(ctk.CTk):
             """
 
             # Set the parent version field values
-            self.version_number.configure(values=list(version_list.keys()))
+            self.version_number_dropdown.configure(values=list(version_list.keys()))
 
             # Update the subversion field values
             self.update_subversions(self.version_number.get())
@@ -296,7 +298,7 @@ class App(ctk.CTk):
             """
             version_list will be a list of modpack names
             """
-            self.modpack_name.configure(values=version_list)
+            self.modpack_name_dropdown.configure(values=version_list)
             # TODO: Cache date should be updated here
 
             if not self.modpack_name.get():
@@ -348,7 +350,7 @@ class App(ctk.CTk):
         version_list = self.get_versions()
 
         subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
-        self.subversion_number.configure(values=subversion_list)
+        self.subversion_number_dropdown.configure(values=subversion_list)
 
     def update_ram_slider(self, choice):
         self.input_ram_value.configure(text=f"{choice} GB")
