@@ -72,8 +72,9 @@ class App(ctk.CTk):
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
-        self.version_number = ctk.CTkOptionMenu(self.version_frame, command=self.update_subversions)
-        self.version_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.version_number, values=[""])
+        self.version_number = ctk.CTkOptionMenu(self.version_frame)
+        self.version_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.version_number, values=[""],
+                                                                                     command=self.update_subversions)
         self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=[""])
@@ -343,6 +344,9 @@ class App(ctk.CTk):
         It is only necessary for forge, and will be called by version number selector
         """
 
+        # This overwrites CTkScrollableDropdown's default command, so we need to do this manually
+        self.version_number.set(parent_version)
+
         if self.version_type.get() == "Vanilla":
             return
 
@@ -351,6 +355,8 @@ class App(ctk.CTk):
 
         subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
         self.subversion_number_dropdown.configure(values=subversion_list)
+        # Every time the version changes, we default to lastest to prevent the prevoius subversion from being kept
+        self.subversion_number.set("latest")
 
     def update_ram_slider(self, choice):
         self.input_ram_value.configure(text=f"{choice} GB")
