@@ -19,7 +19,11 @@ I also compile each new release to a standalone installer with [PyInstaller](htt
 
 ## Dependencies (credits): 
 [portablemc](https://github.com/mindstorm38/portablemc)
+
 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
+
 [CTkScrollableDropdown](https://github.com/Akascape/CTkScrollableDropdown)
+
 [PyInstaller](https://github.com/pyinstaller/pyinstaller)
+
 [Inno Setup](https://jrsoftware.org/isinfo.php)
