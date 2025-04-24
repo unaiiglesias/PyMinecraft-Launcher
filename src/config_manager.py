@@ -84,6 +84,8 @@ def save_ini(cfg):
     """
     resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="ANSI")
 
+    print("Overwriting config.INI file")
+
     resul["MAIN"] = {}
     for key in cfg:
         resul["MAIN"][key] = cfg[key]

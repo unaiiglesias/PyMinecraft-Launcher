@@ -10,6 +10,8 @@ import config_manager
 from threading import Thread
 from tkinter import filedialog
 
+from src.config_manager import save_ini
+
 """
 Default font:
 Roboto 13
@@ -204,6 +206,8 @@ class App(ctk.CTk):
         elif new_appearance_mode == "Sistema":
             new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
+        self.cfg["theme"] = new_appearance_mode
+        save_ini(self.cfg)
 
     def toggle_terror_easter_egg(self):
         """
@@ -220,6 +224,7 @@ class App(ctk.CTk):
             self.terror_easter_egg.image = self.terror_easter_egg_image
 
         self.cfg["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
+        save_ini(self.cfg)
 
     def get_versions(self):
         """
@@ -395,7 +400,6 @@ class App(ctk.CTk):
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
-        self.version_type.configure(values=self.translations["version_types"])
         self.input_ram_label.configure(text=self.translations["ram_amount_label"])
         self.input_installation_path_label.configure(text=self.translations["installation_path_label"])
         self.reset_installation_path_button.configure(text=self.translations["reset_path_button"])
@@ -404,6 +408,8 @@ class App(ctk.CTk):
         self.side_options_label.configure(text=self.translations["side_options_label"])
         self.launch_button.configure(text=self.translations["launch_button"])
         self.update_status("idle")  # So that the status bar text updates
+        self.cfg["language"] = choice
+        save_ini(self.cfg)
         return
 
     def get_launch_parameters(self):
@@ -448,15 +454,6 @@ class App(ctk.CTk):
 
         return launch_parameters
 
-    def update_cfg(self):
-        """
-        Updates self.cfg so that if any changes have been made, it contains the new values
-        This shouldn't be neede , but, just in case I missed something...
-        """
-        self.cfg["theme"] = self.appearance_mode.get()
-        self.cfg["language"] = self.language_selector.get()
-        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1, not boolean
-
     def launch_game(self):
         print("Launching game...")
 
@@ -467,7 +464,6 @@ class App(ctk.CTk):
         except (PermissionError, FileNotFoundError):
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
-        self.update_cfg()  # Update the values of self.cfg
 
         config_manager.save_launch_data(launch_data)  # write launch_data.json
         config_manager.save_ini(self.cfg)  # write config.ini
