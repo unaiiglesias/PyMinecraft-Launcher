@@ -5,11 +5,11 @@ from pathlib import Path
 import customtkinter as ctk
 from threading import Thread
 import os
-from config_manager import load_json
+from utilities import load_json, is_git_installed
 from wget import download
-from subprocess import call
 from urllib.error import HTTPError
 from json.decoder import JSONDecodeError
+from launch_data_manager import LaunchData
 
 class SuccessWindow(ctk.CTkToplevel):
     def __init__(self, app, *args, **kwargs):
@@ -145,12 +145,12 @@ class DownloadWatcher(Watcher):
 
 
 # TODO: launch_vanilla & launch_forge are very similar, they can surely be compacted in a single function
-def launch_vanilla(launch_parameters, app):
-    main_dir = Path(launch_parameters["path"])
+def launch_vanilla(launch_data : LaunchData, app):
+    main_dir = Path(launch_data.path)
     work_dir = Path(main_dir)
-    version_id = launch_parameters["version"]
-    ram_amount = launch_parameters["ram"]
-    username = launch_parameters["username"]
+    version_id = launch_data.version
+    ram_amount = launch_data.ram
+    username = launch_data.username
 
     ctx = Context(main_dir, work_dir)
     version = Version(version_id, context=ctx)
@@ -173,13 +173,13 @@ def launch_vanilla(launch_parameters, app):
     SuccessWindow(app)
 
 
-def launch_forge(launch_parameters, app):
-    main_dir = Path(launch_parameters["path"])
+def launch_forge(launch_data : LaunchData, app):
+    main_dir = Path(launch_data.path)
     work_dir = Path(main_dir)
-    version_id = launch_parameters["version"]
-    subversion_id = launch_parameters["subversion"]
-    ram_amount = launch_parameters["ram"]
-    username = launch_parameters["username"]
+    version_id = launch_data.version
+    subversion_id = launch_data.subversion
+    ram_amount = launch_data.ram
+    username = launch_data.username
 
     ctx = Context(main_dir, work_dir)
 
@@ -206,11 +206,11 @@ def launch_forge(launch_parameters, app):
     SuccessWindow(app)
 
 
-def launch_modpack(launch_parameters, app):
+def launch_modpack(launch_data : LaunchData, app):
     from git import Repo, InvalidGitRepositoryError, NoSuchPathError
     # path/CalvonettaModpacks/modpackName
-    main_dir = launch_parameters["path"] + f"/CalvonettaModpacks/{launch_parameters['modpack']}"
-    repo_url = f"https://github.com/CalvonettaModpacks/{launch_parameters['modpack']}.git"
+    main_dir = launch_data.path + f"/CalvonettaModpacks/{launch_data.modpack}"
+    repo_url = f"https://github.com/CalvonettaModpacks/{launch_data.modpack}.git"
     # Forge version and subversion will be fetched
 
     # Before we update (and potentially overwrite) it, we keep a copy of the current modlist
@@ -252,7 +252,7 @@ def launch_modpack(launch_parameters, app):
         To do this, we just create "disposable" new launch parameters we'll use to launch forge there, but we won't write
         them to disk
     """
-    new_parameters = launch_parameters.copy()  # We'll "inject" the new data into the launch parameters
+    new_parameters = launch_data.copy()  # We'll "inject" the new data into the launch parameters
     new_parameters["path"] = main_dir
     new_parameters["version"] = version_id
     new_parameters["subversion"] = subversion_id
@@ -276,7 +276,7 @@ def launch_modpack(launch_parameters, app):
             if mod not in current_mods:
                 download_list.append(mod)
 
-        progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_parameters['modpack']}")
+        progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_data.modpack}")
         progress_bar.set_total(len(download_list))
 
         for ind, mod in enumerate(download_list):
@@ -292,19 +292,7 @@ def launch_modpack(launch_parameters, app):
     launch_forge(new_parameters, app)
 
 
-def is_git_installed():
-    """
-    Return true if git is installed and false instead
-    """
-
-    try:
-        call("git --version")
-        return True
-    except FileNotFoundError:
-        return False
-
-
-def check_git(app, launch_data):
+def ensure_git(app, launch_data):
     """
     Checks wether git is installed or not:
      - if git is inastalled, returns true
@@ -377,7 +365,7 @@ def check_git(app, launch_data):
     # (we don't need the latest and it's more comfortable this way)
 
     git_link = "https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe"
-    download_path = launch_data["path"] + "/git_for_calvonetta.exe"
+    download_path = launch_data.path + "/git_for_calvonetta.exe"
 
     print("DOWNLOADING GIT")
 

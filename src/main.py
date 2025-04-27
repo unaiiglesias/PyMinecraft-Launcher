@@ -1,16 +1,17 @@
 import datetime
-import os
 from PIL import Image
 import customtkinter as ctk
 import ctk_scrollable_dropdown
-from pathlib import Path
 from get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from launch_manager import launch_vanilla, launch_forge, launch_modpack, check_git
+from launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
 import config_manager
 from threading import Thread
 from tkinter import filedialog
 
 from src.config_manager import save_ini
+from src.launch_data_manager import LaunchData
+from src.transaltion_manager import Translations
+from utilities import get_default_path, check_if_path_is_valid
 
 """
 Default font:
@@ -25,11 +26,13 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        print("--- INITIALIZATION BEGINS ---")
+
         # load config.ini to dictionary
         self.cfg = config_manager.load_ini()
 
         # Translations need to be loaded early so that widgets can assign text variables
-        self.translations = config_manager.load_translations(self.cfg["language"])
+        self.translations = Translations(self.cfg["language"])
 
         # Set app title and icon according to config.ini
         self.title(self.cfg["title"])
@@ -102,15 +105,15 @@ class App(ctk.CTk):
                                              number_of_steps=30, command=self.update_ram_slider)
         self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
 
-        self.input_ram_value = ctk.CTkLabel(self.parameters_frame, text="1 GB")
-        self.input_ram_value.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
+        self.input_ram_value_label = ctk.CTkLabel(self.parameters_frame, text="1 GB")
+        self.input_ram_value_label.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame,
                                                           text=self.translations["installation_path_label"])
         self.input_installation_path_label.grid(row=2, sticky="w", padx=20, pady=5)
 
         self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
-        self.input_installation_path.insert(0, self.get_default_path())  # Set entry to default path
+        self.input_installation_path.insert(0, get_default_path())  # Set entry to default path
         self.input_installation_path.grid(row=3, column=0, sticky="w", padx=(20, 0), pady=(0, 10))
 
         self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
@@ -171,32 +174,25 @@ class App(ctk.CTk):
         self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
 
-        # Load launch data (if any) and update variables
-        try:
-            launch_data = config_manager.load_launch_data()
-            self.input_username_field.insert(0, launch_data["username"])
-            self.input_ram_field.set(launch_data["ram"] / 1024)
-            self.update_ram_slider(launch_data["ram"] / 1024)
+        # Load launch data
+        self.launch_data = LaunchData() # If there exists launch_data.json, loads it. Otherwise, defaults
+        self.input_username_field.insert(0, self.launch_data.username)
+        self.input_ram_field.set(self.launch_data.ram / 1024)
+        self.update_ram_slider(self.launch_data.ram / 1024)
 
-            # To set the value of the path it first needs to be emptied
-            self.input_installation_path.delete(0, ctk.END)
-            self.input_installation_path.insert(0, launch_data["path"])
+        # To set the value of the path it first needs to be emptied
+        self.input_installation_path.delete(0, ctk.END)
+        self.input_installation_path.insert(0, self.launch_data.path)
 
-            self.version_type.set(launch_data["version_type"])
-            self.grid_version(launch_data["version_type"])
-            self.version_number.set(launch_data["version"])
-            self.subversion_number.set(launch_data["subversion"])
-            self.modpack_name.set(launch_data["modpack"])
-
-        except FileNotFoundError:
-            pass
-
-        except KeyError:
-            print("Outdated Launch data")
-            pass
+        self.version_type.set(self.launch_data.version_type)
+        self.grid_version(self.launch_data.version_type)
+        self.version_number.set(self.launch_data.version)
+        self.subversion_number.set(self.launch_data.subversion)
+        self.modpack_name.set(self.launch_data.modpack)
 
         self.update_versions(self.version_type.get())  # TODO: cached day will be saved in self.cfg
-        print("INITIALIZATION FINALIZED")
+
+        print("--- INITIALIZATION FINALIZED ---")
 
     def change_appearance_mode(self, new_appearance_mode):
         if new_appearance_mode == "Claro":
@@ -364,15 +360,10 @@ class App(ctk.CTk):
         self.subversion_number.set("latest")
 
     def update_ram_slider(self, choice):
-        self.input_ram_value.configure(text=f"{choice} GB")
-
-    def get_default_path(self):
-        user_path = str(Path.home())
-        installation_path = user_path + "\\AppData\\Roaming\\.minecraft"
-        return installation_path
+        self.input_ram_value_label.configure(text=f"{choice} GB")
 
     def reset_installation_path(self):
-        default_path = self.get_default_path()
+        default_path = get_default_path()
         self.input_installation_path.delete(0, ctk.END)  # Clean the entry
         self.input_installation_path.insert(0, default_path)  # Set the entry to the default path
         print("Installation path reseted")
@@ -396,7 +387,7 @@ class App(ctk.CTk):
         """
 
         # choice in (English, Español)
-        self.translations = config_manager.load_translations(choice)
+        self.translations.load_translations(choice)
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
@@ -413,59 +404,62 @@ class App(ctk.CTk):
         return
 
     def get_launch_parameters(self):
-
-        # directly obtained
-        launch_parameters = {
-            "username": self.input_username_field.get(),
-            "version_type": self.version_type.get(),
-            "version": self.version_number.get(),
-            "subversion": self.subversion_number.get(),
-            "modpack": self.modpack_name.get(),
-            "ram": self.input_ram_field.get() * 1024,  # RAM is got in GB
-            "path": self.input_installation_path.get(),
-            "premium": False,  # Make it false by default
-        }
+        """
+        Collect all the info neccessary to launch the game from the GUI
+        Returns:
+            updates self.launch_data according to GUI
+        """
 
         # It makes no sense for the username to be ""
-        if not launch_parameters["username"]:
-            launch_parameters["username"] = "Steve"
-            self.input_username_field.insert(0, "Steve")
+        username = self.input_username_field.get()
+        if not username:
+            print("ERROR: Empty username selected")
+            raise TypeError
+        self.launch_data.username = username
+
+        # Get version
+        self.launch_data.version_type = self.version_type.get()
+        self.launch_data.version = self.version_number.get()
+        self.launch_data.subversion = self.subversion_number.get()
+        self.launch_data.modpack = self.modpack_name.get()
 
         # Turn RAM value into an integer
-        launch_parameters["ram"] = int(launch_parameters["ram"])
+        ram = int(self.input_ram_field.get() * 1024)
+        print(f"DEBUG: Launching with ram {ram}") # TODO: Check if this is correct (shouldn't it be 512?)
+        self.launch_data.ram = ram
 
         # This part is only "triggered" if a path is neither provided via GUI nor loaded from the .json file
         # (Shouldn't happen, but just in case)
         inserted_path = self.input_installation_path.get()
         if inserted_path == "":
-            launch_parameters["path"] = self.get_default_path()
-        else:
-            launch_parameters["path"] = inserted_path
+            inserted_path = get_default_path()
+            self.reset_installation_path()
+        self.launch_data.path = inserted_path
 
-        # Check that path is valid (= It doesn't throw PermissionError)
-        try:
-            test_file_path = launch_parameters["path"] + "\\test.txt"
-            with open(test_file_path, "w") as test_file:
-                test_file.write("Do we got permission?")
-            os.remove(test_file_path)
-        except (PermissionError, FileNotFoundError):
-            print("Invalid Path")
-            raise PermissionError
+        # Check that path is valid
+        if not check_if_path_is_valid(self.launch_data.path):
+            print("ERROR: Invalid Path selected")
+            raise PermissionError # This will be caught by launch_game, who will handle it
 
-        return launch_parameters
+        # Get premium status
+        self.launch_data.premium = False # TODO: Premium functionality, False for now
+
+        return
 
     def launch_game(self):
         print("Launching game...")
 
         # Get launch parameters and check if the launch path is valid (we have permission)
-        # TODO: get_launch_parameters check if path is valid, export it to another method
         try:
-            launch_data = self.get_launch_parameters()
+            self.get_launch_parameters()
         except (PermissionError, FileNotFoundError):
             self.update_status("error", self.translations["status_error_invalid_path"])
             return
+        except TypeError:
+            self.update_status("error", self.translations["status_error_invalid_username"])
+            return
 
-        config_manager.save_launch_data(launch_data)  # write launch_data.json
+        self.launch_data.save_launch_data() # write launch_data.json
         config_manager.save_ini(self.cfg)  # write config.ini
 
         self.update_status("working", self.translations["status_working_launching"])
@@ -474,18 +468,18 @@ class App(ctk.CTk):
         self.launch_button.configure(state="disabled")
         # I'll enable it in the launch function after the installation is done
 
-        if launch_data["version_type"] == "Vanilla":
+        if self.launch_data.version_type == "Vanilla":
             # launch_vanilla(launch_data)  OLD
-            Thread(target=launch_vanilla, args=(launch_data, self)).start()
-        elif launch_data["version_type"] == "Forge":
+            Thread(target=launch_vanilla, args=(self.launch_data, self)).start()
+        elif self.launch_data.version_type == "Forge":
             # launch_forge(launch_data, self)  OLD
-            Thread(target=launch_forge, args=(launch_data, self)).start()
-        elif launch_data["version_type"] == "Modpack":
-            if not check_git(self, launch_data):
+            Thread(target=launch_forge, args=(self.launch_data, self)).start()
+        elif self.launch_data.version_type == "Modpack":
+            if not ensure_git(self, self.launch_data):
                 self.update_status("error", self.translations["status_error_git_not_installed"])
                 print("Aborting modpack launch, git not installed")
                 return
-            launch_modpack(launch_data, self)
+            launch_modpack(self.launch_data, self)
 
         return
 

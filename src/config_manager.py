@@ -1,4 +1,3 @@
-import json
 from configobj import ConfigObj
 
 
@@ -25,7 +24,7 @@ def load_ini():
 
     """ Load config.ini file into resul dictionary or return default if config.ini not found """
     try:
-        cfg = ConfigObj("config.ini", raise_errors=True, file_error=True, encoding="ANSI")
+        cfg = ConfigObj("config.ini", raise_errors=True, file_error=True, encoding="UTF-8")
         # load config overwriting default values (TODO: Deprecated values will be loaded)
         resul = default.copy()  # We do this so that, if the file is malformed, the default remains unaltered
         for key in cfg["MAIN"]:
@@ -39,6 +38,11 @@ def load_ini():
     except (TypeError, KeyError):
         # config.ini is malformed
         print("WARNING: config.ini is malformed, returning default values")
+        return default
+
+    except UnicodeError:
+        # config.ini could be obsolete
+        print("WARNING: config.ini has wrong format, returning default values")
         return default
 
     """ Validate resul (taking default as template) """
@@ -82,72 +86,14 @@ def save_ini(cfg):
 
     cfg is self.cfg, the config dictionary
     """
-    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="ANSI")
+    resul = ConfigObj("config.ini", raise_errors=True, create_empty=True, encoding="UTF-8")
 
-    print("Overwriting config.INI file")
+    print("Writing config.INI file")
 
     resul["MAIN"] = {}
     for key in cfg:
         resul["MAIN"][key] = cfg[key]
     resul.write()
-
-
-def load_json(filename):
-    """
-    returns json saved in filename (filename complete path + .json suffix)
-    Raises FileNotFoundError if the file is not found
-    """
-    with open(filename, "r", encoding="utf-8") as json_file:
-        return json.load(json_file)
-
-
-def save_json(content, filename):
-    """
-    writes contents to filename.
-    filename has to be complete path to file.json
-    """
-    with open(filename, "w", encoding="utf-8") as file:
-        json.dump(content, file)
-
-
-def load_launch_data():
-    """
-    Load launch data from json and returns the dictionary.
-
-    Raises FileNoFoundError if the file is not found (obviously)
-    """
-    try:
-        return load_json("./launch_data.json")
-    except FileNotFoundError:
-        print("WARNING: launch_data.json was not found")
-        raise FileNotFoundError
-
-
-def save_launch_data(launch_data):
-    """
-    Save launch data to json
-    """
-    with open("./launch_data.json", "w", encoding="utf-8") as json_file:
-        json.dump(launch_data, json_file, indent=4)
-
-
-def load_translations(language):
-    """
-    Loads translations.json and return it.
-    language = full language string (Español, English)
-    """
-    # translations.json key, however, is different
-    if language == "Español":
-        language_key = "es"
-    else:
-        language_key = "en"
-
-    print(f"Loading translations.json in {language} code:{language_key}")
-    try:
-        return load_json("./assets/translations.json")[language_key]
-    except FileNotFoundError as e:
-        print("ERROR: translations.json not found")
-        raise e
 
 
 def main():
