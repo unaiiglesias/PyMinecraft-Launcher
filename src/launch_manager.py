@@ -1,3 +1,4 @@
+import copy
 from portablemc.standard import (Context, Version, Watcher, DownloadStartEvent,
                                  DownloadProgressEvent, DownloadCompleteEvent)
 from portablemc.forge import ForgeVersion
@@ -252,10 +253,10 @@ def launch_modpack(launch_data : LaunchData, app):
         To do this, we just create "disposable" new launch parameters we'll use to launch forge there, but we won't write
         them to disk
     """
-    new_parameters = launch_data.copy()  # We'll "inject" the new data into the launch parameters
-    new_parameters["path"] = main_dir
-    new_parameters["version"] = version_id
-    new_parameters["subversion"] = subversion_id
+    new_parameters = copy.deepcopy(launch_data) # We'll "inject" the new data into the launch parameters
+    new_parameters.path = main_dir
+    new_parameters.version = version_id
+    new_parameters.subversion = subversion_id
 
     # If we haven't updated the modlist, we skip this step
     # If we have updated the modlist, apply the corresponding changes
