@@ -6,7 +6,7 @@ from pathlib import Path
 import customtkinter as ctk
 from threading import Thread
 import os
-from utilities import load_json, is_git_installed
+from src.util.utilities import load_json, is_git_installed
 from wget import download
 from urllib.error import HTTPError
 from json.decoder import JSONDecodeError
@@ -282,7 +282,6 @@ def launch_modpack(launch_data : LaunchData, app):
 
         for ind, mod in enumerate(download_list):
             # Download the mod with wget
-            import urllib
             try:
                 download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
             except HTTPError:

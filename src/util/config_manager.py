@@ -28,7 +28,7 @@ DEFAULT = {
     }
 }
 
-def validate_cfg(cfg : dict):
+def _validate_cfg(cfg : dict):
     """
     Validates that cfg is correct
     Doesn't return anything. Instead, it corrects errors directly on cfg
@@ -141,7 +141,6 @@ def validate_cfg(cfg : dict):
         save_ini(cfg)
 
 
-
 def load_ini():
     """
     Reads config.ini file and return its corresponding dictionary. This is done so that options can be loaded with
@@ -159,7 +158,7 @@ def load_ini():
         parser = ConfigParser()
         parser.read("config.ini", encoding="UTF-8")
         cfg = {section: dict(parser.items(section)) for section in parser.sections()}
-        validate_cfg(cfg)
+        _validate_cfg(cfg)
 
     except IOError:
         # config.ini was not found, return default
@@ -167,10 +166,11 @@ def load_ini():
         cfg = DEFAULT
         save_ini(cfg)
 
-    #except (TypeError, KeyError):
-    #    # config.ini is malformed
-    #    print("WARNING: config.ini is malformed, returning default values")
-    #    return default
+    except (TypeError, KeyError):
+        # config.ini is malformed
+        print("WARNING: config.ini is malformed, returning default values")
+        cfg = DEFAULT
+        save_ini(cfg)
 
     except UnicodeError:
         # config.ini could be obsolete
@@ -191,7 +191,7 @@ def save_ini(cfg : dict):
     save = ConfigParser()
     save.read_dict(cfg)
 
-    with open("config.ini", "w") as ini_file:
+    with open("../config.ini", "w") as ini_file:
         save.write(ini_file)
 
 

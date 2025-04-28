@@ -1,17 +1,15 @@
 import datetime
 from PIL import Image
 import customtkinter as ctk
-import ctk_scrollable_dropdown
-from get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
-import config_manager
 from threading import Thread
 from tkinter import filedialog
-
-from src.config_manager import save_ini
+from launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
+from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
+from src.util.config_manager import save_ini, load_ini
 from src.launch_data_manager import LaunchData
-from src.transaltion_manager import Translations
-from utilities import get_default_path, check_if_path_is_valid
+from src.util.transaltion_manager import Translations
+from src.util.utilities import get_default_path, check_if_path_is_valid
+from src.util.ctk_scrollable_dropdown import  CTkScrollableDropdown
 
 """
 Default font:
@@ -29,7 +27,7 @@ class App(ctk.CTk):
         print("--- INITIALIZATION BEGINS ---")
 
         # load config.ini to dictionary
-        self.cfg = config_manager.load_ini()
+        self.cfg = load_ini()
 
         # Translations need to be loaded early so that widgets can assign text variables
         self.translations = Translations(self.cfg["MAIN"]["language"])
@@ -78,16 +76,16 @@ class App(ctk.CTk):
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
         self.version_number = ctk.CTkOptionMenu(self.version_frame)
-        self.version_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.version_number, values=[""],
+        self.version_number_dropdown = CTkScrollableDropdown(self.version_number, values=[""],
                                                                                      command=self.update_subversions)
         self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=[""])
-        self.subversion_number_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.subversion_number, values=[""])
+        self.subversion_number_dropdown = CTkScrollableDropdown(self.subversion_number, values=[""])
         self.subversion_number.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=[""], width=300)
-        self.modpack_name_dropdown = ctk_scrollable_dropdown.CTkScrollableDropdown(self.modpack_name)
+        self.modpack_name_dropdown = CTkScrollableDropdown(self.modpack_name)
         self.modpack_name.set("")  # Default value will be modified by launch_data or in update_versions
 
         self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
