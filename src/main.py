@@ -32,11 +32,11 @@ class App(ctk.CTk):
         self.cfg = config_manager.load_ini()
 
         # Translations need to be loaded early so that widgets can assign text variables
-        self.translations = Translations(self.cfg["language"])
+        self.translations = Translations(self.cfg["MAIN"]["language"])
 
         # Set app title and icon according to config.ini
-        self.title(self.cfg["title"])
-        self.iconbitmap(self.cfg["icon"])
+        self.title(self.cfg["MAIN"]["title"])
+        self.iconbitmap(self.cfg["MAIN"]["icon"])
         # self.geometry("600x600")  # UNUSED
 
         # App grid configuration
@@ -50,7 +50,7 @@ class App(ctk.CTk):
         self.update_status("idle")
 
         # Top title header
-        self.header = ctk.CTkLabel(self, text=self.cfg["title"], font=("calibri", 24))
+        self.header = ctk.CTkLabel(self, text=self.cfg["MAIN"]["title"], font=("calibri", 24))
         self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
 
         """ Credentials frame """
@@ -147,15 +147,15 @@ class App(ctk.CTk):
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=self.translations["theme_choice"],
                                                  command=self.change_appearance_mode)
         self.appearance_mode.grid(row=1, padx=20, pady=10)
-        self.appearance_mode.set(self.cfg["theme"])  # set loaded
-        self.change_appearance_mode(self.cfg["theme"])  # Change to loaded
+        self.appearance_mode.set(self.cfg["MAIN"]["theme"])  # set loaded
+        self.change_appearance_mode(self.cfg["MAIN"]["theme"])  # Change to loaded
 
         self.language_selector = ctk.CTkOptionMenu(self.side_frame, values=["English", "Español"],
                                                    command=self.change_language)
-        self.language_selector.set(self.cfg["language"])
+        self.language_selector.set(self.cfg["MAIN"]["language"])
         self.language_selector.grid(row=2, padx=20, pady=10)
 
-        self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg['version']}")
+        self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg["MAIN"]['version']}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
         self.bomb_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(25, 25))
         self.bomb_image_label = ctk.CTkLabel(self.side_frame, image=self.bomb_image, text="",
@@ -164,7 +164,7 @@ class App(ctk.CTk):
         self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text="", width=10, height=10,
                                                         command=self.toggle_terror_easter_egg)
         self.enable_terror_easter_egg.grid(row=3, sticky="e", padx=(0, 20), pady=0)
-        if self.cfg["show_terror"] == 1:
+        if self.cfg["MAIN"]["show_terror"] == 1:
             self.enable_terror_easter_egg.select()
         else:
             self.enable_terror_easter_egg.deselect()
@@ -202,7 +202,7 @@ class App(ctk.CTk):
         elif new_appearance_mode == "Sistema":
             new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
-        self.cfg["theme"] = new_appearance_mode
+        self.cfg["MAIN"]["theme"] = new_appearance_mode
         save_ini(self.cfg)
 
     def toggle_terror_easter_egg(self):
@@ -219,7 +219,7 @@ class App(ctk.CTk):
             self.terror_easter_egg.configure(image=self.terror_easter_egg_image)
             self.terror_easter_egg.image = self.terror_easter_egg_image
 
-        self.cfg["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
+        self.cfg["MAIN"]["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
         save_ini(self.cfg)
 
     def get_versions(self):
@@ -270,7 +270,7 @@ class App(ctk.CTk):
             self.version_number_dropdown.configure(values=version_list)
 
             # Update cache date
-            self.cfg["cache_day_vanilla"] = today
+            self.cfg["MAIN"]["cache_day_vanilla"] = today
 
             # If no version chosen, choose one
             if not self.version_number.get():
@@ -288,7 +288,7 @@ class App(ctk.CTk):
             self.update_subversions(self.version_number.get())
 
             # Update cache date
-            self.cfg["cache_day_forge"] = today
+            self.cfg["MAIN"]["cache_day_forge"] = today
 
             if not self.version_number.get():
                 self.version_number.set(version_list.keys()[0])
@@ -399,7 +399,7 @@ class App(ctk.CTk):
         self.side_options_label.configure(text=self.translations["side_options_label"])
         self.launch_button.configure(text=self.translations["launch_button"])
         self.update_status("idle")  # So that the status bar text updates
-        self.cfg["language"] = choice
+        self.cfg["MAIN"]["language"] = choice
         save_ini(self.cfg)
         return
 
@@ -460,7 +460,6 @@ class App(ctk.CTk):
             return
 
         self.launch_data.save_launch_data() # write launch_data.json
-        config_manager.save_ini(self.cfg)  # write config.ini
 
         self.update_status("working", self.translations["status_working_launching"])
 
