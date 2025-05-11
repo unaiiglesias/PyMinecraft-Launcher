@@ -1,7 +1,7 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
 
-from src.util.utilities import save_ini
+from src.util.config_manager import save_ini
 from src.util.utilities import load_json, save_json
 import datetime
 import github # PyGithub

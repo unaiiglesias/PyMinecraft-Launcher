@@ -185,7 +185,6 @@ def save_ini(cfg : dict):
     """
     Creates and saves config.ini file with provided cfg dictionary
     """
-
     print("Writing config.INI file")
 
     save = ConfigParser()
