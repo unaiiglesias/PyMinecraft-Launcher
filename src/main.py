@@ -5,9 +5,9 @@ from threading import Thread
 from tkinter import filedialog
 from src.launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
 from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from src.util.config_manager import Configuration
-from src.launch_data_manager import LaunchData
-from src.util.translation_manager import Translations
+from src.app_utils.config_manager import Configuration
+from src.app_utils.launch_data_manager import LaunchData
+from src.app_utils.translation_manager import Translations
 from src.util.utilities import get_default_path, check_if_path_is_valid
 from src.util.ctk_scrollable_dropdown import  CTkScrollableDropdown
 

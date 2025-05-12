@@ -10,7 +10,9 @@ class Translations:
     """
 
 
-    def __init__(self, language = "English"):
+    def __init__(self, language = "English", path = "assets/translations.json"):
+
+        self.path = path
 
         self.avaliable_langs = {"Español": "es", "English": "en"}
         self._translations = None # Translations dictionary
@@ -30,7 +32,7 @@ class Translations:
 
         language_key = self.avaliable_langs[language]
         print(f"Loading translations.json in {language} code:{language_key}")
-        self._translations = load_json("./assets/translations.json")[language_key]
+        self._translations = load_json(self.path)[language_key]
         self.lang = language
 
     def get_current_lang(self):

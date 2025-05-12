@@ -9,7 +9,10 @@ class LaunchData:
     Attributes are to be used directly, with . notation
     """
 
-    def __init__(self):
+    def __init__(self, path = "launch_data.json"):
+
+        self.file_path = path
+
         self.username : str = ""
         self.version_type : str = ""
         self.version : str = ""
@@ -45,7 +48,7 @@ class LaunchData:
             "path" : self.path,
             "premium" : self.premium
         }
-        save_json(data, "./launch_data.json")
+        save_json(data, self.path)
 
 
     def load_launch_data(self):
@@ -54,10 +57,10 @@ class LaunchData:
         If the file doesn't exist, it generates one with default data and initializes the object accordingly
         """
         try:
-            json = load_json("./launch_data.json")
+            json = load_json(self.file_path)
         except FileNotFoundError:
             # If there is no launch data, create a default one and write it so something exists
-            print("WARNING: launch_data.json not found, generatin default")
+            print("WARNING: launch_data.json not found, generating default")
             self._set_default()
             self.save_launch_data()
             return

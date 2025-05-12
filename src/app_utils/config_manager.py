@@ -234,7 +234,7 @@ def main():
         Function only intended for testing and debugging purpouses
     """
 
-    cfg = Configuration(path = "../config.ini")
+    cfg = Configuration(path ="../config.ini")
     print(cfg)
 
 
