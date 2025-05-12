@@ -1,7 +1,5 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
-
-from src.util.config_manager import save_ini
 from src.util.utilities import load_json, save_json
 import datetime
 import github # PyGithub
@@ -102,7 +100,7 @@ def get_vanilla_versions(cache_data_path: str, app):
     save_json(vanilla_versions, versions_cache_file)
 
     app.cfg["MAIN"]["cache_day_vanilla"] = today
-    save_ini(app.cfg)
+    app.cfg.write_ini()
 
     return vanilla_versions
 
@@ -148,7 +146,7 @@ def get_forge_versions(cache_data_path: str, app):
     save_json(forge_versions, versions_cache_file)
 
     app.cfg["MAIN"]["cache_day_forge"] = today
-    save_ini(app.cfg)
+    app.cfg.write_ini()
 
     return forge_versions
 

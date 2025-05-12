@@ -5,7 +5,7 @@ from threading import Thread
 from tkinter import filedialog
 from src.launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
 from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from src.util.config_manager import save_ini, load_ini
+from src.util.config_manager import Configuration
 from src.launch_data_manager import LaunchData
 from src.util.translation_manager import Translations
 from src.util.utilities import get_default_path, check_if_path_is_valid
@@ -27,7 +27,7 @@ class App(ctk.CTk):
         print("--- INITIALIZATION BEGINS ---")
 
         # load config.ini to dictionary
-        self.cfg = load_ini()
+        self.cfg = Configuration()
 
         # Translations need to be loaded early so that widgets can assign text variables
         self.translations = Translations(self.cfg["MAIN"]["language"])
@@ -201,7 +201,7 @@ class App(ctk.CTk):
             new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
         self.cfg["MAIN"]["theme"] = new_appearance_mode
-        save_ini(self.cfg)
+        self.cfg.write_ini()
 
     def toggle_terror_easter_egg(self):
         """
@@ -218,7 +218,7 @@ class App(ctk.CTk):
             self.terror_easter_egg.image = self.terror_easter_egg_image
 
         self.cfg["MAIN"]["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
-        save_ini(self.cfg)
+        self.cfg.write_ini()
 
     def get_versions(self):
         """
@@ -398,7 +398,7 @@ class App(ctk.CTk):
         self.launch_button.configure(text=self.translations["launch_button"])
         self.update_status("idle")  # So that the status bar text updates
         self.cfg["MAIN"]["language"] = choice
-        save_ini(self.cfg)
+        self.cfg.write_ini()
         return
 
     def get_launch_parameters(self):
