@@ -190,7 +190,7 @@ def save_ini(cfg : dict):
     save = ConfigParser()
     save.read_dict(cfg)
 
-    with open("../config.ini", "w") as ini_file:
+    with open("config.ini", "w") as ini_file:
         save.write(ini_file)
 
 
