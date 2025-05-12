@@ -10,7 +10,7 @@ from src.util.utilities import load_json, is_git_installed
 from wget import download
 from urllib.error import HTTPError
 from json.decoder import JSONDecodeError
-from launch_data_manager import LaunchData
+from src.launch_data_manager import LaunchData
 
 class SuccessWindow(ctk.CTkToplevel):
     def __init__(self, app, *args, **kwargs):

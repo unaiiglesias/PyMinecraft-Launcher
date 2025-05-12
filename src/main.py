@@ -3,7 +3,7 @@ from PIL import Image
 import customtkinter as ctk
 from threading import Thread
 from tkinter import filedialog
-from launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
+from src.launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
 from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
 from src.util.config_manager import save_ini, load_ini
 from src.launch_data_manager import LaunchData
