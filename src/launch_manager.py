@@ -258,11 +258,12 @@ def launch_modpack(launch_data : LaunchData, app):
     new_parameters.version = version_id
     new_parameters.subversion = subversion_id
 
+    current_mods = os.listdir(str(main_dir) + "/mods")
+
     # If we haven't updated the modlist, we skip this step
     # If we have updated the modlist, apply the corresponding changes
-    if prev_modlist != modlist:
+    if prev_modlist != modlist or current_mods != modlist:
         # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
-        current_mods = os.listdir(str(main_dir) + "/mods")
 
         # Remove unused / deprecated mods:
         # won't remove mods that were added by the user
