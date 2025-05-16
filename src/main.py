@@ -1,14 +1,13 @@
 from PIL import Image
 import customtkinter as ctk
-from threading import Thread
 from tkinter import filedialog
-from src.launch_manager import launch_vanilla, launch_forge, launch_modpack, ensure_git
+from src.launch_managers.generic import launch
 from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
 from src.app_utils.config_manager import Configuration
 from src.app_utils.launch_data_manager import LaunchData
 from src.app_utils.translation_manager import Translations
 from src.util.utilities import get_default_path, check_if_path_is_valid
-from src.util.ctk_scrollable_dropdown import  CTkScrollableDropdown
+from src.custom_windows.ctk_scrollable_dropdown import  CTkScrollableDropdown
 
 """
 Default font:
@@ -441,6 +440,7 @@ class App(ctk.CTk):
         self.launch_button.configure(state="disabled")
         # I'll enable it in the launch function after the installation is done
 
+        """
         if self.launch_data.version_type == "Vanilla":
             # launch_vanilla(launch_data)  OLD
             Thread(target=launch_vanilla, args=(self.launch_data, self)).start()
@@ -453,7 +453,10 @@ class App(ctk.CTk):
                 print("Aborting modpack launch, git not installed")
                 return
             launch_modpack(self.launch_data, self)
+        """
+        launch(self.launch_data, self, self.launch_data.version_type)
 
+        self.launch_button.configure(state="normal")
         return
 
     def update_status(self, code: str, message="undefined"):

@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from os import remove
-from subprocess import call
 
 def load_json(filename):
     """
@@ -39,14 +38,4 @@ def check_if_path_is_valid(path):
         remove(test_file_path)
         return True
     except (PermissionError, FileNotFoundError):
-        return False
-
-def is_git_installed():
-    """
-    Return true if git is installed and false instead
-    """
-    try:
-        call("git --version")
-        return True
-    except FileNotFoundError:
         return False
