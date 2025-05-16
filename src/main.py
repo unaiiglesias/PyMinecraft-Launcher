@@ -63,9 +63,10 @@ class App(ctk.CTk):
                                                  placeholder_text="Steve")
         self.input_username_field.grid(row=1, sticky="w", padx=20, pady=(5, 10))
 
-        """ Version choice frame """
+        """ Version choice frame """ # This section also contains 3 "subframes" each per version type selector
         self.version_frame = ctk.CTkFrame(self)
         self.version_frame.rowconfigure(3)
+        self.version_frame.columnconfigure(2)
         self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
 
         self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text=self.translations["versions_label"])
@@ -75,20 +76,33 @@ class App(ctk.CTk):
                                               command=self.update_versions)  # Values are overwritten by translations
         self.version_type.grid(row=1, sticky="w", padx=20, pady=5)
 
-        self.version_number = ctk.CTkOptionMenu(self.version_frame)
-        self.version_number_dropdown = CTkScrollableDropdown(self.version_number, values=[""],
-                                                                                     command=self.update_subversions)
-        self.version_number.set("")  # Default value will be modified by launch_data or in update_versions
+        self.vanilla_frame = ctk.CTkFrame(self.version_frame, fg_color="transparent")
+        self.vanilla_frame.rowconfigure(1)
+        self.vanilla_version = ctk.CTkOptionMenu(self.vanilla_frame, values=[""]
+                                                 , width = 300)
+        self.vanilla_version_dropdown = CTkScrollableDropdown(self.vanilla_version,
+                                                              values=[""])
+        self.vanilla_version.grid(columnspan=2, sticky="w", padx=(20, 0), pady=10)
 
-        self.subversion_number = ctk.CTkOptionMenu(self.version_frame, values=[""])
-        self.subversion_number_dropdown = CTkScrollableDropdown(self.subversion_number, values=[""])
-        self.subversion_number.set("")  # Default value will be modified by launch_data or in update_versions
+        self.forge_frame = ctk.CTkFrame(self.version_frame, fg_color="transparent")
+        self.forge_frame.rowconfigure(1)
+        self.forge_version = ctk.CTkOptionMenu(self.forge_frame, values=[""],
+                                               command=self.update_subversions)
+        self.forge_version_dropdown = CTkScrollableDropdown(self.forge_version,
+                                                            values=[""])
+        self.forge_version.grid(row = 0, column = 0, sticky = "w", padx = 20, pady = 10)
+        self.forge_subversion = ctk.CTkOptionMenu(self.forge_frame, values=[""])
+        self.forge_subversion_dropdown = CTkScrollableDropdown(self.forge_subversion,
+                                                               values=[""])
+        self.forge_subversion.grid(row = 0, column = 1, sticky = "w", padx = 20, pady = 10)
 
-        self.modpack_name = ctk.CTkOptionMenu(self.version_frame, values=[""], width=300)
-        self.modpack_name_dropdown = CTkScrollableDropdown(self.modpack_name)
-        self.modpack_name.set("")  # Default value will be modified by launch_data or in update_versions
-
-        self.grid_version("Vanilla")  # Enable version and subversion input, needs to be updated from config.ini
+        self.modpack_frame =  ctk.CTkFrame(self.version_frame, fg_color="transparent")
+        self.modpack_frame.rowconfigure(1)
+        self.modpack_name = ctk.CTkOptionMenu(self.modpack_frame, values=[""]
+                                              , width = 300)
+        self.modpack_name_dropdown = CTkScrollableDropdown(self.modpack_name,
+                                                              values=[""])
+        self.modpack_name.grid(columnspan = 2, sticky = "w", padx = 20, pady = 10)
 
         """ (Launch) Parameters frame """
         self.parameters_frame = ctk.CTkFrame(self)
@@ -183,12 +197,14 @@ class App(ctk.CTk):
         self.input_installation_path.insert(0, self.launch_data.path)
 
         self.version_type.set(self.launch_data.version_type)
-        self.grid_version(self.launch_data.version_type)
-        self.version_number.set(self.launch_data.version)
-        self.subversion_number.set(self.launch_data.subversion)
-        self.modpack_name.set(self.launch_data.modpack)
-
-        self.update_versions(self.version_type.get())  # TODO: cached day will be saved in self.cfg
+        if self.launch_data.version_type == "Vanilla":
+            self.vanilla_version.set(self.launch_data.version)
+        elif self.launch_data.version_type == "Forge":
+            self.forge_version.set(self.launch_data.version)
+            self.forge_subversion.set(self.launch_data.subversion)
+        elif self.launch_data.version_type == "Modpack":
+            self.modpack_name.set(self.launch_data.modpack)
+        self.update_versions(self.launch_data.version_type)
 
         print("--- INITIALIZATION FINALIZED ---")
 
@@ -220,142 +236,96 @@ class App(ctk.CTk):
         self.cfg["MAIN"]["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
         self.cfg.write_ini()
 
-    def get_versions(self):
-        """
-        Read version type to get from version type selector and return version list
-         - Vanilla: Simple version number list
-         - Forge: dictionary {version number: [subversion list]}
-         - Modpack: Simple modpack name list
-        """
-
-        version_type_to_get = self.version_type.get()
-
-        versions = []  # Just so PyCharm shuts up
-        if version_type_to_get == "Vanilla":
-            versions = get_vanilla_versions(".", self)
-        elif version_type_to_get == "Forge":
-            versions = get_forge_versions(".", self)
-        elif version_type_to_get == "Modpack":
-            versions = get_modpack_versions(".", self)
-
-        self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
-
-        return versions
-
     def update_versions(self, choice):
         # choice must be accepted as a parameter or the function will raise an error
-
         """
-        This function is used by the version_type OptionMenu to update the version and subversion numbers
+        Action listener for version type selector
+        choice in ("Vanilla", "Forge", "Modpack")
+
+        Show / Hide frames according to choice and update their versions
         """
 
-        print("UPDATING VERSIONS")
+        print(f"Updating version frame for version type: {choice}")
 
-        # Choice will always be in ("Vanilla", "Forge", "Modpack)
+        self.vanilla_frame.grid_forget()
+        self.forge_frame.grid_forget()
+        self.modpack_frame.grid_forget()
 
         # Get version list (numbers) according to selected type
 
-        version_list = self.get_versions()
-        today = datetime.datetime.now().day  # get today's number of the month
-        self.grid_version(choice)  # Show necessary fields
-
         if choice == "Vanilla":
-            """
-            version_list will be a list of versions
-            """
+            # Grid (show) the vanilla frame
+            self.vanilla_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
+
+            #version_list will be a list of versions
+            version_list = get_vanilla_versions(".", self)
 
             # Set the parent version field values
-            self.version_number_dropdown.configure(values=version_list)
-
-            # Update cache date
-            self.cfg["MAIN"]["cache_day_vanilla"] = today
+            self.vanilla_version_dropdown.configure(values=version_list)
 
             # If no version chosen, choose one
-            if not self.version_number.get():
-                self.version_number.set(version_list[0])
+            if not self.vanilla_version.get():
+                self.vanilla_version.set(version_list[0])
 
         elif choice == "Forge":
-            """
-            version_list will be a dictionary where {parent_version : forge_subversions}
-            """
+            # Grid (show) the forge frame
+            self.forge_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
 
-            # Set the parent version field values
-            self.version_number_dropdown.configure(values=list(version_list.keys()))
+            # version_list will be a dictionary where {parent_version : forge_subversions}
+            version_list = get_forge_versions(".", self)
 
-            # Update the subversion field values
-            self.update_subversions(self.version_number.get())
+            # Set the version field values
+            self.forge_version_dropdown.configure(values=list(version_list.keys()))
 
-            # Update cache date
-            self.cfg["MAIN"]["cache_day_forge"] = today
+            # Keep current selection (set said version's subversions
+            # Only if version selected and that version has forge
+            if self.forge_version.get() and self.forge_version.get() in version_list:
+                self.forge_subversion_dropdown.configure(values=version_list[self.forge_version.get()])
 
-            if not self.version_number.get():
-                self.version_number.set(version_list.keys()[0])
-                self.subversion_number.set(version_list[version_list.keys()[0]])
-            elif not self.subversion_number.get():
-                self.subversion_number.set("latest")
+            else: # default
+                print("DEBUG: Bad or None forge version, going back to default")
+                default_forge_version = list(version_list.keys())[0] # First one in dict (latest)
+                self.forge_version.set(default_forge_version)
+                self.forge_subversion_dropdown.configure(values=version_list[default_forge_version])
+                self.forge_subversion.set("latest") # By default, we'll always use latest
+
 
         elif choice == "Modpack":
-            """
-            version_list will be a list of modpack names
-            """
+            # Grid (show) the modpack frame
+            self.modpack_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
+
+            # version_list will be a list of modpack names
+            version_list = get_modpack_versions(".", self)
+
             self.modpack_name_dropdown.configure(values=version_list)
             # TODO: Cache date should be updated here
 
             if not self.modpack_name.get():
                 self.modpack_name.set(version_list[0])
 
+        self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
+
         return
 
-    def grid_version(self, choice):
-        """
-        choice in ("Vanilla", "Forge", "Modpack")
-        Show/hide the necessary input menus depending on the choice
-
-        Auxiliary method
-        """
-
-        print("Re-griding")
-
-        if choice == "Vanilla":
-            self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
-            self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
-            self.modpack_name.grid_forget()
-
-            self.subversion_number.configure(state="disabled")
-
-        elif choice == "Forge":
-            self.version_number.grid(row=2, column=0, sticky="w", padx=20, pady=10)
-            self.subversion_number.grid(row=2, column=1, sticky="w", padx=20, pady=10)
-            self.modpack_name.grid_forget()
-
-            self.subversion_number.configure(state="normal")
-
-        elif choice == "Modpack":
-            self.version_number.grid_forget()
-            self.subversion_number.grid_forget()
-            self.modpack_name.grid(row=2, columnspan=2, sticky="w", padx=20, pady=10)
 
     def update_subversions(self, parent_version):
         """
+        Forge version selector's action listener
         This function is used to refresh the subversion numbers.
         choice = parent version number | ex: "1.12.2"
 
         It is only necessary for forge, and will be called by version number selector
         """
 
-        # This overwrites CTkScrollableDropdown's default command, so we need to do this manually
-        self.version_number.set(parent_version)
-
-        if self.version_type.get() == "Vanilla":
-            return
-
-        print("UPDATING SUBVERSIONS")
-        version_list = self.get_versions()
+        print(f"Updating forge subversions for {parent_version}")
+        version_list = get_forge_versions(".", self)
 
         subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
-        self.subversion_number_dropdown.configure(values=subversion_list)
-        # Every time the version changes, we default to lastest to prevent the prevoius subversion from being kept
-        self.subversion_number.set("latest")
+        self.forge_subversion_dropdown.configure(values=subversion_list)
+        # Every time the version changes, we default to lastest to prevent the previous subversion from being kept
+        self.forge_subversion.set("latest")
+
+        self.update_status("idle")  # Return the launcher status to idle after the versions have been loaded
 
     def update_ram_slider(self, choice):
         self.input_ram_value_label.configure(text=f"{choice} GB")
