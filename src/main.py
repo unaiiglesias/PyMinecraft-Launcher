@@ -1,4 +1,3 @@
-import datetime
 from PIL import Image
 import customtkinter as ctk
 from threading import Thread
@@ -371,11 +370,13 @@ class App(ctk.CTk):
         self.cfg.write_ini()
         return
 
-    def get_launch_parameters(self):
+    def _gather_launch_parameters(self):
         """
-        Collect all the info neccessary to launch the game from the GUI
-        Returns:
-            updates self.launch_data according to GUI
+        Collect all the info necessary to launch the game from the GUI
+        updates self.launch_data according to GUI
+        Raises:
+            TypeError: Empty username
+            PermissionError: Invalid path
         """
 
         # It makes no sense for the username to be ""
@@ -386,14 +387,19 @@ class App(ctk.CTk):
         self.launch_data.username = username
 
         # Get version
-        self.launch_data.version_type = self.version_type.get()
-        self.launch_data.version = self.version_number.get()
-        self.launch_data.subversion = self.subversion_number.get()
-        self.launch_data.modpack = self.modpack_name.get()
+        version_type = self.version_type.get()
+        self.launch_data.version_type = version_type
+        if version_type == "Vanilla":
+            self.launch_data.version = self.vanilla_version.get()
+        elif version_type == "Forge":
+            self.launch_data.version = self.forge_version.get()
+            self.launch_data.subversion = self.forge_subversion.get()
+        elif version_type == "Modpack":
+            self.launch_data.modpack = self.modpack_name.get()
 
         # Turn RAM value into an integer
         ram = int(self.input_ram_field.get() * 1024)
-        print(f"DEBUG: Launching with ram {ram}") # TODO: Check if this is correct (shouldn't it be 512?)
+        print(f"DEBUG: Launching with ram {ram}")
         self.launch_data.ram = ram
 
         # This part is only "triggered" if a path is neither provided via GUI nor loaded from the .json file
@@ -419,7 +425,7 @@ class App(ctk.CTk):
 
         # Get launch parameters and check if the launch path is valid (we have permission)
         try:
-            self.get_launch_parameters()
+            self._gather_launch_parameters()
         except (PermissionError, FileNotFoundError):
             self.update_status("error", self.translations["status_error_invalid_path"])
             return

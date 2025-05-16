@@ -48,7 +48,7 @@ class LaunchData:
             "path" : self.path,
             "premium" : self.premium
         }
-        save_json(data, self.path)
+        save_json(data, self.file_path)
 
 
     def load_launch_data(self):
