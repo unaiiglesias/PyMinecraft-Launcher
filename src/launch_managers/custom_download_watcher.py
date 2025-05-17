@@ -1,5 +1,5 @@
 from portablemc.standard import Watcher, DownloadStartEvent, DownloadProgressEvent, DownloadCompleteEvent
-from src.custom_windows.popup_download import ProgressBarWindow
+from src.custom_toplevels.popup_download import ProgressBarWindow
 
 class DownloadWatcher(Watcher):
     def __init__(self, app, title):

@@ -5,15 +5,16 @@ from portablemc.standard import Context
 from portablemc.forge import ForgeVersion
 
 
-def launch_forge(launch_data : LaunchData, app):
+def build_forge_env(launch_data : LaunchData, app):
     """
-
+    Builds portablemc env for given launch data (must be version_type "Forge")
+    Also handles installation
     Args:
         launch_data:
         app:
 
     Returns:
-        portablemc env to be run
+        portablemc Environment to be run
     """
 
     main_dir = Path(launch_data.path)

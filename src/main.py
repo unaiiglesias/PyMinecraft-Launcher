@@ -7,7 +7,7 @@ from src.app_utils.config_manager import Configuration
 from src.app_utils.launch_data_manager import LaunchData
 from src.app_utils.translation_manager import Translations
 from src.util.utilities import get_default_path, check_if_path_is_valid
-from src.custom_windows.ctk_scrollable_dropdown import  CTkScrollableDropdown
+from src.custom_toplevels.ctk_scrollable_dropdown import  CTkScrollableDropdown
 
 """
 Default font:
@@ -440,20 +440,6 @@ class App(ctk.CTk):
         self.launch_button.configure(state="disabled")
         # I'll enable it in the launch function after the installation is done
 
-        """
-        if self.launch_data.version_type == "Vanilla":
-            # launch_vanilla(launch_data)  OLD
-            Thread(target=launch_vanilla, args=(self.launch_data, self)).start()
-        elif self.launch_data.version_type == "Forge":
-            # launch_forge(launch_data, self)  OLD
-            Thread(target=launch_forge, args=(self.launch_data, self)).start()
-        elif self.launch_data.version_type == "Modpack":
-            if not ensure_git(self, self.launch_data):
-                self.update_status("error", self.translations["status_error_git_not_installed"])
-                print("Aborting modpack launch, git not installed")
-                return
-            launch_modpack(self.launch_data, self)
-        """
         launch(self.launch_data, self, self.launch_data.version_type)
 
         self.launch_button.configure(state="normal")

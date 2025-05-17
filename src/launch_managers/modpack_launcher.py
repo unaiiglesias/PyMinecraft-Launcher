@@ -1,17 +1,19 @@
 from src.app_utils.launch_data_manager import LaunchData
+from src.util.ensure_git import ensure_git
 from src.util.utilities import load_json
-from src.launch_managers.forge_launcher import launch_forge
-from src.custom_windows.popup_download import ProgressBarWindow
-import copy
+from src.launch_managers.forge_launcher import build_forge_env
+from src.custom_toplevels.popup_download import download_stuff
 import os
-from wget import download
-from urllib.error import HTTPError
 from json.decoder import JSONDecodeError
 
 
-def launch_modpack(launch_data : LaunchData, app):
+def build_modpack_env(launch_data : LaunchData, app):
     """
-
+    Handles everything regarding modpack launch:
+        - Ensures git is installed
+        - Installs / Updates modpack
+        - Creates forge env
+    Builds portablemc Environment for modpacks Forge version
     Args:
         launch_data:
         app:
@@ -20,21 +22,57 @@ def launch_modpack(launch_data : LaunchData, app):
         portablemc env to be run
     """
 
+    print(f"Launching : {launch_data.modpack}")
+
+    # Only continue if git is installed (Delegate that task on util.ensure_git)
+    if not ensure_git(app, launch_data):
+        app.update_status("error", app.translations["status_error_git_not_installed"])
+        print("Aborting modpack launch, git not installed")
+        return None
+
+    """
+    Explanation on what we'll do going forward:
+        We will want to pull the repo and update the previous mods according to the new modlist. However, we don't want
+        to touch mods installed by the user, so we must be careful with what we remove.
+        At the same time, we can't trust tha the mods in the modlist are actually installed, so we need to double
+        check with the actual mods folder.
+        
+        In order to achieve this, we'll follow the next order:
+        1. Read the current modlist (what mods should currently be installed)
+        2. Read the current mods folder (what mods are currently installed)
+        3. Update the repo and read the new modlist (what mods will have to be currently installed)
+        4. Deduct which mods need to be removed and which ones installed
+        5. Remove and install said mods
+    """
+    # TODO: Some mods' installation might fail, we should warn the user properly about it
+
     from git import Repo, InvalidGitRepositoryError, NoSuchPathError
     # path/CalvonettaModpacks/modpackName
     main_dir = launch_data.path + f"/CalvonettaModpacks/{launch_data.modpack}"
     repo_url = f"https://github.com/CalvonettaModpacks/{launch_data.modpack}.git"
     # Forge version and subversion will be fetched
 
-    # Before we update (and potentially overwrite) it, we keep a copy of the current modlist
+    # 1. Read the current modlist
     try:
         prev_modlist = load_json(main_dir + "/mods/modlist.json")
     except (FileNotFoundError, JSONDecodeError) as error:
-        # If the modlist is broken, we want to fix it with the remote repo
-        if type(error).__name__ == "JSONDecodeError":
-            print("WARNING: Modlist read failed. This could mean the modlist was corrupted or had been wrongly modified.")
-        prev_modlist = []
+        # If the modlist is not found, it probably means this is the first time we're launching this modpack, so,
+        # it's normal. We'll download it when cloning the repo
 
+        # If the modlist is broken, we'll also fix it with the repo, but we shall print a debug message just in case
+        if type(error).__name__ == "JSONDecodeError":
+            print("WARNING: Modlist read failed. this could mean that the modlist was corrupted or has been wrongly modified.")
+        prev_modlist = {} # In both cases, default to empty prev_modlist
+
+    # 2. Get the currently installed mods
+    try:
+        prev_mods = os.listdir(str(main_dir) + "/mods")
+    except FileNotFoundError:
+        # First launch, installation
+        prev_mods = []
+
+
+    # 3. Update the repo
     # this will ensure the repo exists and is up-to-date
     # (In this process, we might have updated the modlist)
     try:
@@ -58,48 +96,46 @@ def launch_modpack(launch_data : LaunchData, app):
     version_id = info["version"]
     subversion_id = info["subversion"]
 
+    # 4. Deduct which mods need to be removed and which installed
+    # Sets are a great tool to find differences between lists
+    prev_modlist = set(prev_modlist.keys())
+    prev_mods = set(prev_mods)
+    new_modlist = set(modlist.keys())
+
+    # Remove: Mods that were both in the prev_modlist and installed but that are not in the new_modlist
+    mods_to_remove = (prev_modlist & prev_mods) - new_modlist
+    # Download: Mods that are not installed but are in the new modlist
+    mods_to_download = new_modlist - prev_mods
+
+    # Remove mods
+    for mod in mods_to_remove:
+        print(f"Removing deprecated {mod}")
+        os.remove(str(main_dir) + f"/mods/{mod}")
+
+    # Download mods
+    # (first get the URLS of the mods to download and build a proper dict for download_stuff)
+    download_dict = dict()
+    for mod in mods_to_download:
+        download_dict[mod] = modlist[mod]
+    failed_downloads = download_stuff(str(main_dir) + "/mods", download_dict, f"{app.translations['downloading_title']}: {launch_data.modpack}")
+
+    # TODO: Log this properly (with a custom window or something)
+    for mod in failed_downloads:
+        print(f"ERROR: {mod} download failed")
+
     """
         Launch parameters path should always point to the root of the minecraft installation (kinda like the .minecraft
         folder)
-        At the same time, we wan't to launch forge on the installed modpack's directory CalvonettaModpacks/...
-        To do this, we just create "disposable" new launch parameters we'll use to launch forge there, but we won't write
-        them to disk
+        At the same time, we want to launch forge on the installed modpack's directory CalvonettaModpacks/...
+        To do this, we inject the new path into the launch parameters, use it to build the env and then restore the
+        "root" path
     """
-    new_parameters = copy.deepcopy(launch_data) # We'll "inject" the new data into the launch parameters
-    new_parameters.path = main_dir
-    new_parameters.version = version_id
-    new_parameters.subversion = subversion_id
+    root_path = launch_data.path
+    launch_data.path = main_dir
+    launch_data.version = version_id
+    launch_data.subversion = subversion_id
 
-    current_mods = os.listdir(str(main_dir) + "/mods")
-
-    # If we haven't updated the modlist, we skip this step
-    # If we have updated the modlist, apply the corresponding changes
-    if prev_modlist != modlist or current_mods != modlist:
-        # We'll do 2 swipes over the modlis: one to remove unused mods and another one to add the new ones
-
-        # Remove unused / deprecated mods:
-        # won't remove mods that were added by the user
-        for mod in current_mods:
-            if mod in prev_modlist and mod not in modlist.keys():
-                print(f"Removing deprecated {mod}")
-                os.remove(str(main_dir) + f"/mods/{mod}")
-
-        # Download new mods
-        download_list = []  # I'll queue them and then download them all together
-        for mod in modlist.keys():
-            if mod not in current_mods:
-                download_list.append(mod)
-
-        progress_bar = ProgressBarWindow(f"{app.translations['downloading_title']}: {launch_data.modpack}")
-        progress_bar.set_total(len(download_list))
-
-        for ind, mod in enumerate(download_list):
-            # Download the mod with wget
-            try:
-                download(modlist[mod], out=main_dir + f"/mods/{mod}", bar=progress_bar.update_speed_from_wget)
-            except HTTPError:
-                print("ERROR: Mod download failed! " + mod)
-            progress_bar.update_progress(ind, 0)
-        progress_bar.finish()
-
-    return launch_forge(new_parameters, app)
+    env =  build_forge_env(launch_data, app)
+    # Restore the path before returning
+    launch_data.path = root_path
+    return env

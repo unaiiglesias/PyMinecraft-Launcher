@@ -3,17 +3,17 @@ from pathlib import Path
 from portablemc.standard import Context, Version
 from src.launch_managers.custom_download_watcher import DownloadWatcher
 
-def launch_vanilla(launch_data : LaunchData, app):
+def build_vanilla_env(launch_data : LaunchData, app):
     """
-
+    Builds portablemc env for given launch data (must be version_type "Vanilla")
+    Also handles installation
     Args:
         launch_data:
         app:
 
     Returns:
-        portablemc env to be run
+        portablemc Environment ready to be run
     """
-
 
     main_dir = Path(launch_data.path)
     work_dir = Path(main_dir)

@@ -1,6 +1,17 @@
+from urllib.error import HTTPError
+
 import customtkinter as ctk
+from wget import download
+
 
 class ProgressBarWindow(ctk.CTkToplevel):
+    """
+    Download prograss popup, tailored to be used as part of the installation of a Minecraft / Forge version
+    Meant to be used "manually" updating the state of the progress bar
+
+    Script also includes helper method if it wants to be used to download a bunch of files
+    """
+
     def __init__(self, title, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.grab_set()  # Focus and hijack
@@ -89,3 +100,40 @@ class ProgressBarWindow(ctk.CTkToplevel):
     def finish(self):
         self.grab_release()
         self.destroy()
+
+
+def download_stuff(dest : str, stuff : dict, title: str):
+    """
+    Downloads stuff in dest. (WoW, amazing explanation)
+    Will leave each downloaded file in dest/name_of_file
+
+    Obviously, uses ProgressBarWindow to keep track of the download progress
+
+    Args:
+        dest: Destination folder (should NOT end in /)
+        stuff: dictionary where {name of the file : download URL}
+        title: Title of the popup
+
+    Returns:
+        List containing all the files that failed to download
+    """
+
+    progress_bar = ProgressBarWindow(title)
+    progress_bar.set_total(len(stuff))
+
+    failed_downloads = []
+
+    count = 1
+    for file, url in stuff.items():
+        # Attempt to download each file
+        try:
+            download(url, out=dest + f"/{file}", bar=progress_bar.update_speed_from_wget)
+        except HTTPError:
+            print("ERROR: File download failed! " + file)
+            failed_downloads.append(file)
+
+        count += 1
+        progress_bar.update_progress(count, 0)
+
+    progress_bar.finish()
+    return failed_downloads

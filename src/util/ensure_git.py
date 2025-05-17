@@ -1,7 +1,6 @@
 from subprocess import call
 import customtkinter as ctk
-from wget import download
-from src.custom_windows.popup_download import ProgressBarWindow
+from src.custom_toplevels.popup_download import download_stuff
 import os
 
 
@@ -90,15 +89,18 @@ def ensure_git(app, launch_data):
     # (we don't need the latest and it's more comfortable this way)
 
     git_link = "https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe"
-    download_path = launch_data.path + "/git_for_calvonetta.exe"
 
     print("DOWNLOADING GIT")
 
-    progress_bar = ProgressBarWindow("git")
-    progress_bar.set_total(1)
+    res = download_stuff(launch_data.path, {"got_for_calvonetta.exe" : git_link}, "git")
+    # res is a list with file's that failed to download
+    # TODO: Log download failed properly
+    if len(res) > 0: # This means the download of the installer failed
+        print("ERROR: Git installer downlaod failed")
+        return False
 
-    download(git_link, out=download_path, bar=progress_bar.update_from_wget)
-    progress_bar.finish()
+    # This is where the downloaded file is now
+    download_path = launch_data.path + "/git_for_calvonetta.exe"
 
     # At this point, we should have git_for_calvonetta.exe downloaded
 
