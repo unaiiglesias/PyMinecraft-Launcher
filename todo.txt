@@ -1,0 +1,18 @@
+TODO list:
+    - Portable git installation
+    - Loading window while installing forge
+    - + ad a load window everytime that launcher gets stuck doing anything
+    - In modpack mode, when a mod download fails, log it correctly (custom window or something)
+    - Test modpack mode for breaking installation errors
+    - Add auto-update functionality (once the repo is public)
+    - Add legacy GamerZone modpacks
+    - Automate building?
+    - Improve cache date so that it's an actual date and not just a day
+    - + rethink how often cache should be updated (button to manually refresh it?)
+    - Display installed modpacks (and modpack version)
+    - What happens when there's no internet connection?
+    - Premium launch mode
+    - Responsive GUI?
+    - Replace (or complement) status indicator bar with actual error windows
+    - Add button to hide launcher config side menu
+

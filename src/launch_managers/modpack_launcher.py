@@ -121,7 +121,7 @@ def build_modpack_env(launch_data : LaunchData, app):
 
     # TODO: Log this properly (with a custom window or something)
     for mod in failed_downloads:
-        print(f"ERROR: {mod} download failed")
+        print(f"ERROR: {mod} mod download failed")
 
     """
         Launch parameters path should always point to the root of the minecraft installation (kinda like the .minecraft
