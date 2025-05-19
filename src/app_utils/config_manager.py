@@ -1,4 +1,7 @@
 from configparser import ConfigParser
+import datetime
+from mailbox import FormatError
+
 
 class Configuration:
 
@@ -25,7 +28,10 @@ class Configuration:
             "version": ["1.14"],
             "cache_day_vanilla": "int",
             "cache_day_forge": "int",
-            "cache_day_modpack": "int"
+            "cache_day_modpack": "int",
+            "cache_date_vanilla" : "datetime", # All dates are stored as str, but loaded as datetime.datetime
+            "cache_date_forge": "datetime",
+            "cache_date_modpack": "datetime"
         }
     }
 
@@ -40,7 +46,10 @@ class Configuration:
             "version": "1.14",
             "cache_day_vanilla": 0,
             "cache_day_forge": 0,
-            "cache_day_modpack": 0
+            "cache_day_modpack": 0,
+            "cache_date_vanilla": datetime.datetime.now() - datetime.timedelta(days=1), # Default time is yesterday (so that cache is forced to update)
+            "cache_date_forge": datetime.datetime.now() - datetime.timedelta(days=1),
+            "cache_date_modpack": datetime.datetime.now() - datetime.timedelta(days=1)
         }
     }
 
@@ -168,7 +177,7 @@ class Configuration:
 
                 elif exp_type == "float":
                     try:
-                        aux = float(aux)
+                        self._cfg[section][field] = float(aux)
                     except (TypeError, ValueError):
                         changed = True
                         self._cfg[section][field] = default
@@ -183,7 +192,12 @@ class Configuration:
                     else:
                         changed = True
                         self._cfg[section][field] = default
-                        continue
+
+                elif exp_type == "datetime":
+                    try:
+                        self._cfg[section][field] = datetime.datetime.strptime(aux, "%Y-%m-%d %H:%M:%S.%f")
+                    except ValueError:
+                        self._cfg[section][field] = default
 
                 # In this case, whatever is in there will be ok
                 elif exp_type == "str":
