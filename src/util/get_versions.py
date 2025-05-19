@@ -1,7 +1,7 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
 from src.util.utilities import load_json, save_json
-import datetime
+from datetime import datetime, timedelta
 import github # PyGithub
 
 
@@ -79,9 +79,9 @@ def get_vanilla_versions(cache_data_path: str, app):
     # If there already exists an updated version cache file, load it and return it
     app.update_status("working", app.translations["status_working_loading_cached_vanilla_versions"])
 
-    today = datetime.datetime.now().day  # get today's number of the month
+    now = datetime.now()
 
-    if app.cfg["MAIN"]["cache_day_vanilla"] == today:
+    if now - app.cfg["MAIN"]["cache_date_vanilla"] < timedelta(days=1):
         # Cache is updated, use cache
         print("Reading vanilla versions from file")
         try:
@@ -99,7 +99,7 @@ def get_vanilla_versions(cache_data_path: str, app):
     app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
     save_json(vanilla_versions, versions_cache_file)
 
-    app.cfg["MAIN"]["cache_day_vanilla"] = today
+    app.cfg["MAIN"]["cache_date_vanilla"] = now
     app.cfg.write_ini()
 
     return vanilla_versions
@@ -122,12 +122,12 @@ def get_forge_versions(cache_data_path: str, app):
     """
 
     versions_cache_file = f"{cache_data_path}\\cache_forge_versions.json"
-    today = datetime.datetime.now().day  # get today's number of the month
+    now = datetime.now()
 
     # If there already exists an updated version cache file, load it and return it
     app.update_status("working", app.translations["status_working_loading_cached_forge_versions"])
 
-    if app.cfg["MAIN"]["cache_day_forge"] == today:
+    if now - app.cfg["MAIN"]["cache_date_forge"] < timedelta(days=1):
         # Cache is updated, use cache
         try:
             print("Reading forge versions from file")
@@ -145,7 +145,7 @@ def get_forge_versions(cache_data_path: str, app):
     app.update_status("working", app.translations["status_working_caching_forge_versions"])
     save_json(forge_versions, versions_cache_file)
 
-    app.cfg["MAIN"]["cache_day_forge"] = today
+    app.cfg["MAIN"]["cache_date_forge"] = now
     app.cfg.write_ini()
 
     return forge_versions
@@ -164,8 +164,7 @@ def get_modpack_versions(cache_data_path: str, app):
 
     # TODO: should we have cache or just always fetch from the internet
     versions_cache_file = f"{cache_data_path}\\cache_modpack_versions.json"
-    today = datetime.datetime.now().day  # get today's number of the month
-
+    now = datetime.now()
 
     app.update_status("working", app.translations["status_working_fetching_modpack_versions"])
     modpack_versions = fetch_modpack_versions_from_the_internet()
