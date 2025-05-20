@@ -7,7 +7,7 @@ TODO list:
     - Add auto-update functionality (once the repo is public)
     - Add legacy GamerZone modpacks
     - Automate building?
-    - Improve cache date so that it's an actual date and not just a day
+    + Improve cache date so that it's an actual date and not just a day
     - + rethink how often cache should be updated (button to manually refresh it?)
     - Display installed modpacks (and modpack version)
     - What happens when there's no internet connection?

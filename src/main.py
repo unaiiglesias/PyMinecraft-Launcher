@@ -305,7 +305,6 @@ class App(ctk.CTk):
 
         return
 
-
     def update_subversions(self, parent_version):
         """
         Forge version selector's action listener
