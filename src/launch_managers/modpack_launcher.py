@@ -120,9 +120,6 @@ def build_modpack_env(launch_data : LaunchData, app):
     failed_downloads = download_stuff(str(main_dir) + "/mods", download_dict, f"{app.translations['downloading_title']}: {launch_data.modpack}")
 
     if failed_downloads:
-        for mod in failed_downloads:
-            print(f"ERROR: {mod} mod download failed")
-
         error_popup = ModpackDownloadError(app, launch_data, failed_downloads)
         error_popup.wait_window()  # Wait until the popup closes (choice made)
         choice = error_popup.get_choice()
