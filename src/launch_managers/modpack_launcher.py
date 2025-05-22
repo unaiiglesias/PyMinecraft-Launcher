@@ -45,7 +45,6 @@ def build_modpack_env(launch_data : LaunchData, app):
         4. Deduct which mods need to be removed and which ones installed
         5. Remove and install said mods
     """
-    # TODO: Some mods' installation might fail, we should warn the user properly about it
 
     from git import Repo, InvalidGitRepositoryError, NoSuchPathError
     # path/CalvonettaModpacks/modpackName
@@ -121,6 +120,9 @@ def build_modpack_env(launch_data : LaunchData, app):
     failed_downloads = download_stuff(str(main_dir) + "/mods", download_dict, f"{app.translations['downloading_title']}: {launch_data.modpack}")
 
     if failed_downloads:
+        for mod in failed_downloads:
+            print(f"ERROR: {mod} mod download failed")
+
         error_popup = ModpackDownloadError(app, launch_data, failed_downloads)
         error_popup.wait_window()  # Wait until the popup closes (choice made)
         choice = error_popup.get_choice()
@@ -138,10 +140,6 @@ def build_modpack_env(launch_data : LaunchData, app):
             # Display error
             app.update_status("error", app.translations["modpack_error_abort"])
             return None
-
-    # TODO: Log this properly (with a custom window or something)
-    for mod in failed_downloads:
-        print(f"ERROR: {mod} mod download failed")
 
     """
         Launch parameters path should always point to the root of the minecraft installation (kinda like the .minecraft
