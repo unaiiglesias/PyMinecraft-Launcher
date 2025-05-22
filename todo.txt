@@ -2,7 +2,7 @@ TODO list:
     - Portable git installation
     - Loading window while installing forge
     - + ad a load window everytime that launcher gets stuck doing anything
-    - In modpack mode, when a mod download fails, log it correctly (custom window or something)
+    + In modpack mode, when a mod download fails, log it correctly (custom window or something)
     - Test modpack mode for breaking installation errors
     - Add auto-update functionality (once the repo is public)
     - Add legacy GamerZone modpacks
