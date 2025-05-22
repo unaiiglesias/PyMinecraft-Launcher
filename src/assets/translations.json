@@ -34,10 +34,11 @@
     "status_error_git_not_installed" : "Git not installed, can't launch modapck",
     "launched_notice" : "Minecraft has been launched successfully.\nThe game might take a bit to pop up.\n\nIf after 30-60 seconds the game window doesn't show up, it might have crashed.",
     "modpack_error_title" : "Some mods failed to download",
-    "modpack_error_explanation" : "Some of the mods required by this modpack failed to download.\nThis might be caused by a broken link, please open an issue on github: {}\nYou can also manually install the missing mods and retry:",
+    "modpack_error_explanation" : "Some of the mods required by this modpack failed to download.\n\nThis might be caused by a broken link, please open an issue on github: {}\n\nYou can also manually install the missing mods and retry:",
     "modpack_error_retry" : "Retry installation",
     "modpack_error_open" : "Open mods folder",
-    "modpack_error_continue" : "Continue launch anyway"
+    "modpack_error_continue" : "Continue launch anyway",
+    "modpack_error_abort" : "Modpack launch aborted"
   },
   "es": {
     "username_label" : "Nombre de usuario",
@@ -74,9 +75,10 @@
     "status_error_git_not_installed" : "Git no instalado, no se puede lanzar modpack",
     "launched_notice" : "Minecraft se ha lanzado correctamente.\nTen en cuenta que la ventana del juego puede tardar varios segundos en aparecer.\n\nSi tras 30-60 segundos no aparece, quizas haya crasheado.",
     "modpack_error_title" : "La descarga de algunos mods ha fallado",
-    "modpack_error_explanation" : "Algunos de los mods que necesita este modpack no se han podido descargar.\nSeguramente el link de descarga esta caido, por favor haz un problema en github: {}\nTambien puedes instalar los mods manualmente reintentar:",
+    "modpack_error_explanation" : "Algunos de los mods que necesita este modpack no se han podido descargar.\n\nSeguramente el link de descarga esta caido, por favor haz un problema en github: {}\n\nTambien puedes instalar los mods manualmente reintentar:",
     "modpack_error_retry" : "Reintentar instalacion",
     "modpack_error_open" : "Abrir carpeta de mods",
-    "modpack_error_continue" : "Lanzar de todos modos"
+    "modpack_error_continue" : "Lanzar de todos modos",
+    "modpack_error_abort" : "Lanzamiento de modpack abortado"
   }
 }

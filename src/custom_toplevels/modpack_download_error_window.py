@@ -1,6 +1,5 @@
 from os import startfile, remove
 import customtkinter as ctk
-import src.main
 from src.app_utils.launch_data_manager import LaunchData
 
 
@@ -29,7 +28,7 @@ class ModpackDownloadError(ctk.CTkToplevel):
     None: Retry installation
     """
 
-    def __init__(self, app : src.main.App, launch_data : LaunchData, modlist : list, *args, **kwargs):
+    def __init__(self, app, launch_data : LaunchData, modlist : list, *args, **kwargs):
         """
         This method will build the window and "ask" for a choice (wait for button press)
 
@@ -42,7 +41,7 @@ class ModpackDownloadError(ctk.CTkToplevel):
             modlist: List with the names of the mods that failed to download
         """
         super().__init__(*args, **kwargs)
-        self.choice = False # True: Continue, False: Abort, None: Retry
+        self.choice = None # True: Continue, False: Retry, None: Abort
         self.modpack_path = launch_data.path + "\\CalvonettaModpacks\\" + launch_data.modpack + "\\mods"
 
         self.grab_set()  # Focus and hijack
@@ -51,7 +50,7 @@ class ModpackDownloadError(ctk.CTkToplevel):
         self.columnconfigure(1)
 
         self.explanation_frame = ctk.CTkFrame(self)
-        self.explanation_frame.grid(row=0, column=0, sticky="nswe", padx=10, pady=(10, 0))
+        self.explanation_frame.grid(row=0, column=0, sticky="nswe", padx=10, pady=10)
         self.textbox = ctk.CTkTextbox(self.explanation_frame, width=500, height=150)
         self.textbox.configure(wrap="word") # If EOL, dont cut the word in half
         self.textbox.insert("0.0", app.translations["modpack_error_explanation"].format(f"https://github.com/CalvonettaModpacks/{launch_data.modpack}"))

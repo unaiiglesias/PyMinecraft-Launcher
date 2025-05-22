@@ -1,4 +1,5 @@
 from src.app_utils.launch_data_manager import LaunchData
+from src.custom_toplevels.modpack_download_error_window import ModpackDownloadError
 from src.util.ensure_git import ensure_git
 from src.util.utilities import load_json
 from src.launch_managers.forge_launcher import build_forge_env
@@ -118,6 +119,25 @@ def build_modpack_env(launch_data : LaunchData, app):
     for mod in mods_to_download:
         download_dict[mod] = modlist[mod]
     failed_downloads = download_stuff(str(main_dir) + "/mods", download_dict, f"{app.translations['downloading_title']}: {launch_data.modpack}")
+
+    if failed_downloads:
+        error_popup = ModpackDownloadError(app, launch_data, failed_downloads)
+        error_popup.wait_window()  # Wait until the popup closes (choice made)
+        choice = error_popup.get_choice()
+
+        # Continue
+        if choice is True:
+            pass
+
+        # Retry
+        if choice is False:
+            return build_modpack_env(launch_data, app)
+
+        # Abort
+        if choice is None:
+            # Display error
+            app.update_status("error", app.translations["modpack_error_abort"])
+            return None
 
     # TODO: Log this properly (with a custom window or something)
     for mod in failed_downloads:
