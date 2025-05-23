@@ -84,10 +84,10 @@ class App(ctk.CTk):
 
         self.forge_frame = ctk.CTkFrame(self.version_frame, fg_color="transparent")
         self.forge_frame.rowconfigure(1)
-        self.forge_version = ctk.CTkOptionMenu(self.forge_frame, values=[""],
-                                               command=self.update_subversions)
+        self.forge_version = ctk.CTkOptionMenu(self.forge_frame, values=[""])
         self.forge_version_dropdown = CTkScrollableDropdown(self.forge_version,
-                                                            values=[""])
+                                                            values=[""],
+                                                            command=self.update_subversions)
         self.forge_version.grid(row = 0, column = 0, sticky = "w", padx = 20, pady = 10)
         self.forge_subversion = ctk.CTkOptionMenu(self.forge_frame, values=[""])
         self.forge_subversion_dropdown = CTkScrollableDropdown(self.forge_subversion,
@@ -315,6 +315,7 @@ class App(ctk.CTk):
         """
 
         print(f"Updating forge subversions for {parent_version}")
+        self.forge_version.set(parent_version)
         version_list = get_forge_versions(".", self)
 
         subversion_list = version_list[parent_version]  # In this case choice = self.version_number.get()
