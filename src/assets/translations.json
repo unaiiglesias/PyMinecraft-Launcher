@@ -38,7 +38,10 @@
     "modpack_error_retry" : "Retry installation",
     "modpack_error_open" : "Open mods folder",
     "modpack_error_continue" : "Continue launch anyway",
-    "modpack_error_abort" : "Modpack launch aborted"
+    "modpack_error_abort" : "Modpack launch aborted",
+    "installation_popup_title" : "Installing: {}",
+    "vanilla_tasks" : ["Load version", "Load JVM (Java)", "Resolve libraries", "Download vanilla version"],
+    "forge_tasks" : ["Load forge", "Load version", "Load JVM (Java)", "Download forge version", "Compile and install forge (tedious)", "Resolve libraries", "Download vanilla version"]
   },
   "es": {
     "username_label" : "Nombre de usuario",
@@ -79,6 +82,9 @@
     "modpack_error_retry" : "Reintentar instalacion",
     "modpack_error_open" : "Abrir carpeta de mods",
     "modpack_error_continue" : "Lanzar de todos modos",
-    "modpack_error_abort" : "Lanzamiento de modpack abortado"
+    "modpack_error_abort" : "Lanzamiento de modpack abortado",
+    "installation_popup_title" : "Instalando: {}",
+    "vanilla_tasks" : ["Cargar version", "Cargar JVM (Java)", "Cargar librerias", "Descargar version Vanilla"],
+    "forge_tasks" : ["Cargar version de Forge", "Cargar version", "Cargar JVM (Java)", "Descargar version de Forge", "Compilar e instalar Forge (pesado)", "Cargar librerias", "Descargar version Vanilla"]
   }
 }

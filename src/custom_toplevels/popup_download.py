@@ -1,5 +1,4 @@
 from urllib.error import HTTPError
-
 import customtkinter as ctk
 from wget import download
 
