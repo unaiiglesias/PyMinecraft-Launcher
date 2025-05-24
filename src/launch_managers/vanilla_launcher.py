@@ -19,11 +19,6 @@ class VanillaInstallationPopup(VersionInstallationPopup):
 
     def handle_event(self):
 
-        # Just in case some step was skipped. if we are done, end the window
-        if self.future.done():
-            self.destroy()
-            return
-
         while not self.queue.empty():
             event = self.queue.get()
 
@@ -55,6 +50,11 @@ class VanillaInstallationPopup(VersionInstallationPopup):
                 self.window.finish() # Close progress bar window
                 self.destroy() # End
                 return
+
+        # Just in case some step was skipped. if we are done, end the window
+        if self.future.done():
+            self.destroy()
+            return
 
         self.update()
         self.after(100, self.handle_event)

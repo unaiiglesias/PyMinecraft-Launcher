@@ -23,11 +23,6 @@ class ForgeInstallationPopup(VersionInstallationPopup):
 
     def handle_event(self):
 
-        # Just in case some step was skipped. if we are done, end the process
-        if self.future.done():
-            self.destroy()
-            return
-
         while not self.queue.empty():
             event = self.queue.get()
             # Tasks 1 (Forge version loaded) and 2 (Vanilla version loaded)
@@ -82,6 +77,11 @@ class ForgeInstallationPopup(VersionInstallationPopup):
                 self.window.update_progress(event.count, event.speed)
 
         self.after(100, self.handle_event)
+
+        # Just in case some step was skipped. if we are done, end the process
+        if self.future.done():
+            self.destroy()
+            return
 
     def get_env(self) -> Environment | None:
         return self.future.result()
