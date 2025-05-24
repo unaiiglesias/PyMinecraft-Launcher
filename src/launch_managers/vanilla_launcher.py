@@ -4,45 +4,56 @@ from portablemc.standard import Context, Version, Environment, VersionLoadedEven
     LibrariesResolvedEvent, DownloadCompleteEvent, DownloadStartEvent, DownloadProgressEvent
 
 from src.custom_toplevels.popup_download import ProgressBarWindow
-from src.launch_managers.version_installation_popup import VersionInstallationPopup
+from src.custom_toplevels.version_installation_popup import VersionInstallationPopup
 
 class VanillaInstallationPopup(VersionInstallationPopup):
 
     def __init__(self, app, launch_data : LaunchData, version : Version):
         self.version_name = f"Vanilla {launch_data.version}"
-        task_list = tuple(app.translations["vanilla_tasks"])
+
+        #task_list = ("Load version", "Load JVM (Java)", "Resolve libraries", "Download vanilla version")
+        #task_types = [VersionLoadedEvent, JarFoundEvent, LibrariesResolvedEvent, DownloadCompleteEvent]
+        task_list = tuple(app.translations["vanilla_tasks"]) # Translated task list
+
         super().__init__(app, self.version_name, task_list, version)
 
     def handle_event(self):
 
+        # Just in case some step was skipped. if we are done, end the window
+        if self.future.done():
+            self.destroy()
+            return
+
         while not self.queue.empty():
             event = self.queue.get()
-            if isinstance(event, VersionLoadedEvent):
-                self.tasks[0].select()
-                print("TASK 1 DONE")
-            elif isinstance(event, JarFoundEvent):
-                self.tasks[1].select()
-                print("TASK 2 DONE")
-            elif isinstance(event, LibrariesResolvedEvent):
-                self.tasks[2].select()
-                print("TASK 3 DONE")
 
+            # Task 1 (Vanilla Version loaded)
+            if isinstance(event, VersionLoadedEvent):
+                print("TASK 1 (Load Vanilla version) DONE")
+                self.tasks[0].select()
+
+            # Task 2 (Load JVM)
+            elif isinstance(event, JarFoundEvent):
+                print("TASK 2 (load JVM) DONE")
+                self.tasks[1].select()
+
+            # Task 3 (Library resolution)
+            elif isinstance(event, LibrariesResolvedEvent):
+                print("TASK 3 (Libraries resolved) DONE")
+                self.tasks[2].select()
+
+            # Task 4 (download Vanilla version)
             elif isinstance(event, DownloadStartEvent):
-                print("Task 4 START (download)")
+                print("Task 4 (Download Vanilla version) START")
                 self.window = ProgressBarWindow(f"Downloading {self.version_name}")
                 self.window.set_total(event.entries_count)
-            elif isinstance(event, DownloadProgressEvent):
+            elif isinstance(event, DownloadProgressEvent): # Update download
                 self.window.update_progress(event.count, event.speed)
             elif isinstance(event, DownloadCompleteEvent):
+                print("Task 4 (Download Vanilla version) DONE")
                 self.tasks[3].select()
-                print("TASK 4 DONE, returning...")
                 self.window.finish() # Close progress bar window
                 self.destroy() # End
-                return
-
-            elif self.future.done():
-                # Just in case some step was skipped. if we are done, end the window
-                self.destroy()
                 return
 
         self.update()

@@ -4,81 +4,90 @@ from portablemc.forge import ForgeVersion, ForgePostProcessedEvent
 from portablemc.standard import Context, Version, Environment, VersionLoadedEvent, JarFoundEvent, \
     LibrariesResolvedEvent, DownloadCompleteEvent, DownloadStartEvent, DownloadProgressEvent
 from src.custom_toplevels.popup_download import ProgressBarWindow
-from src.launch_managers.version_installation_popup import VersionInstallationPopup
+from src.custom_toplevels.version_installation_popup import VersionInstallationPopup
 
 class ForgeInstallationPopup(VersionInstallationPopup):
 
     def __init__(self, app, launch_data : LaunchData, version : Version):
         self.version_name = f"Forge {launch_data.version}-{launch_data.subversion}"
-        task_list = ("Load forge", "Load version", "Load JVM", "Download forge version", "Install forge", "Resolve libraries", "Download vanilla version")
-        task_list = tuple(app.translations["forge_tasks"])
+
+        #task_list = ("Load forge", "Load version", "Load JVM", "Download forge version", "Install forge", "Resolve libraries", "Download vanilla version")
+        #task_types = [VersionLoadedEvent, VersionLoadedEvent, JarFoundEvent, DownloadCompleteEvent, ForgePostProcessedEvent, LibrariesResolvedEvent, DownloadCompleteEvent]
+        task_list = tuple(app.translations["forge_tasks"]) # Task names translated
+
         # Aux variables to distinguish regular load and download events from forge events
         self.forge_loaded = False
         self.forge_downloaded = False
+
         super().__init__(app, self.version_name, task_list, version)
 
     def handle_event(self):
 
+        # Just in case some step was skipped. if we are done, end the process
+        if self.future.done():
+            self.destroy()
+            return
+
         while not self.queue.empty():
             event = self.queue.get()
+            # Tasks 1 (Forge version loaded) and 2 (Vanilla version loaded)
             if isinstance(event, VersionLoadedEvent):
                 if not self.forge_loaded:
+                    print("TASK 1 (Load Forge version) DONE")
                     self.tasks[0].select()
-                    print("TASK 1 DONE")
                     self.forge_loaded = True
                 else:
+                    print("TASK 2 load (Vanilla version) DONE")
                     self.tasks[1].select()
-                    print("TASK 2 DONE")
 
+            # Task 3 (Load JVM)
             elif isinstance(event, JarFoundEvent):
+                print("TASK 3 (load JVM) DONE")
                 self.tasks[2].select()
-                print("TASK 3 DONE")
 
-            elif isinstance(event, LibrariesResolvedEvent):
-                self.tasks[5].select()
-                print("TASK 6 DONE")
+            # Task 4 (Download Forge version)
+            elif isinstance(event, DownloadStartEvent) and not self.forge_downloaded: # Download start
+                print("Task 4 (download forge) START")
+                self.window = ProgressBarWindow(f"Downloading {self.version_name}")
+                self.window.set_total(event.entries_count)
+            elif isinstance(event, DownloadCompleteEvent) and not self.forge_downloaded: # Download end
+                print("Task 4 (download forge) DONE")
+                self.tasks[3].select()
+                self.window.finish()  # Close progress bar window
+                self.forge_downloaded = True # Now forge has been downloaded, mark it. Next download will be vanilla version
 
-            elif isinstance(event, DownloadStartEvent):
-                if not self.forge_downloaded:
-                    print("Task 4 START (download forge)")
-                    self.window = ProgressBarWindow(f"Downloading {self.version_name}")
-                    self.window.set_total(event.entries_count)
-                else:
-                    print("Task 7 START (download)")
-                    self.window = ProgressBarWindow(f"Downloading {self.version_name}")
-                    self.window.set_total(event.entries_count)
-            elif isinstance(event, DownloadProgressEvent):
-                self.window.update_progress(event.count, event.speed)
-            elif isinstance(event, DownloadCompleteEvent):
-                if self.forge_downloaded:
-                    self.tasks[6].select()
-                    print("TASK 7 DONE")
-                    self.window.finish()  # Close progress bar window
-                    self.destroy()  # End
-                    return
-                else:
-                    self.tasks[3].select()
-                    self.window.finish()  # Close progress bar window
-                    print("TASK 4 DONE, returning...")
-                    self.forge_downloaded = True
-
+            # Task 5 ("compile" and install Forge version)
             elif isinstance(event, ForgePostProcessedEvent):
+                print("TASK 5 (Forge compilation and installation) DONE")
                 self.tasks[4].select()
-                print("TASK 5 DONE")
 
-            elif self.future.done():
-                # Just in case some step was skipped. if we are done, end the window
-                self.destroy()
+            # Task 6 (Library resolution)
+            elif isinstance(event, LibrariesResolvedEvent):
+                print("TASK 6 (Libraries resolved) DONE")
+                self.tasks[5].select()
+
+            elif isinstance(event, DownloadStartEvent): # and self.forge_downloaded
+                print("Task 7 (Download Vanilla version) START")
+                self.window = ProgressBarWindow(f"Downloading {self.version_name}")
+                self.window.set_total(event.entries_count)
+            elif isinstance(event, DownloadCompleteEvent): # and self.forge_downloaded
+                print("TASK 7 (Download Forge version) DONE")
+                self.tasks[6].select()
+                self.window.finish()  # Close progress bar window
+                self.destroy()  # End
                 return
 
-        self.update()
+            # General purpose download update event
+            elif isinstance(event, DownloadProgressEvent):
+                self.window.update_progress(event.count, event.speed)
+
         self.after(100, self.handle_event)
 
-    def get_env(self) -> Environment:
+    def get_env(self) -> Environment | None:
         return self.future.result()
 
 
-def build_forge_env(launch_data : LaunchData, app):
+def build_forge_env(launch_data : LaunchData, app) -> Environment | None:
     """
     Builds portablemc env for given launch data (must be version_type "Forge")
     Also handles installation
