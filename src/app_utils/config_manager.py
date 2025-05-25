@@ -104,7 +104,7 @@ class Configuration:
         save = ConfigParser()
         save.read_dict(self._cfg)
 
-        with open("config.ini", "w") as ini_file:
+        with open("config.ini", "w", encoding="utf-8") as ini_file:
             save.write(ini_file)
 
     def _validate_cfg(self):
