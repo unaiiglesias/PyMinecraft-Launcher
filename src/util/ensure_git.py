@@ -6,9 +6,13 @@ import os
 from src.custom_toplevels.popup_wait import popup_wait_for_task
 
 
-class InstallGitPrompt(ctk.CTkToplevel):
+class InstallGitPopup(ctk.CTkToplevel):
     """
-    Reusable window with a message box and 2 buttons
+    Modpack functionality requires git, we don't want the user manually installing git. This popup will inform the user
+    that git needs to be installed and do it for them.
+
+    We'll give them 2 choices: Regular or Portable installation. Of course the user can refuse to install git, in which
+    case we'll abort the launch.
     """
 
     def __init__(self, app, launch_data : LaunchData, *args, **kwargs):
@@ -20,7 +24,7 @@ class InstallGitPrompt(ctk.CTkToplevel):
         self.rowconfigure(3)
         self.columnconfigure(1)
 
-        """ Textbox stuff """
+        """ Textbox informing that git must be installed and explaining the choices"""
         self.text_frame = ctk.CTkFrame(self)
         self.text_frame.grid(row=0, column=0, sticky="nswe", padx=20, pady=10)
         self.textbox = ctk.CTkTextbox(self.text_frame, width=500, height=155)
@@ -38,7 +42,7 @@ class InstallGitPrompt(ctk.CTkToplevel):
         self.refuse_but = ctk.CTkButton(self, text=app.translations["git_dont_install_button"], width=60, height=30, command=self.refuse)
         self.refuse_but.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nswe")
 
-        self.choice = False  # default value. True : install, False : Don't install
+        self.choice = False  # Has the user chosen to install git? True : install, False : Don't install
 
     def perform_regular_installation(self):
         # The user has chosen to install git the regular way
@@ -67,6 +71,8 @@ class InstallGitPrompt(ctk.CTkToplevel):
         self.choice = True
         self.destroy()
 
+        # TODO: Shouldn't we close the launcher completely and re-open it so that it can detect the git installation?
+
     def perform_portable_installation(self):
         # The user has chosen to install the portable version of git
         # Download the compressed file and extract it in /portable-git
@@ -78,7 +84,7 @@ class InstallGitPrompt(ctk.CTkToplevel):
         res = download_stuff(".", {"portable_git_for_calvonetta.7z.exe": git_link}, "git")
         # TODO: Log download failed properly
         if len(res) > 0:  # This means the download of the installer failed
-            print("ERROR: Git installer download failed")
+            print("ERROR: Portable Git installer download failed")
             self.choice = False
             return
 
@@ -112,13 +118,14 @@ def is_git_installed():
 
     # Check if portable git installation present
     try:
-        call(f"{os.getcwd()}/portable-git/cmd/git --version") # If this works, portable git installed
-        os.environ['GIT_PYTHON_GIT_EXECUTABLE'] = fr'{os.getcwd()}\portable-git\cmd\git.exe' # Tell GitPython yo use that git
+        portable_git_path = os.getcwd() + "/portable-git"
+        call(f"{portable_git_path}/cmd/git --version") # If this works, portable git installed
+        os.environ['GIT_PYTHON_GIT_EXECUTABLE'] = fr'{portable_git_path}\cmd\git.exe' # Tell GitPython to use that git
         return True
     except FileNotFoundError:
         pass
 
-    # Check if git installation present
+    # Check if regular git installation present
     try:
         call("git --version")
         return True
@@ -130,18 +137,18 @@ def is_git_installed():
 
 def ensure_git(app, launch_data):
     """
-    Checks wether git is installed or not:
-     - if git is inastalled, returns true
+    Checks whether git is installed or not:
+     - if git is installed, returns true
      - if git is not installed pops up toplevel window to help the user install git
-      - If the user doesnt want to install git, returns false
-      - If the user wants to install git, it downloads the installer and runs it
+      - If the user doesn't want to install git, returns false
+      - If the user wants to install git, it aids it with InstallGitPopup and recursively calls itself
     """
 
     if is_git_installed():
         # In this case, we don't need to do anything else
         return True
 
-    msg = InstallGitPrompt(app, launch_data)
+    msg = InstallGitPopup(app, launch_data)
     msg.wait_window()
 
     git_installed = msg.get_choice() # Did the user choose to install git
@@ -150,4 +157,4 @@ def ensure_git(app, launch_data):
         # The user has chosen not to install git, this will abort the modpack launch
         return False
 
-    return is_git_installed()  # In case the user stopped the installation
+    return is_git_installed()  # In case the user stopped the installation (or it failed)
