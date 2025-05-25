@@ -7,6 +7,7 @@ src/.idea
 src/launch_data.json
 src/cache_vanilla_versions.json
 src/cache_forge_versions.json
+src/portable-git/
 Build/
 Mi prueba de barra de descarga/
 src/config.ini

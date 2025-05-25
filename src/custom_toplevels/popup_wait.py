@@ -1,9 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor, Future
 import customtkinter as ctk
 from time import sleep
-import src.main
 
-def popup_wait_for_task(master : src.main.App, message : str, function, *args):
+def popup_wait_for_task(master, message : str, function, *args):
     """
     Displays a popup loading screen with the given message while it executes the given function on the background
     Finally, returns the result of the function execution
@@ -50,7 +49,7 @@ class TaskPopup(ctk.CTkToplevel):
     WIDTH = 400
     HEIGHT = 300
 
-    def __init__(self, master : src.main.App, message : str, future : Future):
+    def __init__(self, master, message : str, future : Future):
         super().__init__()
         #self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         self.title(master.translations["popup_wait_title"])
