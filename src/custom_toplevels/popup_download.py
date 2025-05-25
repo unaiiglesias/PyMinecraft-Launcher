@@ -35,6 +35,7 @@ class ProgressBarWindow(ctk.CTkToplevel):
     def set_total(self, total):
         self.total_count = total
         self.progress_bar.update()
+        self.update_progress(0, 0)
 
     def update_progress(self, new_count, current_speed):
         """
@@ -118,12 +119,14 @@ def download_stuff(dest : str, stuff : dict, title: str):
     """
 
     progress_bar = ProgressBarWindow(title)
+    print(f"STUFF cound: {len(stuff)}")
     progress_bar.set_total(len(stuff))
 
     failed_downloads = []
 
     count = 1
     for file, url in stuff.items():
+        progress_bar.update_progress(count, 0)
         # Attempt to download each file
         try:
             download(url, out=dest + f"/{file}", bar=progress_bar.update_speed_from_wget)
@@ -132,7 +135,6 @@ def download_stuff(dest : str, stuff : dict, title: str):
             failed_downloads.append(file)
 
         count += 1
-        progress_bar.update_progress(count, 0)
 
     progress_bar.finish()
     return failed_downloads
