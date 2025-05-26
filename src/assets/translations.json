@@ -41,6 +41,8 @@
     "modpack_error_open" : "Open mods folder",
     "modpack_error_continue" : "Continue launch anyway",
     "modpack_error_abort" : "Modpack launch aborted",
+    "modpack_fetching" : "Updating modpack data",
+    "modpack_cloning" : "Cloning modpack data",
     "installation_popup_title" : "Installing: {}",
     "vanilla_tasks" : ["Load version", "Load JVM (Java)", "Resolve libraries", "Download vanilla version"],
     "forge_tasks" : ["Load forge", "Load version", "Load JVM (Java)", "Download forge version", "Compile and install forge (tedious)", "Resolve libraries", "Download vanilla version"]
@@ -87,6 +89,8 @@
     "modpack_error_open" : "Abrir carpeta de mods",
     "modpack_error_continue" : "Lanzar de todos modos",
     "modpack_error_abort" : "Lanzamiento de modpack abortado",
+    "modpack_fetching" : "Actualizando información del modpack",
+    "modpack_cloning" : "Descargando información del modpack",
     "installation_popup_title" : "Instalando: {}",
     "vanilla_tasks" : ["Cargar version", "Cargar JVM (Java)", "Cargar librerias", "Descargar version Vanilla"],
     "forge_tasks" : ["Cargar version de Forge", "Cargar version", "Cargar JVM (Java)", "Descargar version de Forge", "Compilar e instalar Forge (pesado)", "Cargar librerias", "Descargar version Vanilla"]

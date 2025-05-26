@@ -1,5 +1,6 @@
 from src.app_utils.launch_data_manager import LaunchData
 from src.custom_toplevels.modpack_download_error_window import ModpackDownloadError
+from src.custom_toplevels.popup_wait import popup_wait_for_task
 from src.util.ensure_git import ensure_git
 from src.util.utilities import load_json
 from src.launch_managers.forge_launcher import build_forge_env
@@ -78,12 +79,12 @@ def build_modpack_env(launch_data : LaunchData, app):
     try:
         repo = Repo(main_dir)
         origin = repo.remote()
-        origin.fetch()
+        popup_wait_for_task(app, app.translations["modpack_fetching"], origin.fetch)
         repo.git.reset("--hard")
         repo.git.merge("origin/master")
     except (InvalidGitRepositoryError, NoSuchPathError):
         # The repo doesn't exist (first launch), clone it
-        Repo.clone_from(repo_url, main_dir)
+        popup_wait_for_task(app, app.translations["modpack_cloning"], lambda : Repo.clone_from(repo_url, main_dir))
 
     """
     Each repo will contain (that are critical to PyMinecraft launcher)
