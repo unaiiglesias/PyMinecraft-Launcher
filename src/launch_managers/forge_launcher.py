@@ -4,7 +4,7 @@ from portablemc.forge import ForgeVersion, ForgePostProcessedEvent
 from portablemc.standard import Context, Version, Environment, VersionLoadedEvent, JarFoundEvent, \
     LibrariesResolvedEvent, DownloadCompleteEvent, DownloadStartEvent, DownloadProgressEvent
 from src.custom_toplevels.popup_download import ProgressBarWindow
-from src.custom_toplevels.version_installation_popup import VersionInstallationPopup
+from src.launch_managers.version_installation_popup import VersionInstallationPopup
 
 class ForgeInstallationPopup(VersionInstallationPopup):
 

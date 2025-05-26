@@ -6,7 +6,7 @@ TODO list:
     + In modpack mode, when a mod download fails, log it correctly (custom window or something)
     - Test modpack mode for breaking installation errors
     - Add auto-update functionality (once the repo is public)
-    - Add legacy GamerZone modpacks
+    + Add legacy GamerZone modpacks
     - Automate building?
     + Improve cache date so that it's an actual date and not just a day
     - + rethink how often cache should be updated (button to manually refresh it?)
@@ -17,6 +17,6 @@ TODO list:
     - Replace (or complement) status indicator bar with actual error windows
     - Add button to hide launcher config side menu
     - Fix bug where popup steals grab_set from its master and doesn't return it(ex: version_installation_popup)
-    - Move version installation popup back to launch_managers
+    + Move version installation popup back to launch_managers
     - Improve language selector to make them flag buttons
     - Improve readme.md

@@ -90,7 +90,7 @@ class ProgressBarWindow(ctk.CTkToplevel):
 
         In this case, since I don't have speed, I will use the speed counter as downloaded size counter
 
-        _width is passed by wget but I won'r use it
+        _width is passed by wget, but I won't use it
 
         ex: when downloading mods for a modpack
         """
