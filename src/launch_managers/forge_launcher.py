@@ -50,6 +50,7 @@ class ForgeInstallationPopup(VersionInstallationPopup):
                 self.tasks[3].select()
                 self.window.finish()  # Close progress bar window
                 self.forge_downloaded = True # Now forge has been downloaded, mark it. Next download will be vanilla version
+                self.grab_set() # Reclaim focus
 
             # Task 5 ("compile" and install Forge version)
             elif isinstance(event, ForgePostProcessedEvent):
