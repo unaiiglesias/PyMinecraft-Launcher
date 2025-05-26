@@ -119,7 +119,7 @@ def download_stuff(dest : str, stuff : dict, title: str):
     """
 
     progress_bar = ProgressBarWindow(title)
-    print(f"STUFF cound: {len(stuff)}")
+    print(f"STUFF count: {len(stuff)}")
     progress_bar.set_total(len(stuff))
 
     failed_downloads = []
