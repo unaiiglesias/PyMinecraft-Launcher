@@ -306,7 +306,7 @@ class App(ctk.CTk):
 
         if choice == "Vanilla":
             # Grid (show) the vanilla frame
-            self.vanilla_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
+            self.vanilla_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=5)
 
             #version_list will be a list of versions
             version_list = get_vanilla_versions(".", self)
@@ -320,7 +320,7 @@ class App(ctk.CTk):
 
         elif choice == "Forge":
             # Grid (show) the forge frame
-            self.forge_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
+            self.forge_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=5)
 
             # version_list will be a dictionary where {parent_version : forge_subversions}
             version_list = get_forge_versions(".", self)
@@ -343,7 +343,7 @@ class App(ctk.CTk):
 
         elif choice == "Modpack":
             # Grid (show) the modpack frame
-            self.modpack_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=0)
+            self.modpack_frame.grid(row=2, columnspan=2, sticky="nswe", padx=0, pady=5)
 
             # version_list will be a list of modpack names
             version_list = get_modpack_versions(".", self)
