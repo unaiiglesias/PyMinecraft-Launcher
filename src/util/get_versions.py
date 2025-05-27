@@ -1,5 +1,7 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
+
+from src.custom_toplevels.popup_wait import popup_wait_for_task
 from src.util.utilities import load_json, save_json
 from datetime import datetime, timedelta
 import github # PyGithub
@@ -93,7 +95,7 @@ def get_vanilla_versions(cache_data_path: str, app):
 
     # Load from the internet
     app.update_status("working", app.translations["status_working_fetching_vanilla_versions"])
-    vanilla_versions = fetch_vanilla_versions_from_internet()
+    vanilla_versions = popup_wait_for_task(app, app.translations["status_working_fetching_vanilla_versions"], fetch_vanilla_versions_from_internet)
 
     # Save cache
     app.update_status("working", app.translations["status_working_caching_vanilla_versions"])
@@ -139,7 +141,7 @@ def get_forge_versions(cache_data_path: str, app):
 
     # Load from the internet
     app.update_status("working", app.translations["status_working_fetching_forge_versions"])
-    forge_versions = fetch_forge_versions_from_internet()
+    forge_versions = popup_wait_for_task(app, app.translations["status_working_fetching_forge_versions"], fetch_forge_versions_from_internet)
 
     # Save cache
     app.update_status("working", app.translations["status_working_caching_forge_versions"])
@@ -167,7 +169,7 @@ def get_modpack_versions(cache_data_path: str, app):
     now = datetime.now()
 
     app.update_status("working", app.translations["status_working_fetching_modpack_versions"])
-    modpack_versions = fetch_modpack_versions_from_the_internet()
+    modpack_versions = popup_wait_for_task(app, app.translations["status_working_fetching_modpack_versions"], fetch_modpack_versions_from_the_internet)
 
     return modpack_versions
 
