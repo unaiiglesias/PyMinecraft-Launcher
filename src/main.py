@@ -161,22 +161,17 @@ class App(ctk.CTk):
         self.appearance_mode.set(self.cfg["MAIN"]["theme"])  # set loaded
         self.change_appearance_mode(self.cfg["MAIN"]["theme"])  # Change to loaded
 
-        current_language_key = self.cfg["MAIN"]["language"]
         english_flag_image = ctk.CTkImage(Image.open("assets/english_flag.png"), size=(40, 25))
         self.english_language_selector = ctk.CTkButton(self.side_frame, command=lambda: self.change_language("en"),
                                                        image=english_flag_image, text="", fg_color="transparent",
                                                        width=40, height=25)
         self.english_language_selector.grid(row=2, padx=20, pady=10, sticky="w")
-        if current_language_key == "en":
-            self.english_language_selector.configure(fg_color="gray")
 
         spanish_flag_image = ctk.CTkImage(Image.open("assets/spanish_flag.png"), size=(40, 25))
         self.spanish_language_selector = ctk.CTkButton(self.side_frame, command = lambda : self.change_language("es"),
                                                        image=spanish_flag_image, text="", fg_color="transparent",
                                                        width=40, height=25)
         self.spanish_language_selector.grid(row=2, padx=20, pady=10, sticky="e")
-        if current_language_key == "es":
-            self.spanish_language_selector.configure(fg_color="gray")
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg["MAIN"]['version']}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
@@ -196,6 +191,13 @@ class App(ctk.CTk):
         # Launch button
         self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=10)
+
+        # Now that everything is initialized:
+        self.change_language(self.cfg["MAIN"]["language"])
+        if not self.cfg["MAIN"]["show_side_menu"]:
+            # The toggle function flips it, so we pre-flip it to get it back to where we want it to
+            self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
+            self.toggle_side_menu()
 
         # Load launch data
         self.launch_data = LaunchData() # If there exists launch_data.json, loads it. Otherwise, defaults
@@ -220,13 +222,13 @@ class App(ctk.CTk):
         print("--- INITIALIZATION FINALIZED ---")
 
     def toggle_side_menu(self):
-        current_width = self.winfo_width()
-        current_height = self.winfo_height()
-        current_xpos = self.winfo_x()
-        current_ypos = self.winfo_y()
 
-        side_menu_width = self.side_frame.cget("width")
-        if self.toggle_side_menu_button.cget("fg_color") == "transparent": # Currently displayed, hide
+        # On button press, flip it
+        self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
+        self.cfg.write_ini()
+
+        # hide
+        if not self.cfg["MAIN"]["show_side_menu"]:
             self.side_frame.grid_forget()
             self.terror_easter_egg.grid_forget()
             self.toggle_side_menu_button.configure(fg_color="#1F6AA5")
@@ -241,8 +243,8 @@ class App(ctk.CTk):
 
             self.grid_columnconfigure(1, weight=1)
 
-            #self.geometry(f"{current_width}x{current_height+100}+{current_xpos}+{current_ypos}")
-        else: # currently hidden, display
+        # display
+        else:
             self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
             self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
             self.toggle_side_menu_button.configure(fg_color="transparent")
@@ -256,8 +258,6 @@ class App(ctk.CTk):
 
             self.status_indicator.grid(column=0, columnspan=2)
             self.launch_button.grid(column=0, columnspan=2)
-
-            #self.geometry(f"{current_width + side_menu_width}x{current_height}+{current_xpos-side_menu_width}+{current_ypos}")
 
     def change_appearance_mode(self, new_appearance_mode):
         if new_appearance_mode == "Claro":
