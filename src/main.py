@@ -160,10 +160,22 @@ class App(ctk.CTk):
         self.appearance_mode.set(self.cfg["MAIN"]["theme"])  # set loaded
         self.change_appearance_mode(self.cfg["MAIN"]["theme"])  # Change to loaded
 
-        self.language_selector = ctk.CTkOptionMenu(self.side_frame, values=["English", "Español"],
-                                                   command=self.change_language)
-        self.language_selector.set(self.cfg["MAIN"]["language"])
-        self.language_selector.grid(row=2, padx=20, pady=10)
+        current_language_key = self.cfg["MAIN"]["language"]
+        english_flag_image = ctk.CTkImage(Image.open("assets/english_flag.png"), size=(40, 25))
+        self.english_language_selector = ctk.CTkButton(self.side_frame, command=lambda: self.change_language("en"),
+                                                       image=english_flag_image, text="", fg_color="transparent",
+                                                       width=40, height=25)
+        self.english_language_selector.grid(row=2, padx=20, pady=10, sticky="w")
+        if current_language_key == "en":
+            self.english_language_selector.configure(fg_color="gray")
+
+        spanish_flag_image = ctk.CTkImage(Image.open("assets/spanish_flag.png"), size=(40, 25))
+        self.spanish_language_selector = ctk.CTkButton(self.side_frame, command = lambda : self.change_language("es"),
+                                                       image=spanish_flag_image, text="", fg_color="transparent",
+                                                       width=40, height=25)
+        self.spanish_language_selector.grid(row=2, padx=20, pady=10, sticky="e")
+        if current_language_key == "es":
+            self.spanish_language_selector.configure(fg_color="gray")
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg["MAIN"]['version']}")
         self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
@@ -349,11 +361,18 @@ class App(ctk.CTk):
         Updates every button, label, entry's text translation to choice language
 
         Args:
-            choice: "Español" or "English"
+            choice: "es" : Español or "en" : English
         """
 
-        # choice in (English, Español)
+        # choice in ("en", "es")
         self.translations.load_translations(choice)
+
+        self.english_language_selector.configure(fg_color="transparent")
+        self.spanish_language_selector.configure(fg_color="transparent")
+        if choice == "en":
+            self.english_language_selector.configure(fg_color="gray")
+        elif choice == "es":
+            self.spanish_language_selector.configure(fg_color="gray")
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])

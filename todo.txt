@@ -18,6 +18,6 @@ TODO list:
     - Add button to hide launcher config side menu
     + Fix bug where popup steals grab_set from its master and doesn't return it(ex: version_installation_popup)
     + Move version installation popup back to launch_managers
-    - Improve language selector to make them flag buttons
+    + Improve language selector to make them flag buttons
     - Improve readme.md
     - Improve success window by making a minecraft logger window

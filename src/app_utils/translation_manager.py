@@ -10,27 +10,27 @@ class Translations:
     """
 
 
-    def __init__(self, language = "English", path = "assets/translations.json"):
+    def __init__(self, language_key = "en", path = "assets/translations.json"):
 
         self.path = path
 
-        self.avaliable_langs = {"Español": "es", "English": "en"}
+        self.available_langs = {"en" : "English", "es" : "Español"}
         self._translations = None # Translations dictionary
-        self.load_translations(language) # This writes to self._translations
-        self.lang = language # Currently selected lang (Language name, not key)
+        self.load_translations(language_key) # This writes to self._translations
+        self.lang = self.available_langs[language_key] # Currently selected lang (Language name, not key)
 
-    def load_translations(self, language):
+    def load_translations(self, language_key):
         """
         Loads translation .json and saves it in the object
-        It is also used to change the current language
+        It is also used to change the current language of the object
         Args:
-            language: Language name, not key (Español OK, es NOT OK)
+            language_key: Key of the language translations to load (ex : en) check self.available_langs
         """
 
-        if language not in self.avaliable_langs:
-            raise KeyError(f"Selected language ({language}) does not exist")
+        if language_key not in self.available_langs:
+            raise KeyError(f"Selected language key ({language_key}) does not exist")
 
-        language_key = self.avaliable_langs[language]
+        language = self.available_langs[language_key]
         print(f"Loading translations.json in {language} code:{language_key}")
         self._translations = load_json(self.path)[language_key]
         self.lang = language
