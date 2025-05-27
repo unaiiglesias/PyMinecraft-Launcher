@@ -15,7 +15,7 @@ TODO list:
     - Premium launch mode
     - Responsive GUI?
     - Replace (or complement) status indicator bar with actual error windows
-    - Add button to hide launcher config side menu
+    + Add button to hide launcher config side menu
     + Fix bug where popup steals grab_set from its master and doesn't return it(ex: version_installation_popup)
     + Move version installation popup back to launch_managers
     + Improve language selector to make them flag buttons
