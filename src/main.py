@@ -47,7 +47,12 @@ class App(ctk.CTk):
 
         # Top title header
         self.header = ctk.CTkLabel(self, text=self.cfg["MAIN"]["title"], font=("calibri", 24))
-        self.header.grid(row=0, column=1, rowspan=1, sticky="n", pady=10, padx=20)
+        self.header.grid(row=0, column=1, sticky="n", pady=10, padx=20)
+
+        # Side menu button
+        self.toggle_side_menu_button = ctk.CTkButton(self, text="☰", command=self.toggle_side_menu,
+                                                     fg_color="transparent", width=30, height=30)
+        self.toggle_side_menu_button.grid(row=0, column=0, sticky="w", padx=(20, 0), pady=10)
 
         """ Credentials frame """
         self.credentials_frame = ctk.CTkFrame(self)
@@ -76,8 +81,7 @@ class App(ctk.CTk):
 
         self.vanilla_frame = ctk.CTkFrame(self.version_frame, fg_color="transparent")
         self.vanilla_frame.rowconfigure(1)
-        self.vanilla_version = ctk.CTkOptionMenu(self.vanilla_frame, values=[""]
-                                                 , width = 300)
+        self.vanilla_version = ctk.CTkOptionMenu(self.vanilla_frame, values=[""], width = 300)
         self.vanilla_version_dropdown = CTkScrollableDropdown(self.vanilla_version,
                                                               values=[""])
         self.vanilla_version.grid(columnspan=2, sticky="w", padx=(20, 0), pady=10)
@@ -136,10 +140,7 @@ class App(ctk.CTk):
                                                              text=self.translations["browse_path_button"])
         self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
 
-        """ Easter Egg frame """
-        self.easter_egg_frame = ctk.CTkFrame(self)
-        self.easter_egg_frame.grid(row=1, rowspan=2, padx=15, pady=10, sticky="nswe")
-
+        """ Easter Egg """
         self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
         self.terror_easter_egg = ctk.CTkLabel(self, width=200, height=200, image=self.terror_easter_egg_image,
                                               text="", fg_color="transparent")
@@ -194,7 +195,7 @@ class App(ctk.CTk):
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
-        self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=20)
+        self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=10)
 
         # Load launch data
         self.launch_data = LaunchData() # If there exists launch_data.json, loads it. Otherwise, defaults
@@ -217,6 +218,46 @@ class App(ctk.CTk):
         self.update_versions(self.launch_data.version_type)
 
         print("--- INITIALIZATION FINALIZED ---")
+
+    def toggle_side_menu(self):
+        current_width = self.winfo_width()
+        current_height = self.winfo_height()
+        current_xpos = self.winfo_x()
+        current_ypos = self.winfo_y()
+
+        side_menu_width = self.side_frame.cget("width")
+        if self.toggle_side_menu_button.cget("fg_color") == "transparent": # Currently displayed, hide
+            self.side_frame.grid_forget()
+            self.terror_easter_egg.grid_forget()
+            self.toggle_side_menu_button.configure(fg_color="#1F6AA5")
+
+            self.status_indicator.grid(column=0, columnspan=1)
+            self.launch_button.grid(column=0, columnspan=1)
+
+            self.header.grid(column=0)
+            self.credentials_frame.grid(column=0)
+            self.version_frame.grid(column=0)
+            self.parameters_frame.grid(column=0)
+
+            self.grid_columnconfigure(1, weight=1)
+
+            #self.geometry(f"{current_width}x{current_height+100}+{current_xpos}+{current_ypos}")
+        else: # currently hidden, display
+            self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
+            self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
+            self.toggle_side_menu_button.configure(fg_color="transparent")
+
+            self.grid_columnconfigure(2, weight=1)
+
+            self.header.grid(column=1)
+            self.credentials_frame.grid(column=1)
+            self.version_frame.grid(column=1)
+            self.parameters_frame.grid(column=1)
+
+            self.status_indicator.grid(column=0, columnspan=2)
+            self.launch_button.grid(column=0, columnspan=2)
+
+            #self.geometry(f"{current_width + side_menu_width}x{current_height}+{current_xpos-side_menu_width}+{current_ypos}")
 
     def change_appearance_mode(self, new_appearance_mode):
         if new_appearance_mode == "Claro":
