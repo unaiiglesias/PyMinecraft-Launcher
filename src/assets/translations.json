@@ -7,7 +7,6 @@
     "reset_path_button" : "Reset",
     "browse_path_button" : "Browse",
     "theme_choice" : ["Light", "Dark", "System"],
-    "side_options_label" : "Launcher settings",
     "launch_button" : "LAUNCH",
     "status_idle" : "Waiting for launch",
     "status_working_launching" : "Launching the game",
@@ -47,7 +46,10 @@
     "vanilla_tasks" : ["Load version", "Load JVM (Java)", "Resolve libraries", "Download vanilla version"],
     "forge_tasks" : ["Load forge", "Load version", "Load JVM (Java)", "Download forge version", "Compile and install forge (tedious)", "Resolve libraries", "Download vanilla version"],
     "runner_clear" : "clear",
-    "runner_you_can_close" : "You can close this window and Minecraft will NOT close"
+    "runner_you_can_close" : "You can close this window and Minecraft will NOT close",
+    "on_launch_nothing" : "Do nothing",
+    "on_launch_success_window" : "success window",
+    "on_launch_logger" : "Logger window"
   },
   "es": {
     "username_label" : "Nombre de usuario",
@@ -57,7 +59,6 @@
     "reset_path_button" : "Reset",
     "browse_path_button" : "Navegar",
     "theme_choice" : ["Claro", "Oscuro", "Sistema"],
-    "side_options_label" : "Opciones del lanzador",
     "launch_button" : "INICIAR",
     "status_idle" : "Esperando a ser iniciado",
     "status_working_launching" : "Iniciando el juego",
@@ -97,6 +98,9 @@
     "vanilla_tasks" : ["Cargar version", "Cargar JVM (Java)", "Cargar librerias", "Descargar version Vanilla"],
     "forge_tasks" : ["Cargar version de Forge", "Cargar version", "Cargar JVM (Java)", "Descargar version de Forge", "Compilar e instalar Forge (pesado)", "Cargar librerias", "Descargar version Vanilla"],
     "runner_clear" : "limpiar",
-    "runner_you_can_close" : "Puedes cerrar esta ventana y Minecraft NO se cerrará"
+    "runner_you_can_close" : "Puedes cerrar esta ventana y Minecraft NO se cerrará",
+    "on_launch_nothing" : "No hacer nada",
+    "on_launch_success_window" : "Ventana de éxito",
+    "on_launch_logger" : "Ventana con logs"
   }
 }

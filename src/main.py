@@ -152,14 +152,17 @@ class App(ctk.CTk):
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(4)
 
-        self.side_options_label = ctk.CTkLabel(self.side_frame, text=self.translations["side_options_label"])
-        self.side_options_label.grid(row=0, padx=20, pady=(5, 0))
-
         self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=self.translations["theme_choice"],
                                                  command=self.change_appearance_mode)
-        self.appearance_mode.grid(row=1, padx=20, pady=10)
+        self.appearance_mode.grid(row=0, padx=20, pady=(10, 5))
         self.appearance_mode.set(self.cfg["MAIN"]["theme"])  # set loaded
         self.change_appearance_mode(self.cfg["MAIN"]["theme"])  # Change to loaded
+
+        self.on_launch_selector = ctk.CTkOptionMenu(self.side_frame, values=[self.translations["on_launch_nothing"],
+                                                                             self.translations["on_launch_success_window"],
+                                                                             self.translations["on_launch_logger"]],
+                                                    command=self.change_on_launch_behaviour)
+        self.on_launch_selector.grid(row=1, padx=20, pady=5)
 
         english_flag_image = ctk.CTkImage(Image.open("assets/english_flag.png"), size=(40, 25))
         self.english_language_selector = ctk.CTkButton(self.side_frame, command=lambda: self.change_language("en"),
@@ -181,7 +184,7 @@ class App(ctk.CTk):
         self.bomb_image_label.grid(row=3, padx=(40, 0), pady=0)
         self.enable_terror_easter_egg = ctk.CTkCheckBox(self.side_frame, text="", width=10, height=10,
                                                         command=self.toggle_terror_easter_egg)
-        self.enable_terror_easter_egg.grid(row=3, sticky="e", padx=(0, 20), pady=0)
+        self.enable_terror_easter_egg.grid(row=3 , sticky="e", padx=(0, 20), pady=0)
         if self.cfg["MAIN"]["show_terror"] == 1:
             self.enable_terror_easter_egg.select()
         else:
@@ -268,6 +271,15 @@ class App(ctk.CTk):
             new_appearance_mode = "System"
         ctk.set_appearance_mode(new_appearance_mode)
         self.cfg["MAIN"]["theme"] = new_appearance_mode
+        self.cfg.write_ini()
+
+    def change_on_launch_behaviour(self, new_behaviour):
+        if new_behaviour == self.translations["on_launch_nothing"]:
+            self.cfg["MAIN"]["on_launch"] = "nothing"
+        elif new_behaviour == self.translations["on_launch_success_window"]:
+            self.cfg["MAIN"]["on_launch"] = "success_window"
+        elif new_behaviour == self.translations["on_launch_logger"]:
+            self.cfg["MAIN"]["on_launch"] = "logger"
         self.cfg.write_ini()
 
     def toggle_terror_easter_egg(self):
@@ -422,7 +434,17 @@ class App(ctk.CTk):
         self.reset_installation_path_button.configure(text=self.translations["reset_path_button"])
         self.browse_installation_path_button.configure(text=self.translations["browse_path_button"])
         self.appearance_mode.configure(values=self.translations["theme_choice"])
-        self.side_options_label.configure(text=self.translations["side_options_label"])
+
+        self.on_launch_selector.configure(values=[self.translations["on_launch_nothing"],
+                                                 self.translations["on_launch_success_window"],
+                                                 self.translations["on_launch_logger"]])
+        if self.cfg["MAIN"]["on_launch"] == "nothing":
+            self.on_launch_selector.set(self.translations["on_launch_nothing"])
+        if self.cfg["MAIN"]["on_launch"] == "success_window":
+            self.on_launch_selector.set(self.translations["on_launch_success_window"])
+        if self.cfg["MAIN"]["on_launch"] == "logger":
+            self.on_launch_selector.set(self.translations["on_launch_logger"])
+
         self.launch_button.configure(text=self.translations["launch_button"])
         self.update_status("idle")  # So that the status bar text updates
         self.cfg["MAIN"]["language"] = choice

@@ -31,7 +31,13 @@ def launch(launch_data : LaunchData, app, mode : str) -> None:
         # If some kind of error happened, env will be None, error will be displayed by specific method, do nothing
         return
 
-    LaunchWithLoggerPopup(app, launch_data, env)
+    if app.cfg["MAIN"]["on_launch"] == "nothing":
+        Thread(target=run, args=[env]).start()
+    elif app.cfg["MAIN"]["on_launch"] == "success_window":
+        Thread(target=run, args=[env]).start()
+        SuccessWindow(app)
+    elif app.cfg["MAIN"]["on_launch"] == "logger":
+        LaunchWithLoggerPopup(app, launch_data, env)
 
 # Auxiliary method for Thread run
 def run(env):
