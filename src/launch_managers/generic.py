@@ -1,5 +1,7 @@
+from multiprocessing import Process
 from threading import Thread
 from src.app_utils.launch_data_manager import LaunchData
+from src.launch_managers.launch_with_logger_window import LaunchWithLoggerPopup
 from src.launch_managers.vanilla_launcher import build_vanilla_env
 from src.launch_managers.forge_launcher import build_forge_env
 from src.launch_managers.modpack_launcher import build_modpack_env
@@ -29,8 +31,7 @@ def launch(launch_data : LaunchData, app, mode : str) -> None:
         # If some kind of error happened, env will be None, error will be displayed by specific method, do nothing
         return
 
-    Thread(target=run, args=[env]).start()
-    SuccessWindow(app)
+    LaunchWithLoggerPopup(app, launch_data, env)
 
 # Auxiliary method for Thread run
 def run(env):

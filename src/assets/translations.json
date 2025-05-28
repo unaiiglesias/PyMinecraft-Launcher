@@ -45,7 +45,9 @@
     "modpack_cloning" : "Cloning modpack data",
     "installation_popup_title" : "Installing: {}",
     "vanilla_tasks" : ["Load version", "Load JVM (Java)", "Resolve libraries", "Download vanilla version"],
-    "forge_tasks" : ["Load forge", "Load version", "Load JVM (Java)", "Download forge version", "Compile and install forge (tedious)", "Resolve libraries", "Download vanilla version"]
+    "forge_tasks" : ["Load forge", "Load version", "Load JVM (Java)", "Download forge version", "Compile and install forge (tedious)", "Resolve libraries", "Download vanilla version"],
+    "runner_clear" : "clear",
+    "runner_you_can_close" : "You can close this window and Minecraft will NOT close"
   },
   "es": {
     "username_label" : "Nombre de usuario",
@@ -93,6 +95,8 @@
     "modpack_cloning" : "Descargando información del modpack",
     "installation_popup_title" : "Instalando: {}",
     "vanilla_tasks" : ["Cargar version", "Cargar JVM (Java)", "Cargar librerias", "Descargar version Vanilla"],
-    "forge_tasks" : ["Cargar version de Forge", "Cargar version", "Cargar JVM (Java)", "Descargar version de Forge", "Compilar e instalar Forge (pesado)", "Cargar librerias", "Descargar version Vanilla"]
+    "forge_tasks" : ["Cargar version de Forge", "Cargar version", "Cargar JVM (Java)", "Descargar version de Forge", "Compilar e instalar Forge (pesado)", "Cargar librerias", "Descargar version Vanilla"],
+    "runner_clear" : "limpiar",
+    "runner_you_can_close" : "Puedes cerrar esta ventana y Minecraft NO se cerrará"
   }
 }
