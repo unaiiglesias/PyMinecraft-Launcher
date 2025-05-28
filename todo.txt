@@ -20,4 +20,4 @@ TODO list:
     + Move version installation popup back to launch_managers
     + Improve language selector to make them flag buttons
     - Improve readme.md
-    - Improve success window by making a minecraft logger window
+    + Improve success window by making a minecraft logger window
