@@ -21,7 +21,7 @@ class Configuration:
         "MAIN": {
             "title": "str",
             "icon": "str",
-            "theme": "str",
+            "theme": ["Light", "Dark"],
             "language": ["es", "en"],
             "show_side_menu": "bool",
             "show_terror": "bool",

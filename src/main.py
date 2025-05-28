@@ -152,11 +152,15 @@ class App(ctk.CTk):
         self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
         self.side_frame.rowconfigure(4)
 
-        self.appearance_mode = ctk.CTkOptionMenu(self.side_frame, values=self.translations["theme_choice"],
-                                                 command=self.change_appearance_mode)
-        self.appearance_mode.grid(row=0, padx=20, pady=(10, 5))
-        self.appearance_mode.set(self.cfg["MAIN"]["theme"])  # set loaded
-        self.change_appearance_mode(self.cfg["MAIN"]["theme"])  # Change to loaded
+        light_theme_image = ctk.CTkImage(Image.open("assets/sun.png"), size=(25, 25))
+        self.light_theme_selector = ctk.CTkButton(self.side_frame, command=lambda : self.change_appearance_mode("Light"),
+                                                  text="", image=light_theme_image, width=25, height=25, fg_color="transparent")
+        self.light_theme_selector.grid(row=0, padx=25, pady=(10, 5), sticky="w")
+
+        dark_theme_image = ctk.CTkImage(Image.open("assets/moon.png"), size=(25, 25))
+        self.dark_theme_selector = ctk.CTkButton(self.side_frame, command=lambda : self.change_appearance_mode("Dark"),
+                                                 text="", image=dark_theme_image, width=25, height=25, fg_color="transparent")
+        self.dark_theme_selector.grid(row=0, padx=25, pady=(10, 5), sticky="e")
 
         self.on_launch_selector = ctk.CTkOptionMenu(self.side_frame, values=[self.translations["on_launch_nothing"],
                                                                              self.translations["on_launch_success_window"],
@@ -196,6 +200,7 @@ class App(ctk.CTk):
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=10)
 
         # Now that everything is initialized:
+        self.change_appearance_mode(self.cfg["MAIN"]["theme"])
         self.change_language(self.cfg["MAIN"]["language"])
         if not self.cfg["MAIN"]["show_side_menu"]:
             # The toggle function flips it, so we pre-flip it to get it back to where we want it to
@@ -263,12 +268,13 @@ class App(ctk.CTk):
             self.launch_button.grid(column=0, columnspan=2)
 
     def change_appearance_mode(self, new_appearance_mode):
-        if new_appearance_mode == "Claro":
-            new_appearance_mode = "Light"
-        elif new_appearance_mode == "Oscuro":
-            new_appearance_mode = "Dark"
-        elif new_appearance_mode == "Sistema":
-            new_appearance_mode = "System"
+        self.light_theme_selector.configure(fg_color="transparent")
+        self.dark_theme_selector.configure(fg_color="transparent")
+        if new_appearance_mode == "Light":
+            self.light_theme_selector.configure(fg_color="gray")
+        elif new_appearance_mode == "Dark":
+            self.dark_theme_selector.configure(fg_color="gray")
+
         ctk.set_appearance_mode(new_appearance_mode)
         self.cfg["MAIN"]["theme"] = new_appearance_mode
         self.cfg.write_ini()
@@ -433,7 +439,6 @@ class App(ctk.CTk):
         self.input_installation_path_label.configure(text=self.translations["installation_path_label"])
         self.reset_installation_path_button.configure(text=self.translations["reset_path_button"])
         self.browse_installation_path_button.configure(text=self.translations["browse_path_button"])
-        self.appearance_mode.configure(values=self.translations["theme_choice"])
 
         self.on_launch_selector.configure(values=[self.translations["on_launch_nothing"],
                                                  self.translations["on_launch_success_window"],
