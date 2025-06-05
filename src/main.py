@@ -193,19 +193,18 @@ class App(ctk.CTk):
             self.enable_terror_easter_egg.select()
         else:
             self.enable_terror_easter_egg.deselect()
-        self.toggle_terror_easter_egg()
+        self.toggle_terror_easter_egg(write=False)
 
         # Launch button
         self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
         self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=10)
 
         # Now that everything is initialized:
-        self.change_appearance_mode(self.cfg["MAIN"]["theme"])
-        self.change_language(self.cfg["MAIN"]["language"])
+        self.change_appearance_mode(self.cfg["MAIN"]["theme"], write=False)
         if not self.cfg["MAIN"]["show_side_menu"]:
             # The toggle function flips it, so we pre-flip it to get it back to where we want it to
             self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
-            self.toggle_side_menu()
+            self.toggle_side_menu(write=False)
 
         # Load launch data
         self.launch_data = LaunchData() # If there exists launch_data.json, loads it. Otherwise, defaults
@@ -229,11 +228,12 @@ class App(ctk.CTk):
 
         print("--- INITIALIZATION FINALIZED ---")
 
-    def toggle_side_menu(self):
+    def toggle_side_menu(self, write=True):
 
         # On button press, flip it
         self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
-        self.cfg.write_ini()
+        if write:
+            self.cfg.write_ini()
 
         # hide
         if not self.cfg["MAIN"]["show_side_menu"]:
@@ -241,13 +241,13 @@ class App(ctk.CTk):
             self.terror_easter_egg.grid_forget()
             self.toggle_side_menu_button.configure(fg_color="#1F6AA5")
 
-            self.status_indicator.grid(column=0, columnspan=1)
-            self.launch_button.grid(column=0, columnspan=1)
-
             self.header.grid(column=0)
             self.credentials_frame.grid(column=0)
             self.version_frame.grid(column=0)
             self.parameters_frame.grid(column=0)
+
+            self.launch_button.grid(column=0, columnspan=1, padx=20)
+            self.status_indicator.grid(column=0, columnspan=1, padx=20)
 
             self.grid_columnconfigure(1, weight=1)
 
@@ -257,17 +257,17 @@ class App(ctk.CTk):
             self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
             self.toggle_side_menu_button.configure(fg_color="transparent")
 
-            self.grid_columnconfigure(2, weight=1)
-
             self.header.grid(column=1)
             self.credentials_frame.grid(column=1)
             self.version_frame.grid(column=1)
             self.parameters_frame.grid(column=1)
 
-            self.status_indicator.grid(column=0, columnspan=2)
-            self.launch_button.grid(column=0, columnspan=2)
+            self.launch_button.grid(column=0, columnspan=2, padx=60)
+            self.status_indicator.grid(column=0, columnspan=2, padx=60)
 
-    def change_appearance_mode(self, new_appearance_mode):
+            self.grid_columnconfigure(2, weight=1)
+
+    def change_appearance_mode(self, new_appearance_mode, write=True):
         self.light_theme_selector.configure(fg_color="transparent")
         self.dark_theme_selector.configure(fg_color="transparent")
         if new_appearance_mode == "Light":
@@ -277,7 +277,8 @@ class App(ctk.CTk):
 
         ctk.set_appearance_mode(new_appearance_mode)
         self.cfg["MAIN"]["theme"] = new_appearance_mode
-        self.cfg.write_ini()
+        if write:
+            self.cfg.write_ini()
 
     def change_on_launch_behaviour(self, new_behaviour):
         if new_behaviour == self.translations["on_launch_nothing"]:
@@ -288,7 +289,7 @@ class App(ctk.CTk):
             self.cfg["MAIN"]["on_launch"] = "logger"
         self.cfg.write_ini()
 
-    def toggle_terror_easter_egg(self):
+    def toggle_terror_easter_egg(self, write=True):
         """
         Read the current value of enable_terror_easter_egg and show or hide the image accordingly
         """
@@ -303,7 +304,8 @@ class App(ctk.CTk):
             self.terror_easter_egg.image = self.terror_easter_egg_image
 
         self.cfg["MAIN"]["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
-        self.cfg.write_ini()
+        if write:
+            self.cfg.write_ini()
 
     def update_versions(self, choice):
         # choice must be accepted as a parameter or the function will raise an error
