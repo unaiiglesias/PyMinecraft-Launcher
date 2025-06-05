@@ -25,11 +25,8 @@ class Configuration:
             "language": ["es", "en"],
             "show_side_menu": "bool",
             "show_terror": "bool",
-            "version": ["1.14"],
+            "version": ["2.0.0"],
             "on_launch" : ["nothing", "success_window", "logger"],
-            "cache_day_vanilla": "int",
-            "cache_day_forge": "int",
-            "cache_day_modpack": "int",
             "cache_date_vanilla" : "datetime", # All dates are stored as str, but loaded as datetime.datetime
             "cache_date_forge": "datetime",
             "cache_date_modpack": "datetime"
@@ -43,13 +40,10 @@ class Configuration:
             "icon": "assets/calvonetta_cut_transparent.ico",
             "theme": "Dark",
             "language": "en",
-            "show_side_menu": True,
+            "show_side_menu": False,
             "show_terror": 0,
-            "version": "1.14",
+            "version": "2.0.0",
             "on_launch" : "logger",
-            "cache_day_vanilla": 0,
-            "cache_day_forge": 0,
-            "cache_day_modpack": 0,
             "cache_date_vanilla": datetime.now() - timedelta(days=1), # Default time is yesterday (so that cache is forced to update)
             "cache_date_forge": datetime.now() - timedelta(days=1),
             "cache_date_modpack": datetime.now() - timedelta(days=1)
