@@ -110,17 +110,16 @@ class App(ctk.CTk):
         self.parameters_frame = ctk.CTkFrame(self)
         self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=10)
         self.parameters_frame.rowconfigure(5)
-        self.parameters_frame.columnconfigure(2)
 
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text=self.translations["ram_amount_label"])
         self.input_ram_label.grid(row=0, sticky="w", padx=20, pady=5)
 
-        self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=300, height=20, from_=1, to=16,
+        self.input_ram_field = ctk.CTkSlider(self.parameters_frame, width=250, height=20, from_=1, to=16,
                                              number_of_steps=30, command=self.update_ram_slider)
-        self.input_ram_field.grid(row=1, column=0, padx=20, pady=0)
+        self.input_ram_field.grid(row=1, padx=(20, 10), pady=0, sticky="w")
 
-        self.input_ram_value_label = ctk.CTkLabel(self.parameters_frame, text="1 GB")
-        self.input_ram_value_label.grid(row=1, column=1, sticky="w", padx=(0, 20), pady=0)
+        self.input_ram_value_label = ctk.CTkLabel(self.parameters_frame, text="1 GB", width=50)
+        self.input_ram_value_label.grid(row=1, sticky="e", padx=(10, 20), pady=0)
 
         self.input_installation_path_label = ctk.CTkLabel(self.parameters_frame,
                                                           text=self.translations["installation_path_label"])
@@ -128,17 +127,17 @@ class App(ctk.CTk):
 
         self.input_installation_path = ctk.CTkEntry(self.parameters_frame, width=300, height=20)
         self.input_installation_path.insert(0, get_default_path())  # Set entry to default path
-        self.input_installation_path.grid(row=3, column=0, sticky="w", padx=(20, 0), pady=(0, 10))
+        self.input_installation_path.grid(row=3, sticky="w", padx=20, pady=(0, 10))
 
         self.reset_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
                                                             command=self.reset_installation_path,
                                                             text=self.translations["reset_path_button"])
-        self.reset_installation_path_button.grid(row=4, column=0, padx=(40, 0), pady=(0, 10), sticky="w")
+        self.reset_installation_path_button.grid(row=4, padx=(30, 10), pady=(0, 10), sticky="w")
 
         self.browse_installation_path_button = ctk.CTkButton(self.parameters_frame, width=120, height=20,
                                                              command=self.browse_installation_path,
                                                              text=self.translations["browse_path_button"])
-        self.browse_installation_path_button.grid(row=4, column=0, padx=(0, 40), pady=(0, 10), sticky="e")
+        self.browse_installation_path_button.grid(row=4, padx=(10, 30), pady=(0, 10), sticky="e")
 
         """ Easter Egg """
         self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
