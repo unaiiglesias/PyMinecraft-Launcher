@@ -36,8 +36,8 @@ class Configuration:
     # Default values for each field (MUST match schema)
     DEFAULT = {
         "MAIN": {
-            "title": "Calvonetta Launcher",
-            "icon": "assets/calvonetta_cut_transparent.ico",
+            "title": "PyMinecraft Launcher",
+            "icon": "assets/discrete_icon.ico",
             "theme": "Dark",
             "language": "en",
             "show_side_menu": False,
