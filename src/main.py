@@ -42,7 +42,7 @@ class App(ctk.CTk):
         # Status indicator --> This needs to be "initialised" early or some widgets that try to modify it during load
         # will raise exceptions
         self.status_indicator = ctk.CTkLabel(self,  corner_radius=5, text_color="black")
-        self.status_indicator.grid(row=5, column=0, columnspan=2, sticky="ew", padx=60, pady=(0, 10))
+        self.status_indicator.grid(row=5, column=0, columnspan=2, sticky="ew", padx=40, pady=(0, 10))
         self.update_status("idle")
 
         # Top title header
@@ -70,7 +70,7 @@ class App(ctk.CTk):
         self.version_frame = ctk.CTkFrame(self)
         self.version_frame.rowconfigure(3)
         self.version_frame.columnconfigure(2)
-        self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=10)
+        self.version_frame.grid(row=2, column=1, sticky="nswe", padx=20, pady=(0, 10))
 
         self.version_to_launch_label = ctk.CTkLabel(self.version_frame, text=self.translations["versions_label"])
         self.version_to_launch_label.grid(row=0, sticky="w", padx=20, pady=(5, 0))
@@ -108,7 +108,7 @@ class App(ctk.CTk):
 
         """ (Launch) Parameters frame """
         self.parameters_frame = ctk.CTkFrame(self)
-        self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=10)
+        self.parameters_frame.grid(row=3, column=1, sticky="nswe", padx=20, pady=(0, 10))
         self.parameters_frame.rowconfigure(5)
 
         self.input_ram_label = ctk.CTkLabel(self.parameters_frame, text=self.translations["ram_amount_label"])
@@ -140,15 +140,15 @@ class App(ctk.CTk):
         self.browse_installation_path_button.grid(row=4, padx=(10, 30), pady=(0, 10), sticky="e")
 
         """ Easter Egg """
-        self.terror_easter_egg_image = ctk.CTkImage(Image.open("assets/terrorist.png"), size=(200, 200))
-        self.terror_easter_egg = ctk.CTkLabel(self, width=200, height=200, image=self.terror_easter_egg_image,
-                                              text="", fg_color="transparent")
-        self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
-        self.none_image = ctk.CTkImage(Image.new('RGBA', (200, 200), (255, 0, 0, 0)), size=(200, 200))
+        self.bomb_easter_egg_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(140, 140))
+        self.bomb_easter_egg = ctk.CTkLabel(self, width=140, height=140, image=self.bomb_easter_egg_image,
+                                            text="", fg_color="transparent")
+        self.bomb_easter_egg.grid(row=1, rowspan=2, column=0, padx=(20, 0), pady=10, sticky="nswe")
+        self.none_image = ctk.CTkImage(Image.new('RGBA', (140, 140), (255, 0, 0, 0)))
 
         """ Side options frame """
         self.side_frame = ctk.CTkFrame(self)
-        self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
+        self.side_frame.grid(row=3, column=0, sticky="nswe", padx=(20, 0), pady=(0, 10))
         self.side_frame.rowconfigure(4)
 
         light_theme_image = ctk.CTkImage(Image.open("assets/sun.png"), size=(25, 25))
@@ -171,16 +171,17 @@ class App(ctk.CTk):
         self.english_language_selector = ctk.CTkButton(self.side_frame, command=lambda: self.change_language("en"),
                                                        image=english_flag_image, text="", fg_color="transparent",
                                                        width=40, height=25)
-        self.english_language_selector.grid(row=2, padx=20, pady=10, sticky="w")
+        self.english_language_selector.grid(row=2, padx=20, pady=5, sticky="w")
 
         spanish_flag_image = ctk.CTkImage(Image.open("assets/spanish_flag.png"), size=(40, 25))
         self.spanish_language_selector = ctk.CTkButton(self.side_frame, command = lambda : self.change_language("es"),
                                                        image=spanish_flag_image, text="", fg_color="transparent",
                                                        width=40, height=25)
-        self.spanish_language_selector.grid(row=2, padx=20, pady=10, sticky="e")
+        self.spanish_language_selector.grid(row=2, padx=20, pady=5, sticky="e")
 
         self.version_label = ctk.CTkLabel(self.side_frame, text=f"ver: {self.cfg["MAIN"]['version']}")
-        self.version_label.grid(row=3, sticky="sw", padx=(20, 20), pady=0)
+        self.version_label.grid(row=3, sticky="sw", padx=20, pady=5)
+
         self.bomb_image = ctk.CTkImage(Image.open("assets/bomb.png"), size=(25, 25))
         self.bomb_image_label = ctk.CTkLabel(self.side_frame, image=self.bomb_image, text="",
                                              fg_color="transparent")
@@ -194,9 +195,9 @@ class App(ctk.CTk):
             self.enable_terror_easter_egg.deselect()
         self.toggle_terror_easter_egg(write=False)
 
-        # Launch button
+        """ Launch button """
         self.launch_button = ctk.CTkButton(self, text=self.translations["launch_button"], command=self.launch_game)
-        self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=60, pady=10)
+        self.launch_button.grid(row=4, column=0, columnspan=2, sticky="ew", padx=40, pady=(0, 10))
 
         # Now that everything is initialized:
         self.change_appearance_mode(self.cfg["MAIN"]["theme"], write=False)
@@ -229,6 +230,8 @@ class App(ctk.CTk):
 
     def toggle_side_menu(self, write=True):
 
+        print("Toggling side menu to " + "show" if not self.cfg["MAIN"]["show_side_menu"] else "hide" )
+
         # On button press, flip it
         self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
         if write:
@@ -236,9 +239,9 @@ class App(ctk.CTk):
 
         # hide
         if not self.cfg["MAIN"]["show_side_menu"]:
-            self.side_frame.grid_forget()
-            self.terror_easter_egg.grid_forget()
             self.toggle_side_menu_button.configure(fg_color="#1F6AA5")
+            self.bomb_easter_egg.grid_forget()
+            self.side_frame.grid_forget()
 
             self.header.grid(column=0)
             self.credentials_frame.grid(column=0)
@@ -252,17 +255,17 @@ class App(ctk.CTk):
 
         # display
         else:
-            self.side_frame.grid(row=3, column=0, sticky="nswe", padx=20, pady=10)
-            self.terror_easter_egg.grid(row=1, rowspan=2, column=0, padx=15, pady=10, sticky="nswe")
             self.toggle_side_menu_button.configure(fg_color="transparent")
+            self.bomb_easter_egg.grid(row=1, rowspan=2, column=0, padx=(20, 0), pady=10, sticky="nswe")
+            self.side_frame.grid(row=3, column=0, sticky="nswe", padx=(20, 0), pady=(0, 10))
 
             self.header.grid(column=1)
             self.credentials_frame.grid(column=1)
             self.version_frame.grid(column=1)
             self.parameters_frame.grid(column=1)
 
-            self.launch_button.grid(column=0, columnspan=2, padx=60)
-            self.status_indicator.grid(column=0, columnspan=2, padx=60)
+            self.launch_button.grid(column=0, columnspan=2, padx=40)
+            self.status_indicator.grid(column=0, columnspan=2, padx=40)
 
             self.grid_columnconfigure(2, weight=1)
 
@@ -295,12 +298,12 @@ class App(ctk.CTk):
 
         if self.enable_terror_easter_egg.get() == 0:
             # Disable
-            self.terror_easter_egg.configure(image=self.none_image)
-            self.terror_easter_egg.image = self.none_image
+            self.bomb_easter_egg.configure(image=self.none_image)
+            self.bomb_easter_egg.image = self.none_image
         else:
             # Enable
-            self.terror_easter_egg.configure(image=self.terror_easter_egg_image)
-            self.terror_easter_egg.image = self.terror_easter_egg_image
+            self.bomb_easter_egg.configure(image=self.bomb_easter_egg_image)
+            self.bomb_easter_egg.image = self.bomb_easter_egg_image
 
         self.cfg["MAIN"]["show_terror"] = self.enable_terror_easter_egg.get()  # 0 or 1
         if write:
