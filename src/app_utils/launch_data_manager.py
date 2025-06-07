@@ -1,5 +1,5 @@
-from src.util.utilities import load_json, save_json
-from src.util.utilities import get_default_path
+from util.utilities import load_json, save_json
+from util.utilities import get_default_path
 
 class LaunchData:
     """

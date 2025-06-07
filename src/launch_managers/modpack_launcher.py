@@ -1,10 +1,10 @@
-from src.app_utils.launch_data_manager import LaunchData
-from src.custom_toplevels.modpack_download_error_window import ModpackDownloadError
-from src.custom_toplevels.popup_wait import popup_wait_for_task
-from src.util.ensure_git import ensure_git
-from src.util.utilities import load_json
-from src.launch_managers.forge_launcher import build_forge_env
-from src.custom_toplevels.popup_download import download_stuff
+from app_utils.launch_data_manager import LaunchData
+from custom_toplevels.modpack_download_error_window import ModpackDownloadError
+from custom_toplevels.popup_wait import popup_wait_for_task
+from util.ensure_git import ensure_git
+from util.utilities import load_json
+from launch_managers.forge_launcher import build_forge_env
+from custom_toplevels.popup_download import download_stuff
 import os
 from json.decoder import JSONDecodeError
 

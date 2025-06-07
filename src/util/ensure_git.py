@@ -1,9 +1,9 @@
 from subprocess import call
 import customtkinter as ctk
-from src.app_utils.launch_data_manager import LaunchData
-from src.custom_toplevels.popup_download import download_stuff
+from app_utils.launch_data_manager import LaunchData
+from custom_toplevels.popup_download import download_stuff
 import os
-from src.custom_toplevels.popup_wait import popup_wait_for_task
+from custom_toplevels.popup_wait import popup_wait_for_task
 
 
 class InstallGitPopup(ctk.CTkToplevel):

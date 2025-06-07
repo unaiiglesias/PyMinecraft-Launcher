@@ -1,4 +1,4 @@
-from src.util.utilities import load_json
+from util.utilities import load_json
 
 class Translations:
     """

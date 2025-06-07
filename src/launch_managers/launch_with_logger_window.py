@@ -2,7 +2,7 @@ from queue import Queue
 from threading import Thread
 from typing import Any
 from portablemc.standard import StreamRunner, XmlStreamEvent, Environment
-from src.app_utils.launch_data_manager import LaunchData
+from app_utils.launch_data_manager import LaunchData
 import customtkinter as ctk
 from portablemc.cli.util import format_time
 

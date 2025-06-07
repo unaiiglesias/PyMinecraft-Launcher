@@ -1,8 +1,8 @@
 from portablemc.forge import request_maven_versions
 from portablemc.standard import VersionManifest
 
-from src.custom_toplevels.popup_wait import popup_wait_for_task
-from src.util.utilities import load_json, save_json
+from custom_toplevels.popup_wait import popup_wait_for_task
+from util.utilities import load_json, save_json
 from datetime import datetime, timedelta
 import github # PyGithub
 

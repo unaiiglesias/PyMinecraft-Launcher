@@ -1,13 +1,13 @@
 from PIL import Image
 import customtkinter as ctk
 from tkinter import filedialog
-from src.launch_managers.generic import launch
-from src.util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
-from src.app_utils.config_manager import Configuration
-from src.app_utils.launch_data_manager import LaunchData
-from src.app_utils.translation_manager import Translations
-from src.util.utilities import get_default_path, check_if_path_is_valid
-from src.custom_toplevels.ctk_scrollable_dropdown import  CTkScrollableDropdown
+from launch_managers.generic import launch
+from util.get_versions import get_vanilla_versions, get_forge_versions, get_modpack_versions
+from app_utils.config_manager import Configuration
+from app_utils.launch_data_manager import LaunchData
+from app_utils.translation_manager import Translations
+from util.utilities import get_default_path, check_if_path_is_valid
+from custom_toplevels.ctk_scrollable_dropdown import  CTkScrollableDropdown
 
 """
 Default font:

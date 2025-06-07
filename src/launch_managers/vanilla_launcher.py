@@ -1,10 +1,10 @@
-from src.app_utils.launch_data_manager import LaunchData
+from app_utils.launch_data_manager import LaunchData
 from pathlib import Path
 from portablemc.standard import Context, Version, Environment, VersionLoadedEvent, JarFoundEvent, \
     LibrariesResolvedEvent, DownloadCompleteEvent, DownloadStartEvent, DownloadProgressEvent
 
-from src.custom_toplevels.popup_download import ProgressBarWindow
-from src.launch_managers.version_installation_popup import VersionInstallationPopup
+from custom_toplevels.popup_download import ProgressBarWindow
+from launch_managers.version_installation_popup import VersionInstallationPopup
 
 class VanillaInstallationPopup(VersionInstallationPopup):
 

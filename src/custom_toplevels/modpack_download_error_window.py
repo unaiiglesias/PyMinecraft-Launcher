@@ -1,6 +1,6 @@
 from os import startfile, remove
 import customtkinter as ctk
-from src.app_utils.launch_data_manager import LaunchData
+from app_utils.launch_data_manager import LaunchData
 
 
 class ModpackDownloadError(ctk.CTkToplevel):

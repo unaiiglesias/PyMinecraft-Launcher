@@ -2,7 +2,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import customtkinter as ctk
 from queue import Queue
 from portablemc.standard import Environment, Version, Watcher
-from src.custom_toplevels.popup_download import ProgressBarWindow
+from custom_toplevels.popup_download import ProgressBarWindow
 
 """
     Tkinter can only execute windows (CTk) or popups (CTkToplevel) on the main thread. Therefore, if we want to execute

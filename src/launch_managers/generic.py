@@ -1,10 +1,10 @@
 from threading import Thread
-from src.app_utils.launch_data_manager import LaunchData
-from src.launch_managers.launch_with_logger_window import LaunchWithLoggerPopup
-from src.launch_managers.vanilla_launcher import build_vanilla_env
-from src.launch_managers.forge_launcher import build_forge_env
-from src.launch_managers.modpack_launcher import build_modpack_env
-from src.custom_toplevels.success_window import SuccessWindow
+from app_utils.launch_data_manager import LaunchData
+from launch_managers.launch_with_logger_window import LaunchWithLoggerPopup
+from launch_managers.vanilla_launcher import build_vanilla_env
+from launch_managers.forge_launcher import build_forge_env
+from launch_managers.modpack_launcher import build_modpack_env
+from custom_toplevels.success_window import SuccessWindow
 from portablemc.standard import Environment
 
 
