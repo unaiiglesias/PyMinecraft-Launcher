@@ -232,7 +232,7 @@ class App(ctk.CTk):
 
     def toggle_side_menu(self, write=True):
 
-        print("Toggling side menu to " + "show" if not self.cfg["MAIN"]["show_side_menu"] else "hide" )
+        print(f"Toggling side menu to {"show" if not self.cfg["MAIN"]["show_side_menu"] else "hide"}")
 
         # On button press, flip it
         self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
