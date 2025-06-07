@@ -20,11 +20,13 @@ It contains memes and easter eggs (Such as the alternative installation mode "Ca
 PyMinecraft isn't able to install CurseForge or Modrinth modpacks (I'll leave that to more serious project, such as [Prism Launcher](https://github.com/Akascape/CTkScrollableDropdown)).
 Instead, I have developed my own modpack distribution system using git & github (much simpler than the one used by the above mentioned platforms).
 Again, it is not meant to replace said services, but rather a Q&D solution to distribute my own modpacks.
-Modpacks are published [here](https://github.com/CalvonettaModpacks)
+Modpacks are published [here](https://github.com/CalvonettaModpacks).
 
 ## Usage / Instalation
 You can use the app by cloning the repo and executing main.py I use python 3.12, but it should work for 3.9 onward (the same as portablemc)
-I also compile each new release to a standalone installer with [PyInstaller](https://github.com/pyinstaller/pyinstaller) and [Inno Setup](https://jrsoftware.org/isinfo.php) (Windows only!)
+I also compile each new release to a standalone installer with [PyInstaller](https://github.com/pyinstaller/pyinstaller) and [Inno Setup](https://jrsoftware.org/isinfo.php) (Windows only!). 
+You can download the installers [here](https://github.com/unaiiglesias/PyMinecraft-Launcher/releases).
+
 
 ## Dependencies (credits): 
 [portablemc](https://github.com/mindstorm38/portablemc) Actual launcher behind this app
