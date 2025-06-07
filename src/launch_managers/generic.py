@@ -1,4 +1,3 @@
-from multiprocessing import Process
 from threading import Thread
 from src.app_utils.launch_data_manager import LaunchData
 from src.launch_managers.launch_with_logger_window import LaunchWithLoggerPopup
