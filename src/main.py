@@ -166,6 +166,7 @@ class App(ctk.CTk):
                                                                              self.translations["on_launch_logger"]],
                                                     command=self.change_on_launch_behaviour)
         self.on_launch_selector.grid(row=1, padx=20, pady=5)
+        self.on_launch_selector.set(self.translations[f"on_launch_{self.cfg["MAIN"]["on_launch"]}"]) # Set to the cfg value
 
         english_flag_image = ctk.CTkImage(Image.open("assets/english_flag.png"), size=(40, 25))
         self.english_language_selector = ctk.CTkButton(self.side_frame, command=lambda: self.change_language("en"),
@@ -201,6 +202,7 @@ class App(ctk.CTk):
 
         # Now that everything is initialized:
         self.change_appearance_mode(self.cfg["MAIN"]["theme"], write=False)
+        self._correct_language_selector_fg_color()
         if not self.cfg["MAIN"]["show_side_menu"]:
             # The toggle function flips it, so we pre-flip it to get it back to where we want it to
             self.cfg["MAIN"]["show_side_menu"] = not self.cfg["MAIN"]["show_side_menu"]
@@ -419,6 +421,14 @@ class App(ctk.CTk):
         self.input_installation_path.delete(0, ctk.END)  # Delete current path
         self.input_installation_path.insert(0, path)  # add read path
 
+    def _correct_language_selector_fg_color(self):
+        self.english_language_selector.configure(fg_color="transparent")
+        self.spanish_language_selector.configure(fg_color="transparent")
+        if self.cfg["MAIN"]["language"] == "en":
+            self.english_language_selector.configure(fg_color="gray")
+        elif self.cfg["MAIN"]["language"] == "es":
+            self.spanish_language_selector.configure(fg_color="gray")
+
     def change_language(self, choice):
         """
         Updates every button, label, entry's text translation to choice language
@@ -429,13 +439,6 @@ class App(ctk.CTk):
 
         # choice in ("en", "es")
         self.translations.load_translations(choice)
-
-        self.english_language_selector.configure(fg_color="transparent")
-        self.spanish_language_selector.configure(fg_color="transparent")
-        if choice == "en":
-            self.english_language_selector.configure(fg_color="gray")
-        elif choice == "es":
-            self.spanish_language_selector.configure(fg_color="gray")
 
         self.input_username_label.configure(text=self.translations["username_label"])
         self.version_to_launch_label.configure(text=self.translations["versions_label"])
@@ -458,6 +461,9 @@ class App(ctk.CTk):
         self.update_status("idle")  # So that the status bar text updates
         self.cfg["MAIN"]["language"] = choice
         self.cfg.write_ini()
+
+        self._correct_language_selector_fg_color()
+
         return
 
     def _gather_launch_parameters(self):
