@@ -64,9 +64,9 @@ class InstallGitPopup(ctk.CTkToplevel):
 
         # At this point, we should have git_for_calvonetta.exe downloaded
 
-        os.system(download_path + " /SILENT")  # This will automatically install git :D
+        os.system(f"'{download_path}/SILENT'")  # This will automatically install git :D
         # (will trigger UAC prompt, though)
-        os.remove(download_path)  # Remove the executable
+        os.remove(f"'{download_path}'")  # Remove the executable
         # Close the pop-up
         self.choice = True
         self.destroy()
@@ -93,10 +93,10 @@ class InstallGitPopup(ctk.CTkToplevel):
         extract_to = os.getcwd() + "/portable-git"
 
         # At this point, we should have portable_git_for_calvonetta.7z.exe downloaded
-        popup_wait_for_task(self.app, self.app.translations["git_portable_extracting_text"], lambda : os.system(f"{download_path} -o {extract_to} -y"))
+        popup_wait_for_task(self.app, self.app.translations["git_portable_extracting_text"], lambda : os.system(f"'{download_path}' -o '{extract_to}' -y"))
 
         # (will trigger UAC prompt, though)
-        os.remove(download_path)  # Remove the executable
+        os.remove(f"'{download_path}'")  # Remove the executable
         # Close the pop-up
         self.choice = True
         self.destroy()
