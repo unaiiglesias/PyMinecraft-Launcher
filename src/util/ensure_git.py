@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import call, run
 import customtkinter as ctk
 from app_utils.launch_data_manager import LaunchData
 from custom_toplevels.popup_download import download_stuff
@@ -63,10 +63,9 @@ class InstallGitPopup(ctk.CTkToplevel):
         download_path = os.getcwd() + "\\git_for_calvonetta.exe"
 
         # At this point, we should have git_for_calvonetta.exe downloaded
-
         os.system(f"\"{download_path}\" /SILENT")  # This will automatically install git :D
         # (will trigger UAC prompt, though)
-        os.remove(f"\"{download_path}\"")  # Remove the executable
+        os.remove(download_path)  # Remove the executable
         # Close the pop-up
         self.choice = True
         self.destroy()
@@ -93,10 +92,11 @@ class InstallGitPopup(ctk.CTkToplevel):
         extract_to = os.getcwd() + "\\portable-git"
 
         # At this point, we should have portable_git_for_calvonetta.7z.exe downloaded
-        popup_wait_for_task(self.app, self.app.translations["git_portable_extracting_text"], lambda : os.system(f"\"{download_path}\" -o \"{extract_to}\" -y"))
+        installation_command = f"\"{download_path}\" -o \"{extract_to}\" -y"
+        popup_wait_for_task(self.app, self.app.translations["git_portable_extracting_text"], lambda : run(installation_command, shell=True)) # shell true so that it runs it in cmd
 
         # (will trigger UAC prompt, though)
-        os.remove(f"\"{download_path}\"")  # Remove the executable
+        os.remove(download_path)  # Remove the executable
         # Close the pop-up
         self.choice = True
         self.destroy()
