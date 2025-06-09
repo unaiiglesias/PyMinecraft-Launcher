@@ -25,7 +25,7 @@ class Configuration:
             "language": ["es", "en"],
             "show_side_menu": "bool",
             "show_terror": "bool",
-            "version": ["2.0.0"],
+            "version": ["2.1.0"],
             "on_launch" : ["nothing", "success_window", "logger"],
             "cache_date_vanilla" : "datetime", # All dates are stored as str, but loaded as datetime.datetime
             "cache_date_forge": "datetime",
@@ -42,7 +42,7 @@ class Configuration:
             "language": "en",
             "show_side_menu": False,
             "show_terror": 0,
-            "version": "2.0.0",
+            "version": "2.1.0",
             "on_launch" : "logger",
             "cache_date_vanilla": datetime.now() - timedelta(days=1), # Default time is yesterday (so that cache is forced to update)
             "cache_date_forge": datetime.now() - timedelta(days=1),
