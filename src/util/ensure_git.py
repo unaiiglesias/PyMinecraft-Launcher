@@ -63,14 +63,19 @@ class InstallGitPopup(ctk.CTkToplevel):
         download_path = os.getcwd() + "\\git_for_calvonetta.exe"
 
         # At this point, we should have git_for_calvonetta.exe downloaded
-        os.system(f"\"{download_path}\" /SILENT")  # This will automatically install git :D
+        popup_wait_for_task(self.app, self.app.translations["git_regular_installing_text"],
+                            lambda: os.system(f"\"{download_path}\" /SILENT")) # This will automatically install git :D
         # (will trigger UAC prompt, though)
         os.remove(download_path)  # Remove the executable
+
+        # Now the git executable is in the system PATH, but we would have to re-open the launcher to read it.
+        # Instead, we'll manually update the PATH and call it a day. (the next time the launcher runs, we'll just
+        # read the system PATH and everything should work)
+        os.environ["PATH"] += os.pathsep + r"C:\Program Files\Git\cmd"
+
         # Close the pop-up
         self.choice = True
         self.destroy()
-
-        # TODO: Shouldn't we close the launcher completely and re-open it so that it can detect the git installation?
 
     def perform_portable_installation(self):
         # The user has chosen to install the portable version of git
@@ -94,7 +99,6 @@ class InstallGitPopup(ctk.CTkToplevel):
         # At this point, we should have portable_git_for_calvonetta.7z.exe downloaded
         installation_command = f"\"{download_path}\" -o \"{extract_to}\" -y"
         popup_wait_for_task(self.app, self.app.translations["git_portable_extracting_text"], lambda : run(installation_command, shell=True)) # shell true so that it runs it in cmd
-
         # (will trigger UAC prompt, though)
         os.remove(download_path)  # Remove the executable
         # Close the pop-up

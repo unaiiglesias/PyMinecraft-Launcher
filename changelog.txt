@@ -34,7 +34,22 @@ ver: 1.13
 - ahora el modo modpack no toca los mods que contienen "mantener"
 
 ver: 1.14
-- Ahora el modo modpack respetará los mods instalados por el usuario, sin necesidad de hacer el truco de poner mantener en el nombre
+- Improve modpack launch mode code and respect user installed mods without doing the "mantener" in the name trick
 
 ver 2.0.0
-- Refac
+- Major code refactorization: Export functionality to expert classes and modularize it in different files
+- Add version installation watcher window with steps and run the installation in the background
+- Add game launch logger window
+- Show waiting window on every blocking task to prevent launcher getting stuck ("stopped working")
+- GUI visual changes & improvements
+- Improve version selector frame logic
+- Ensure .ini is correct and 
+- various bugfixes
+- Replace terror easter egg with bomb easter egg
+- Pulbic release! :D
+
+ver 2.1.0
+- Fix portable git installation breaking bug
+- Fix regular git installation needing application restart
+- Remove all generated files on uninstall (standalone installer only)
+- other small bugfixes
