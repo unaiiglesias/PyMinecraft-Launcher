@@ -24,7 +24,7 @@ class LaunchWithLoggerPopup(ctk.CTkToplevel):
             title = f"Vanilla {launch_data.version}"
         elif launch_data.version_type == "Forge":
             title = f"Forge {launch_data.version}:{launch_data.subversion}"
-        elif launch_data.version == "Modpack":
+        elif launch_data.version_type == "Modpack":
             title = f"{launch_data.modpack} {launch_data.version}:{launch_data.subversion}"
         self.title(title)
 
