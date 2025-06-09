@@ -1,37 +1,37 @@
 ---------------------------
 -- PyMinecraft Launcher  --
 ---------------------------
-Ver: 1.0
-- Nombre de usuario personalizable
-- Vanilla y Forge integrados (Comprobado hasta 1.20.1)
-- Cantidad de ram personalizable
-- Standalone: Funciona por si mismo (No requiere python, ni java, ni git...)
-- Ruta de instalacion personalizable (AppData por defecto)
+Ver: 1.0.0
+- Customizable username
+- Vanilla y Forge integrated (Working up to 1.20.1)
+- Custom RAM amount
+- Standalone: Compiled version works by itself, has no dependencies (Doesn't require python nor java nor git to be previously installed)
+- Custom installation path (AppData/.minecraft by default)
 - 3 Easter Eggs
-- Cache de versiones de forge y vanilla
-- Tema claro y Tema oscuro
-- Traducido al ingles y al español
+- Vanilla and Forge version cache
+- Dark and light themes
+- English and Spanish translations
 
-ver: 1.01
-- Actualizado portablemc a 4.2.1 para arreglar bug al obtener versiones del maven de Forge
+ver: 1.0.1
+- Update portablemc to 4.2.1 to fix bug when fetching forge versions
 
-ver: 1.1
-- Añadido modo modpack
-- Añadir barra de carga para descargas
-- instalacion normal o discreta
-- bugfixes varios
+ver: 1.1.0
+- Modpack mode
+- Add download progress bar
+- Regular and discreete installation modes (installer only)
+- various bugfixes
 
-ver: 1.11
-- comprobar git al lanzar con modpacks
-- asistente de instalacion de git
-- mejora en las barras de progreso de descarga
+ver: 1.1.1
+- Check git before launching modpack mode
+- git installation assistant
+- Improve download progress bar
 
-ver: 1.12
-- HOTFIX: arreglar cosa git
+ver: 1.1.2
+- HOTFIX: fix git bug
 
-ver: 1.13
-- Arreglar bug traducciones
-- ahora el modo modpack no toca los mods que contienen "mantener"
+ver: 1.1.3
+- Add missing translation
+- Modpack mode now doesn't delete manually added mods if they contain "mantener" in their name
 
 ver: 1.14
 - Improve modpack launch mode code and respect user installed mods without doing the "mantener" in the name trick
