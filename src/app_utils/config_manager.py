@@ -25,7 +25,7 @@ class Configuration:
             "language": ["es", "en"],
             "show_side_menu": "bool",
             "show_terror": "bool",
-            "version": ["2.1.0"],
+            "version": ["2.2.0"],
             "on_launch" : ["nothing", "success_window", "logger"],
             "cache_date_vanilla" : "datetime", # All dates are stored as str, but loaded as datetime.datetime
             "cache_date_forge": "datetime",
