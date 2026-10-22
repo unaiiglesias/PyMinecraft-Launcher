@@ -1,6 +1,7 @@
+import os
 from urllib.error import HTTPError
 import customtkinter as ctk
-from wget import download
+import requests
 
 
 class ProgressBarWindow(ctk.CTkToplevel):
@@ -82,7 +83,7 @@ class ProgressBarWindow(ctk.CTkToplevel):
         self.progress_bar.update()
         self.update()  # So that windows doesn't complain that the window stopped working
 
-    def update_speed_from_wget(self, new_count, total, _width):
+    def update_speed_from_wget(self, new_count, total):
         """
         Simpler version of self.update_from_wget that only updates the speed, but doesn't touch current or total
 
@@ -90,9 +91,8 @@ class ProgressBarWindow(ctk.CTkToplevel):
 
         In this case, since I don't have speed, I will use the speed counter as downloaded size counter
 
-        _width is passed by wget, but I won't use it
-
         ex: when downloading mods for a modpack
+        UPDATE: I no longer use wget, but I'm too lazy to update the docs. The popup works just fine with the new requests download method
         """
         self.download_speed.configure(text=f"{format(new_count/1000000, '.2f')} / {format(total/1000000, '.2f')} Mb")
         self.update()
@@ -100,6 +100,26 @@ class ProgressBarWindow(ctk.CTkToplevel):
     def finish(self):
         self.grab_release()
         self.destroy()
+
+
+def download_file(url, out, update_progress_bar, session):
+    output_file = os.path.join(out)
+
+    with session.get(url, stream=True) as response, open(output_file, 'wb') as f:
+        response.raise_for_status()
+        content_type = response.headers.get('content-type', '').lower()
+        if 'text/html' in content_type:
+            raise ValueError("El servidor devolvió una página HTML (anuncio/redirección) en lugar del archivo JAR.")
+
+        total_size = int(response.headers.get('content-length', 0))
+        update_progress_bar(0, total_size)
+
+        acc = 0
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+                acc += len(chunk)
+                update_progress_bar(acc, total_size)
 
 
 def download_stuff(dest : str, stuff : dict, title: str):
@@ -124,12 +144,19 @@ def download_stuff(dest : str, stuff : dict, title: str):
 
     failed_downloads = []
 
+    session = requests.Session()
+    session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+})
     count = 1
     for file, url in stuff.items():
         progress_bar.update_progress(count, 0)
         # Attempt to download each file
         try:
-            download(url, out=dest + f"/{file}", bar=progress_bar.update_speed_from_wget)
+            download_file(url, out=dest + f"/{file}", update_progress_bar=progress_bar.update_speed_from_wget, session=session)
+        except ValueError:
+            print("ERROR: File download failed (no mod downloaded)! " + file)
+            failed_downloads.append(file)
         except HTTPError:
             print("ERROR: File download failed! " + file)
             failed_downloads.append(file)
@@ -138,3 +165,6 @@ def download_stuff(dest : str, stuff : dict, title: str):
 
     progress_bar.finish()
     return failed_downloads
+
+if __name__ == "__main__":
+    download_stuff("C:\\Users\\unaii\\Desktop\\GZ-R", {"OptiFine_1.12.2_HD_U_F5.jar" : "http://optifine.net/adloadx?f=OptiFine_1.12.2_HD_U_F5.jar&x=c31e"}, "test")

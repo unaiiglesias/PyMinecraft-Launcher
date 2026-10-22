@@ -42,7 +42,7 @@ class Configuration:
             "language": "en",
             "show_side_menu": False,
             "show_terror": 0,
-            "version": "2.1.0",
+            "version": "2.2.0",
             "on_launch" : "logger",
             "cache_date_vanilla": datetime.now() - timedelta(days=1), # Default time is yesterday (so that cache is forced to update)
             "cache_date_forge": datetime.now() - timedelta(days=1),
