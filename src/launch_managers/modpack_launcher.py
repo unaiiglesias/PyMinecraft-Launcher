@@ -47,7 +47,7 @@ def build_modpack_env(launch_data : LaunchData, app):
         5. Remove and install said mods
     """
 
-    from git import Repo, InvalidGitRepositoryError, NoSuchPathError
+    from git import Repo, InvalidGitRepositoryError, NoSuchPathError, GitCommandError
     # path/CalvonettaModpacks/modpackName
     main_dir = launch_data.path + f"/CalvonettaModpacks/{launch_data.modpack}"
     repo_url = f"https://github.com/CalvonettaModpacks/{launch_data.modpack}.git"
@@ -80,8 +80,15 @@ def build_modpack_env(launch_data : LaunchData, app):
         repo = Repo(main_dir)
         origin = repo.remote()
         popup_wait_for_task(app, app.translations["modpack_fetching"], origin.fetch)
-        repo.git.reset("--hard")
-        repo.git.merge("origin/master")
+        repo.git.fetch()
+        repo.git.reset("--hard", "origin/master")
+    except GitCommandError as e:
+        print("ERROR: An unexpected git error happened while pulling modpack repo changes (printing error message")
+        print(e.stderr)
+        app.update_status("error", app.translations["modpack_error_git_error"])
+        print("Aborting modpack launch...")
+        return None
+
     except (InvalidGitRepositoryError, NoSuchPathError):
         # The repo doesn't exist (first launch), clone it
         popup_wait_for_task(app, app.translations["modpack_cloning"], lambda : Repo.clone_from(repo_url, main_dir))
